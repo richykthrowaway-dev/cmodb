@@ -1,0 +1,4368 @@
+{
+  "1": {
+    "damagePoints": 71,
+    "displacementEmpty": 0,
+    "displacementStandard": 220,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EDO 780",
+        "role": "VDS, Active-Only Variable Depth Sonar",
+        "type": "VDS, Active Only Sonar",
+        "generation": "Early 1980s",
+        "rangeMax": 14.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "THD 1040 Neptune",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Galileo OG R7/2",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 129.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 211, ESM]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 521, ECM]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "EDO Acoustic Intercept",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1970s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "Mistral 2",
+            "type": "Guided Weapon",
+            "airRange": 5.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "40mm/70 Single Breda Type 107",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "105mm Howitzer HE",
+            "type": "Gun",
+            "airRange": null,
+            "surfaceRange": 5.6,
+            "landRange": 5.6,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 45]",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RT Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 24]",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RE2 Klub, APR-3E]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "324mm Mk32 TT Twin",
+        "qty": 2,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "40mm/70 Single Breda Type 107",
+        "qty": 1,
+        "capacity": 135,
+        "weapons": [
+          {
+            "name": "MDM-6 Bottom Mine [Pressure Fuze & Target Discrimination]",
+            "type": "Bottom Mine"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU MD871 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 40
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "2": {
+    "damagePoints": 71,
+    "displacementEmpty": 0,
+    "displacementStandard": 220,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EDO 780",
+        "role": "VDS, Active-Only Variable Depth Sonar",
+        "type": "VDS, Active Only Sonar",
+        "generation": "Early 1980s",
+        "rangeMax": 14.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "THD 1040 Neptune",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Galileo OG R7/2",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 129.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 211, ESM]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 521, ECM]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "EDO Acoustic Intercept",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1970s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "40mm/70 Single Breda Type 107",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "105mm Howitzer HE",
+            "type": "Gun",
+            "airRange": null,
+            "surfaceRange": 5.6,
+            "landRange": 5.6,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Gabriel II Triple",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "Mk45 ASTOR Mod 2 [Nuclear, 10kT]",
+            "type": "Torpedo",
+            "airRange": null,
+            "surfaceRange": 11.1,
+            "landRange": null,
+            "subRange": 11.1
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 45]",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RT Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 24]",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RE2 Klub, APR-3E]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "324mm Mk32 TT Twin",
+        "qty": 2,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "40mm/70 Single Breda Type 107",
+        "qty": 1,
+        "capacity": 135,
+        "weapons": [
+          {
+            "name": "MDM-6 Bottom Mine [Pressure Fuze & Target Discrimination]",
+            "type": "Bottom Mine"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU MD871 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 40
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "3": {
+    "damagePoints": 71,
+    "displacementEmpty": 0,
+    "displacementStandard": 220,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "THD 1040 Neptune",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "EL/M-2221 [RTN-10X (Orion 10X)]",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Galileo OG R7/2",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 129.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 211, ESM]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 521, ECM]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "76mm/62 OTO Melara Compact",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "Gabriel II Triple",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "Mk45 ASTOR Mod 2 [Nuclear, 10kT]",
+            "type": "Torpedo",
+            "airRange": null,
+            "surfaceRange": 11.1,
+            "landRange": null,
+            "subRange": 11.1
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 45]",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RT Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 24]",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RE2 Klub, APR-3E]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU MD871 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 40
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "4": {
+    "damagePoints": 120,
+    "displacementEmpty": 0,
+    "displacementStandard": 450,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EL/M-2228(S) 3D AMDR",
+        "role": "Radar, Air & Surface Search, 3D Short-Range",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 101.9,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9003PR",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9005PR MBAT",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1980s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 4,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "Mistral 2",
+            "type": "Guided Weapon",
+            "airRange": 5.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Deseaver Mk1 DL",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-17 Snipe RV [500kT Nuclear, R-31]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 3889.2,
+            "subRange": null
+          },
+          {
+            "name": "SS-N-18 Stingray Mod 1 MIRV [500kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 6482,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm Wizard x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "K/ALQ-88K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "CBU-55/B Fuel Air Explosive [3 x BLU-73/B]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [179mm LRCR x 4]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RU Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "DF-5B MIRV [350kT Nuclear, CSS-4 Mod-3]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 12899.2,
+            "subRange": null
+          },
+          {
+            "name": "K/ALQ-200K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Rocket Assisted",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 400,
+        "weapons": [
+          {
+            "name": "AN/SSQ-62C DICASS",
+            "type": "Sonobuoy"
+          }
+        ]
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      },
+      {
+        "name": "Helicopter Magazine",
+        "qty": 1,
+        "capacity": 10000,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU 16V 956 TB91 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "5": {
+    "damagePoints": 120,
+    "displacementEmpty": 0,
+    "displacementStandard": 420,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EL/M-2258 ALPHA",
+        "role": "Radar, FCR, Surface-to-Air, Medium-Range",
+        "type": "Radar",
+        "generation": "Early 2010s",
+        "rangeMax": 222.2,
+        "rangeMin": 1.1
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9003PR",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9005PR MBAT",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1980s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 6,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "76mm/62 OTO Melara Compact",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "Deseaver Mk1 DL",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-17 Snipe RV [500kT Nuclear, R-31]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 3889.2,
+            "subRange": null
+          },
+          {
+            "name": "SS-N-18 Stingray Mod 1 MIRV [500kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 6482,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm Wizard x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "K/ALQ-88K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Barak 8 VLS [8 Cells]",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "CBU-55/B Fuel Air Explosive [3 x BLU-73/B]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [179mm LRCR x 4]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RU Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "DF-5B MIRV [350kT Nuclear, CSS-4 Mod-3]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 12899.2,
+            "subRange": null
+          },
+          {
+            "name": "K/ALQ-200K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Rocket Assisted",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU 16V 538 TB93 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "6": {
+    "damagePoints": 120,
+    "displacementEmpty": 0,
+    "displacementStandard": 415,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EDO 780",
+        "role": "VDS, Active-Only Variable Depth Sonar",
+        "type": "VDS, Active Only Sonar",
+        "generation": "Early 1980s",
+        "rangeMax": 14.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "EL/M-2228(S) 3D AMDR",
+        "role": "Radar, Air & Surface Search, 3D Short-Range",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 101.9,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9003PR",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9005PR MBAT",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1980s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "EDO Acoustic Intercept",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1970s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 5,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 3,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "324mm Mk32 TT Triple",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SQK-2 LF Jammer",
+            "type": "Decoy (Expendable)",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ATC-1 Towed Torpedo Decoy",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AA-11 Archer [R-73]",
+            "type": "Guided Weapon",
+            "airRange": 18.5,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "CBU-55/B Fuel Air Explosive [3 x BLU-73/B]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 45]",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RT Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 24]",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RE2 Klub, APR-3E]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Rocket Assisted",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 300,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU 16V 956 TB91 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.63,
+        "side": 11.28,
+        "rear": 6.63,
+        "top": 15.03
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.82,
+        "side": 5.01,
+        "rear": 2.82,
+        "top": 5.64
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.63,
+        "side": 11.28,
+        "rear": 6.63,
+        "top": 15.03
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.82,
+        "side": 5.01,
+        "rear": 2.82,
+        "top": 5.64
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 18.4,
+        "side": 21.6,
+        "rear": 18.4,
+        "top": 28.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 18.4,
+        "side": 21.6,
+        "rear": 18.4,
+        "top": 28.1
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "7": {
+    "damagePoints": 120,
+    "displacementEmpty": 0,
+    "displacementStandard": 420,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EL/M-2221-GM STGR",
+        "role": "Radar, Target Indicator, 3D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 2000s",
+        "rangeMax": 111.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "EL/M-2228(S) 3D AMDR",
+        "role": "Radar, Air & Surface Search, 3D Short-Range",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 101.9,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9003PR",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9005PR MBAT",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1980s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 6,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "76mm/62 OTO Melara Compact",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "Deseaver Mk1 DL",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-17 Snipe RV [500kT Nuclear, R-31]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 3889.2,
+            "subRange": null
+          },
+          {
+            "name": "SS-N-18 Stingray Mod 1 MIRV [500kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 6482,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm Wizard x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "K/ALQ-88K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Barak I VLS [8 Cells]",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "CBU-55/B Fuel Air Explosive [3 x BLU-73/B]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [179mm LRCR x 4]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RU Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [115mm x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "DF-5B MIRV [350kT Nuclear, CSS-4 Mod-3]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 12899.2,
+            "subRange": null
+          },
+          {
+            "name": "K/ALQ-200K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Rocket Assisted",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU 16V 538 TB93 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "8": {
+    "damagePoints": 120,
+    "displacementEmpty": 0,
+    "displacementStandard": 450,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "EL/M-2207",
+        "role": "Radar, Air & Surface Search, 2D Medium-Range",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 111.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "EL/M-2221 [RTN-10X (Orion 10X)]",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Galileo OG R7/2",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 129.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 211, ESM]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Newton Alpha [ELT 521, ECM]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Gabriel II Single",
+        "qty": 4,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "76mm/62 OTO Melara Compact",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "CBU-55/B Fuel Air Explosive [3 x BLU-73/B]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 45]",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RT Kalibr, Paket-NK]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      },
+      {
+        "name": "ACDS DL [90mm SRCR x 24]",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "SS-N-27 Sizzler [91RE2 Klub, APR-3E]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 55.6
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Rocket Assisted",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 400,
+        "weapons": [
+          {
+            "name": "AN/SSQ-62C DICASS",
+            "type": "Sonobuoy"
+          }
+        ]
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      },
+      {
+        "name": "Helicopter Magazine",
+        "qty": 1,
+        "capacity": 10000,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x MTU 16V 956 TB91 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.75,
+        "side": 11.48,
+        "rear": 6.75,
+        "top": 15.31
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.87,
+        "side": 5.1,
+        "rear": 2.87,
+        "top": 5.74
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 19,
+        "side": 22.2,
+        "rear": 19,
+        "top": 28.7
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  },
+  "9": {
+    "damagePoints": 250,
+    "displacementEmpty": 0,
+    "displacementStandard": 1075,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "AN/SPS-55",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 64.8,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "EL/M-2258 ALPHA",
+        "role": "Radar, FCR, Surface-to-Air, Medium-Range",
+        "type": "Radar",
+        "generation": "Early 2010s",
+        "rangeMax": 222.2,
+        "rangeMin": 1.1
+      },
+      {
+        "name": "EDO 796",
+        "role": "Hull Sonar, Active/Passive Search & Track",
+        "type": "Hull Sonar, Active/Passive",
+        "generation": "Early 1990s",
+        "rangeMax": 29.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "RAN-1010 MBAT [SEWS]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Early 1990s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "NS-9003A",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "EDO Acoustic Intercept",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1970s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "20mm/70 Oerlikon Mk2",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "Condib 70 [PAPAM]",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "7.62mm MG",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "R.440N Crotale V3S",
+            "type": "Guided Weapon",
+            "airRange": 9.3,
+            "surfaceRange": 9.3,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1 CIWS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "AA-1a Alkali Mod 2 [RS-2US]",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "324mm Mk32 TT Triple",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SQK-2 LF Jammer",
+            "type": "Decoy (Expendable)",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Deseaver Mk2 DL",
+        "qty": 3,
+        "weapons": [
+          {
+            "name": "SS-N-17 Snipe RV [500kT Nuclear, R-31]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 3889.2,
+            "subRange": null
+          },
+          {
+            "name": "SS-N-18 Stingray Mod 1 MIRV [500kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 6482,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Barak 8 VLS [8 Cells]",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "ATC-1 Towed Torpedo Decoy",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AA-11 Archer [R-73]",
+            "type": "Guided Weapon",
+            "airRange": 18.5,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "Mk141",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "ACDS DL [115mm Wizard x 24]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "K/ALQ-88K DECM Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm/70 Oerlikon Mk2",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "155mm/52 M982 Excalibur Ia-1",
+            "type": "Guided Projectile"
+          }
+        ]
+      },
+      {
+        "name": "Mk46 Mod 5 [External Tubes]",
+        "qty": 1,
+        "capacity": 12,
+        "weapons": [
+          {
+            "name": "AIM-120A AMRAAM",
+            "type": "Guided Weapon"
+          }
+        ]
+      },
+      {
+        "name": "7.62mm MG",
+        "qty": 1,
+        "capacity": 400,
+        "weapons": []
+      },
+      {
+        "name": "20mm/85 Mk15 Phalanx Blk 1",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      },
+      {
+        "name": "Helicopter Magazine",
+        "qty": 1,
+        "capacity": 10000,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x MTU 12V 1163 TB82 Diesels, 1x General Electric LM-2500 Gas Turbine, CODOG",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 17
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 32
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 120,
+        "side": 121,
+        "rear": 122,
+        "top": 121
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 90.5,
+        "side": 91,
+        "rear": 92,
+        "top": 91
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 82.5,
+        "side": 83,
+        "rear": 84,
+        "top": 83
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 74,
+        "side": 75,
+        "rear": 76,
+        "top": 75
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 20,
+        "side": 100,
+        "rear": 20,
+        "top": 100
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.45,
+        "side": 12.67,
+        "rear": 7.45,
+        "top": 16.89
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.17,
+        "side": 5.63,
+        "rear": 3.17,
+        "top": 6.33
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.45,
+        "side": 12.67,
+        "rear": 7.45,
+        "top": 16.89
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.17,
+        "side": 5.63,
+        "rear": 3.17,
+        "top": 6.33
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 18.4,
+        "side": 21.8,
+        "rear": 18.4,
+        "top": 28.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 8.4,
+        "side": 11.8,
+        "rear": 8.4,
+        "top": 18.3
+      }
+    ],
+    "codes": [
+      "Nuclear Shock Resistant",
+      "Degaussed Steel Hull"
+    ]
+  },
+  "10": {
+    "damagePoints": 18,
+    "displacementEmpty": 34,
+    "displacementStandard": 38,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Decca 926",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      }
+    ],
+    "mounts": [
+      {
+        "name": "7.62mm MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "R.440N Crotale V3S",
+            "type": "Guided Weapon",
+            "airRange": 9.3,
+            "surfaceRange": 9.3,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "20mm Single",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/ZSW-1 Datalink Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm Single",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Base Bleed",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "7.62mm MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x General Motors 16 V-92TB Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 22
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 29
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 4.8,
+        "side": 8.16,
+        "rear": 4.8,
+        "top": 10.88
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.04,
+        "side": 3.63,
+        "rear": 2.04,
+        "top": 4.08
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.8,
+        "side": 8.16,
+        "rear": 4.8,
+        "top": 10.88
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.04,
+        "side": 3.63,
+        "rear": 2.04,
+        "top": 4.08
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 7.1,
+        "side": 9.9,
+        "rear": 7.1,
+        "top": 16.4
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 7.1,
+        "side": 9.9,
+        "rear": 7.1,
+        "top": 16.4
+      }
+    ],
+    "codes": []
+  },
+  "11": {
+    "damagePoints": 22,
+    "displacementEmpty": 0,
+    "displacementStandard": 1640,
+    "height": 0,
+    "maxDepth": -250,
+    "sensors": [
+      {
+        "name": "Timnex 4CH(V)2",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Late 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "CSU 90 Hull",
+        "role": "Hull Sonar, Active/Passive Search & Track",
+        "type": "Hull Sonar, Active/Passive",
+        "generation": "Early 1990s",
+        "rangeMax": 44.4,
+        "rangeMin": 0
+      },
+      {
+        "name": "CSU 90 Flank",
+        "role": "Hull Sonar, Passive-Only Ranging Flank Array Search & Track",
+        "type": "Hull Sonar, Passive-Only",
+        "generation": "Early 1990s",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "Elta Navigation",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "IPS CSU 90",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1990s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "MAS 90",
+        "role": "Hull Sonar, Active-Only Mine & Obstacle Avoidance",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1990s",
+        "rangeMax": 1.1,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Signal Ejector",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "533mm TT",
+        "qty": 6,
+        "weapons": [
+          {
+            "name": "Sky Bow II",
+            "type": "Guided Weapon",
+            "airRange": 203.7,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "650mm TT",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "Sky Bow II",
+            "type": "Guided Weapon",
+            "airRange": 203.7,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "Torpedo Decoys",
+        "qty": 1,
+        "capacity": 20,
+        "weapons": []
+      },
+      {
+        "name": "Dolphin",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": [
+          {
+            "name": "AIM-120C-4 AMRAAM P3I.2",
+            "type": "Guided Weapon"
+          },
+          {
+            "name": "SS-N-18 Stingray Mod 2 RV [450kT Nuclear]",
+            "type": "RV / MRV/ MIRV"
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 8
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 11
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 8
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 11
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 95,
+        "side": 96,
+        "rear": 97,
+        "top": 96
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 65.5,
+        "side": 66,
+        "rear": 67,
+        "top": 66
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 57.5,
+        "side": 58,
+        "rear": 59,
+        "top": 58
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 49,
+        "side": 50,
+        "rear": 51,
+        "top": 50
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 18,
+        "side": 100,
+        "rear": 18,
+        "top": 100
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 2.25,
+        "side": 3.74,
+        "rear": 2.25,
+        "top": 4.68
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 0.56,
+        "side": 0.94,
+        "rear": 0.56,
+        "top": 1.12
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.25,
+        "side": 3.74,
+        "rear": 2.25,
+        "top": 4.68
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 0.56,
+        "side": 0.94,
+        "rear": 0.56,
+        "top": 1.12
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 29.2,
+        "side": 34,
+        "rear": 29.2,
+        "top": 30.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 29.2,
+        "side": 34,
+        "rear": 29.2,
+        "top": 30.9
+      }
+    ],
+    "codes": [
+      "Nonmagnetic Hull",
+      "Snorkel"
+    ]
+  },
+  "12": {
+    "damagePoints": 25,
+    "displacementEmpty": 0,
+    "displacementStandard": 2050,
+    "height": 0,
+    "maxDepth": -250,
+    "sensors": [
+      {
+        "name": "Timnex 4CH(V)2",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Late 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "CSU 90 Hull",
+        "role": "Hull Sonar, Active/Passive Search & Track",
+        "type": "Hull Sonar, Active/Passive",
+        "generation": "Early 1990s",
+        "rangeMax": 44.4,
+        "rangeMin": 0
+      },
+      {
+        "name": "CSU 90 Flank",
+        "role": "Hull Sonar, Passive-Only Ranging Flank Array Search & Track",
+        "type": "Hull Sonar, Passive-Only",
+        "generation": "Early 1990s",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "Elta Navigation",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "IPS CSU 90",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1990s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "MAS 90",
+        "role": "Hull Sonar, Active-Only Mine & Obstacle Avoidance",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1990s",
+        "rangeMax": 1.1,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Signal Ejector",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "533mm TT",
+        "qty": 6,
+        "weapons": [
+          {
+            "name": "Sky Bow II",
+            "type": "Guided Weapon",
+            "airRange": 203.7,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          },
+          {
+            "name": "Mk77 Mod 1/2/3/4/5/6 500lb Incendiary Bomb",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "650mm TT",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "Sky Bow II",
+            "type": "Guided Weapon",
+            "airRange": 203.7,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "Torpedo Decoys",
+        "qty": 1,
+        "capacity": 20,
+        "weapons": []
+      },
+      {
+        "name": "Dolphin II",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": [
+          {
+            "name": "AIM-120C-4 AMRAAM P3I.2",
+            "type": "Guided Weapon"
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "Electric Motor",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 4
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 8
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 25
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 4
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 8
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 12
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 4
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 8
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 12
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 95,
+        "side": 96,
+        "rear": 97,
+        "top": 96
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 65.5,
+        "side": 66,
+        "rear": 67,
+        "top": 66
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 57.5,
+        "side": 58,
+        "rear": 59,
+        "top": 58
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 49,
+        "side": 50,
+        "rear": 51,
+        "top": 50
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 18,
+        "side": 100,
+        "rear": 18,
+        "top": 100
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 2.37,
+        "side": 3.95,
+        "rear": 2.37,
+        "top": 4.94
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 0.59,
+        "side": 0.99,
+        "rear": 0.59,
+        "top": 1.19
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.37,
+        "side": 3.95,
+        "rear": 2.37,
+        "top": 4.94
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 0.59,
+        "side": 0.99,
+        "rear": 0.59,
+        "top": 1.19
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 31.1,
+        "side": 35.9,
+        "rear": 31.1,
+        "top": 32.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 31.1,
+        "side": 35.9,
+        "rear": 31.1,
+        "top": 32.9
+      }
+    ],
+    "codes": [
+      "Nonmagnetic Hull",
+      "Snorkel"
+    ]
+  },
+  "13": {
+    "damagePoints": 18,
+    "displacementEmpty": 0,
+    "displacementStandard": 40,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Decca 1229",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "20mm Single",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/ZSW-1 Datalink Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm Single",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Base Bleed",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 37
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 4.95,
+        "side": 8.41,
+        "rear": 4.95,
+        "top": 11.22
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.1,
+        "side": 3.74,
+        "rear": 2.1,
+        "top": 4.21
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.95,
+        "side": 8.41,
+        "rear": 4.95,
+        "top": 11.22
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.1,
+        "side": 3.74,
+        "rear": 2.1,
+        "top": 4.21
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 8.2,
+        "side": 11,
+        "rear": 8.2,
+        "top": 17.5
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 8.2,
+        "side": 11,
+        "rear": 8.2,
+        "top": 17.5
+      }
+    ],
+    "codes": []
+  },
+  "14": {
+    "damagePoints": 24,
+    "displacementEmpty": 0,
+    "displacementStandard": 56,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Decca 1229",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "MSIS Turret [IR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "20mm Single",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/ZSW-1 Datalink Pod",
+            "type": "Sensor Pod",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "20mm Single",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "152mm/48 HE Base Bleed",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 42
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 48
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 52
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 5.17,
+        "side": 8.8,
+        "rear": 5.17,
+        "top": 11.73
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.2,
+        "side": 3.91,
+        "rear": 2.2,
+        "top": 4.4
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 5.17,
+        "side": 8.8,
+        "rear": 5.17,
+        "top": 11.73
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.2,
+        "side": 3.91,
+        "rear": 2.2,
+        "top": 4.4
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 7.5,
+        "side": 10.3,
+        "rear": 7.5,
+        "top": 16.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 7.5,
+        "side": 10.3,
+        "rear": 7.5,
+        "top": 16.9
+      }
+    ],
+    "codes": []
+  },
+  "15": {
+    "damagePoints": 23,
+    "displacementEmpty": 0,
+    "displacementStandard": 54,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Decca 1229",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "COMPASS Turret [FLIR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "25mm/75 Typhoon-G / Spike-ER WS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "152mm/48 HE",
+            "type": "Gun",
+            "airRange": null,
+            "surfaceRange": 22.2,
+            "landRange": 22.2,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "25mm/75 Typhoon-G",
+        "qty": 1,
+        "capacity": 100,
+        "weapons": [
+          {
+            "name": "152mm/34 HE",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x MTU 12V 4000 M90 Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 42
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 48
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 52
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 4.98,
+        "side": 8.47,
+        "rear": 4.98,
+        "top": 11.3
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.12,
+        "side": 3.77,
+        "rear": 2.12,
+        "top": 4.24
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.98,
+        "side": 8.47,
+        "rear": 4.98,
+        "top": 11.3
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.12,
+        "side": 3.77,
+        "rear": 2.12,
+        "top": 4.24
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 5.4,
+        "side": 8.2,
+        "rear": 5.4,
+        "top": 14.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 5.4,
+        "side": 8.2,
+        "rear": 5.4,
+        "top": 14.7
+      }
+    ],
+    "codes": []
+  },
+  "16": {
+    "damagePoints": 13,
+    "displacementEmpty": 0,
+    "displacementStandard": 450,
+    "height": 0,
+    "maxDepth": -200,
+    "sensors": [
+      {
+        "name": "PRS 3-15",
+        "role": "Hull Sonar, Passive-Only Ranging Flank Array Search & Track",
+        "type": "Hull Sonar, Passive-Only",
+        "generation": "Early 1980s",
+        "rangeMax": 14.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "Plessy Navigation",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Early 1990s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "IPS CSU 3",
+        "role": "Acoustic Intercept",
+        "type": "Acoustic Intercept (Active Sonar Warning)",
+        "generation": "Early 1970s",
+        "rangeMax": 27.8,
+        "rangeMin": 0
+      },
+      {
+        "name": "Timnex 4CH(V)1",
+        "role": "ELINT w/ OTH Targeting",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "CSU 83",
+        "role": "Hull Sonar, Active/Passive Search & Track",
+        "type": "Hull Sonar, Active/Passive",
+        "generation": "Early 1980s",
+        "rangeMax": 29.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "MAS 83",
+        "role": "Hull Sonar, Active-Only Mine & Obstacle Avoidance",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1980s",
+        "rangeMax": 1.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "EDO 900",
+        "role": "Hull Sonar, Active-Only Mine & Obstacle Avoidance",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1970s",
+        "rangeMax": 0.4,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "533mm TT",
+        "qty": 8,
+        "weapons": [
+          {
+            "name": "SA-6b Gainful [3M9M3]",
+            "type": "Guided Weapon",
+            "airRange": 24.1,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "Gal",
+        "qty": 1,
+        "capacity": 2,
+        "weapons": [
+          {
+            "name": "20mm/85 M61A1 Vulcan Burst [100 rnds]",
+            "type": "Gun"
+          },
+          {
+            "name": "20mm Mk12 x 4 [100 rnds]",
+            "type": "Gun"
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 4
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 6
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 11
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 4
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 6
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 11
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 105,
+        "side": 106,
+        "rear": 107,
+        "top": 106
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 75.5,
+        "side": 76,
+        "rear": 77,
+        "top": 76
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 67.5,
+        "side": 68,
+        "rear": 69,
+        "top": 68
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 59,
+        "side": 60,
+        "rear": 61,
+        "top": 60
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 2.14,
+        "side": 3.56,
+        "rear": 2.14,
+        "top": 4.45
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 0.53,
+        "side": 0.89,
+        "rear": 0.53,
+        "top": 1.07
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.14,
+        "side": 3.56,
+        "rear": 2.14,
+        "top": 4.45
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 0.53,
+        "side": 0.89,
+        "rear": 0.53,
+        "top": 1.07
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 27.4,
+        "side": 32.2,
+        "rear": 27.4,
+        "top": 29.2
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 27.4,
+        "side": 32.2,
+        "rear": 27.4,
+        "top": 29.2
+      }
+    ],
+    "codes": [
+      "Nonmagnetic Hull",
+      "Snorkel"
+    ]
+  },
+  "17": {
+    "damagePoints": 2,
+    "displacementEmpty": 8,
+    "displacementStandard": 9,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Furuno",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 Mini-Typhoon WS",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "12.7mm/50 Mini-Typhoon",
+        "qty": 1,
+        "capacity": 400,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 40
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 3.79,
+        "side": 6.44,
+        "rear": 3.79,
+        "top": 8.59
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.61,
+        "side": 2.86,
+        "rear": 1.61,
+        "top": 3.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 3.79,
+        "side": 6.44,
+        "rear": 3.79,
+        "top": 8.59
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.61,
+        "side": 2.86,
+        "rear": 1.61,
+        "top": 3.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": -1.1,
+        "side": 1.3,
+        "rear": -1.1,
+        "top": 7.8
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": -1.1,
+        "side": 1.3,
+        "rear": -1.1,
+        "top": 7.8
+      }
+    ],
+    "codes": []
+  },
+  "18": {
+    "damagePoints": 22,
+    "displacementEmpty": 0,
+    "displacementStandard": 50,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Decca 1229",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "COMPASS Turret [FLIR/EO/Laser]",
+        "role": "Sensor Turret",
+        "type": "Sensor Group",
+        "generation": "None",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AN/SSQ-75",
+            "type": "Sonobuoy",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "25mm/75 Typhoon-G WS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "152mm/48 HE",
+            "type": "Gun",
+            "airRange": null,
+            "surfaceRange": 22.2,
+            "landRange": 22.2,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "25mm/75 Typhoon-G",
+        "qty": 1,
+        "capacity": 100,
+        "weapons": [
+          {
+            "name": "152mm/34 HE",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "12.7mm/50 MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x MTU 12V 396 TE Diesels, 2x Ka Me Wa Waterjets",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 40
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 43
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 45
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 5.14,
+        "side": 8.73,
+        "rear": 5.14,
+        "top": 11.65
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.18,
+        "side": 3.88,
+        "rear": 2.18,
+        "top": 4.37
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 5.14,
+        "side": 8.73,
+        "rear": 5.14,
+        "top": 11.65
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.18,
+        "side": 3.88,
+        "rear": 2.18,
+        "top": 4.37
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 6.5,
+        "side": 9.3,
+        "rear": 6.5,
+        "top": 15.8
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 6.5,
+        "side": 9.3,
+        "rear": 6.5,
+        "top": 15.8
+      }
+    ],
+    "codes": []
+  }
+}

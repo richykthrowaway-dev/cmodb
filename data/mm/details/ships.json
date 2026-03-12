@@ -1,0 +1,2097 @@
+{
+  "1": {
+    "damagePoints": 110,
+    "displacementEmpty": 0,
+    "displacementStandard": 380,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 352 Square Tie",
+        "role": "Radar, FCR, Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Generic ESM [Simple]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Late 1960s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 341 Rice Lamp",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China Type 756 Fin Curve Mod [Decca 1229 Copy]",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      }
+    ],
+    "mounts": [
+      {
+        "name": "C-801 Twin",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AIM-4D Falcon",
+            "type": "Guided Weapon",
+            "airRange": 7.4,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "14.5mm MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SET-40M [MGT-2]",
+            "type": "Torpedo",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 5.6
+          }
+        ]
+      },
+      {
+        "name": "37mm/63 Type 715I Twin DP",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AIM-26A Falcon",
+            "type": "Guided Weapon",
+            "airRange": 11.1,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "37mm/63 Type 76A Twin DP",
+        "qty": 1,
+        "capacity": 240,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "Alkan 5080 Chaff/Flare Pod",
+            "type": "Sensor Pod"
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "4x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 14
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 28
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.76,
+        "side": 11.5,
+        "rear": 6.76,
+        "top": 15.33
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.87,
+        "side": 5.11,
+        "rear": 2.87,
+        "top": 5.75
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.76,
+        "side": 11.5,
+        "rear": 6.76,
+        "top": 15.33
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.87,
+        "side": 5.11,
+        "rear": 2.87,
+        "top": 5.75
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 19,
+        "side": 22.3,
+        "rear": 19,
+        "top": 28.8
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 19,
+        "side": 22.3,
+        "rear": 19,
+        "top": 28.8
+      }
+    ],
+    "codes": []
+  },
+  "2": {
+    "damagePoints": 66,
+    "displacementEmpty": 0,
+    "displacementStandard": 200,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 756 Fin Curve Mod [Decca 1229 Copy]",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 46.3,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Hood Wink [Kolonka]",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Generic ESM [Average]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "14.5mm MG",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SET-40M [MGT-2]",
+            "type": "Torpedo",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 5.6
+          }
+        ]
+      },
+      {
+        "name": "AK-630 30mm/65 Gatling",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "C-802 Twin",
+        "qty": 2,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "14.5mm MG",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "Alkan 5080 Chaff/Flare Pod",
+            "type": "Sensor Pod"
+          }
+        ]
+      },
+      {
+        "name": "AK-630",
+        "qty": 1,
+        "capacity": 10,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 25
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 30
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.3,
+        "side": 10.71,
+        "rear": 6.3,
+        "top": 14.28
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.68,
+        "side": 4.76,
+        "rear": 2.68,
+        "top": 5.36
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.3,
+        "side": 10.71,
+        "rear": 6.3,
+        "top": 14.28
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.68,
+        "side": 4.76,
+        "rear": 2.68,
+        "top": 5.36
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 12.6,
+        "side": 15.7,
+        "rear": 12.6,
+        "top": 22.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 2.6,
+        "side": 5.7,
+        "rear": 2.6,
+        "top": 12.3
+      }
+    ],
+    "codes": [
+      "Refuel from Port x 1 (In)",
+      "Refuel from Starboard x 1 (In)"
+    ]
+  },
+  "3": {
+    "damagePoints": 71,
+    "displacementEmpty": 0,
+    "displacementStandard": 220,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Generic ESM [Average]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Hood Wink [Kolonka]",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      }
+    ],
+    "mounts": [
+      {
+        "name": "30mm CRN-91",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm/73 Quad",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "25mm/60 2M-3 Twin",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "30mm CRN-91",
+        "qty": 2,
+        "capacity": 100,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm/73 Quad",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "Mk45 ASTOR Mod 1 [Nuclear, 10kT]",
+            "type": "Torpedo"
+          }
+        ]
+      },
+      {
+        "name": "25mm/60 2M-3 Twin",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "3x  Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 14
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 35
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      }
+    ],
+    "codes": []
+  },
+  "4": {
+    "damagePoints": 71,
+    "displacementEmpty": 0,
+    "displacementStandard": 220,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Generic ESM [Average]",
+        "role": "ELINT",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 926,
+        "rangeMin": 0
+      },
+      {
+        "name": "Hood Wink [Kolonka]",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China Type 352 Square Tie",
+        "role": "Radar, FCR, Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Drum Tilt [MR-104 Rys]",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 22.2,
+        "rangeMin": 0.2
+      }
+    ],
+    "mounts": [
+      {
+        "name": "30mm CRN-91",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm/73 Quad",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "25mm/60 2M-3 Twin",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "C-802 Single",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "SA-N-10 Gimlet [9K310 Igla-1] Quad MANPADS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-21b Scarab [9M79F-1, 50 x Dual Purpose]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 120.4,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "30mm CRN-91",
+        "qty": 1,
+        "capacity": 100,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm/73 Quad",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": [
+          {
+            "name": "Mk45 ASTOR Mod 1 [Nuclear, 10kT]",
+            "type": "Torpedo"
+          }
+        ]
+      },
+      {
+        "name": "25mm/60 2M-3 Twin",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "3x  Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 14
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 30
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 35
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.14,
+        "side": 10.44,
+        "rear": 6.14,
+        "top": 13.92
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.61,
+        "side": 4.64,
+        "rear": 2.61,
+        "top": 5.22
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 15.7,
+        "side": 18.8,
+        "rear": 15.7,
+        "top": 25.3
+      }
+    ],
+    "codes": []
+  },
+  "5": {
+    "damagePoints": 270,
+    "displacementEmpty": 0,
+    "displacementStandard": 1200,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 352 Square Tie",
+        "role": "Radar, FCR, Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Decca 1290 Master",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China Type 347",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China SJD-3 [Tamir-11 Copy]",
+        "role": "Hull Sonar, Active-Only Search",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1950s",
+        "rangeMax": 3.7,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "76mm/62 OTO Melara Super Rapido",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "14.5mm/73 Twin",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "FAB-5000M-46 GPB",
+            "type": "Bomb",
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "C-802 Twin",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "SA-N-10 Gimlet [9K310 Igla-1] Quad MANPADS",
+        "qty": 1,
+        "weapons": [
+          {
+            "name": "SS-21b Scarab [9M79F-1, 50 x Dual Purpose]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 120.4,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "40mm/56 Mk1 Twin Bofors",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 2,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "14.5mm/73 Twin",
+        "qty": 1,
+        "capacity": 200,
+        "weapons": []
+      },
+      {
+        "name": "Helicopter Magazine",
+        "qty": 1,
+        "capacity": 10000,
+        "weapons": []
+      },
+      {
+        "name": "40mm/56 Mk1 Twin Bofors",
+        "qty": 1,
+        "capacity": 205,
+        "weapons": [
+          {
+            "name": "115mm HEAT",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 20
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 22
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 120,
+        "side": 121,
+        "rear": 122,
+        "top": 121
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 90.5,
+        "side": 91,
+        "rear": 92,
+        "top": 91
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 82.5,
+        "side": 83,
+        "rear": 84,
+        "top": 83
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 74,
+        "side": 75,
+        "rear": 76,
+        "top": 75
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 20,
+        "side": 100,
+        "rear": 20,
+        "top": 100
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.22,
+        "side": 12.27,
+        "rear": 7.22,
+        "top": 16.36
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.07,
+        "side": 5.45,
+        "rear": 3.07,
+        "top": 6.13
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.22,
+        "side": 12.27,
+        "rear": 7.22,
+        "top": 16.36
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.07,
+        "side": 5.45,
+        "rear": 3.07,
+        "top": 6.13
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 21.3,
+        "side": 24.6,
+        "rear": 21.3,
+        "top": 31.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 21.3,
+        "side": 24.6,
+        "rear": 21.3,
+        "top": 31.1
+      }
+    ],
+    "codes": []
+  },
+  "6": {
+    "damagePoints": 270,
+    "displacementEmpty": 0,
+    "displacementStandard": 1200,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 352 Square Tie",
+        "role": "Radar, FCR, Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Decca 1290 Master",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China Type 825",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 981 [Newton Beta]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Late 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "76mm/62 OTO Melara Super Rapido",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "C-802 Twin",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M 30mm/65 Gatling",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "RGM-109D Tomahawk Blk III TLAM-D",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 926,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "HT-16PGJ [9M313] Sextuplet MANPADS",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "Helicopter Magazine",
+        "qty": 1,
+        "capacity": 10000,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M",
+        "qty": 1,
+        "capacity": 20,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 15
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 20
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 22
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 120,
+        "side": 121,
+        "rear": 122,
+        "top": 121
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 90.5,
+        "side": 91,
+        "rear": 92,
+        "top": 91
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 82.5,
+        "side": 83,
+        "rear": 84,
+        "top": 83
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 74,
+        "side": 75,
+        "rear": 76,
+        "top": 75
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 20,
+        "side": 100,
+        "rear": 20,
+        "top": 100
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.22,
+        "side": 12.27,
+        "rear": 7.22,
+        "top": 16.36
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.07,
+        "side": 5.45,
+        "rear": 3.07,
+        "top": 6.13
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.22,
+        "side": 12.27,
+        "rear": 7.22,
+        "top": 16.36
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.07,
+        "side": 5.45,
+        "rear": 3.07,
+        "top": 6.13
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 18.3,
+        "side": 21.6,
+        "rear": 18.3,
+        "top": 28.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 18.3,
+        "side": 21.6,
+        "rear": 18.3,
+        "top": 28.1
+      }
+    ],
+    "codes": []
+  },
+  "7": {
+    "damagePoints": 480,
+    "displacementEmpty": 0,
+    "displacementStandard": 2500,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Decca 1290 Master",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 981 [Newton Beta]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Late 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "LW.08",
+        "role": "Radar, Air Search, 2D Long-Range",
+        "type": "Radar",
+        "generation": "Early 1980s",
+        "rangeMax": 333.4,
+        "rangeMin": 5.4
+      },
+      {
+        "name": "China Type 825",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      },
+      {
+        "name": "China SJD-3 [Tamir-11 Copy]",
+        "role": "Hull Sonar, Active-Only Search",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1950s",
+        "rangeMax": 3.7,
+        "rangeMin": 0
+      },
+      {
+        "name": "Plank Shave [3Ts-25 Garpun-Bal]",
+        "role": "Radar, FCR, Surface-to-Surface w/ OTH",
+        "type": "Radar",
+        "generation": "Early 1990s",
+        "rangeMax": 140.8,
+        "rangeMin": 0.6
+      }
+    ],
+    "mounts": [
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "76mm/62 OTO Melara Super Rapido",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M 30mm/65 Gatling",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "RGM-109D Tomahawk Blk III TLAM-D",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 926,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "SS-N-25 Switchblade Quad",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "Hatf 2 RV [Conventional]",
+            "type": "RV / MRV/ MIRV",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 277.8,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "China Type 945G DL",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-9 Scarp Mod 3 FOBS [R-36O, 5mT Nuclear]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 10186,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "324mm TT Triple",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "HT-16PGJ [9M313] Sextuplet MANPADS",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "China Type 945G DL",
+        "qty": 1,
+        "capacity": 80,
+        "weapons": [
+          {
+            "name": "152mm/50 HE",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": []
+      },
+      {
+        "name": "Yu-7 [External Tubes]",
+        "qty": 1,
+        "capacity": 12,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M",
+        "qty": 1,
+        "capacity": 40,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x 18E390VA Diesels, CODAD",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 18
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 20
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 29
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 135,
+        "side": 136,
+        "rear": 137,
+        "top": 136
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 105.5,
+        "side": 106,
+        "rear": 107,
+        "top": 106
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 97.5,
+        "side": 98,
+        "rear": 99,
+        "top": 98
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 89,
+        "side": 90,
+        "rear": 91,
+        "top": 90
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 35,
+        "side": 200,
+        "rear": 35,
+        "top": 200
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.99,
+        "side": 13.58,
+        "rear": 7.99,
+        "top": 18.11
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.4,
+        "side": 6.04,
+        "rear": 3.4,
+        "top": 6.79
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.99,
+        "side": 13.58,
+        "rear": 7.99,
+        "top": 18.11
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.4,
+        "side": 6.04,
+        "rear": 3.4,
+        "top": 6.79
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 24.8,
+        "side": 28.3,
+        "rear": 24.8,
+        "top": 34.8
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 24.8,
+        "side": 28.3,
+        "rear": 24.8,
+        "top": 34.8
+      }
+    ],
+    "codes": []
+  },
+  "8": {
+    "damagePoints": 480,
+    "displacementEmpty": 0,
+    "displacementStandard": 2500,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 347G",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Decca 1290 Master",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 981 [Newton Beta]",
+        "role": "OECM & DECM, Offensive & Defensive ECM",
+        "type": "ECM",
+        "generation": "Late 1970s",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 362",
+        "role": "Radar, Target Indicator, 2D Surface-to-Air & Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "LW.08",
+        "role": "Radar, Air Search, 2D Long-Range",
+        "type": "Radar",
+        "generation": "Early 1980s",
+        "rangeMax": 333.4,
+        "rangeMin": 5.4
+      },
+      {
+        "name": "China Type 825",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Early 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      },
+      {
+        "name": "Humsa-NG",
+        "role": "Hull Sonar, Active/Passive Search & Track",
+        "type": "Hull Sonar, Active/Passive",
+        "generation": "Early 2010s",
+        "rangeMax": 14.8,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "76mm/62 OTO Melara Super Rapido",
+        "qty": 1,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M 30mm/65 Gatling",
+        "qty": 3,
+        "weapons": [
+          {
+            "name": "RGM-109D Tomahawk Blk III TLAM-D",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 926,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "C-802 Quad",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-21a Scarab [9M79B, 100kT Nuclear]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 74.1,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "China Type 945G DL",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "SS-9 Scarp Mod 3 FOBS [R-36O, 5mT Nuclear]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 10186,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "324mm TT Triple",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "HT-16PGJ [9M313] Sextuplet MANPADS",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "China Type 945G DL",
+        "qty": 1,
+        "capacity": 80,
+        "weapons": [
+          {
+            "name": "152mm/50 HE",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": []
+      },
+      {
+        "name": "Yu-7 [External Tubes]",
+        "qty": 1,
+        "capacity": 12,
+        "weapons": []
+      },
+      {
+        "name": "AK-630M",
+        "qty": 1,
+        "capacity": 40,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "4x 18E390VA Diesels, CODAD",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 18
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 20
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 29
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 135,
+        "side": 136,
+        "rear": 137,
+        "top": 136
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 105.5,
+        "side": 106,
+        "rear": 107,
+        "top": 106
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 97.5,
+        "side": 98,
+        "rear": 99,
+        "top": 98
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 89,
+        "side": 90,
+        "rear": 91,
+        "top": 90
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 35,
+        "side": 200,
+        "rear": 35,
+        "top": 200
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.94,
+        "side": 13.5,
+        "rear": 7.94,
+        "top": 18.01
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.38,
+        "side": 6,
+        "rear": 3.38,
+        "top": 6.75
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.94,
+        "side": 13.5,
+        "rear": 7.94,
+        "top": 18.01
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.38,
+        "side": 6,
+        "rear": 3.38,
+        "top": 6.75
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 21.6,
+        "side": 25.1,
+        "rear": 21.6,
+        "top": 31.6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 21.6,
+        "side": 25.1,
+        "rear": 21.6,
+        "top": 31.6
+      }
+    ],
+    "codes": []
+  },
+  "9": {
+    "damagePoints": 330,
+    "displacementEmpty": 0,
+    "displacementStandard": 1565,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "China Type 352 Square Tie",
+        "role": "Radar, FCR, Surface-to-Surface",
+        "type": "Radar",
+        "generation": "Early 1960s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 923-1 Jug Pair",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1950s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 343 Wasp Head",
+        "role": "Sensor Group",
+        "type": "Sensor Group",
+        "generation": "Not Applicable (N/A)",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "China Type 726 Fin Curve [Decca 707 Copy]",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Late 1960s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "China Type 354 Eye Shield",
+        "role": "Radar, Air & Surface Search, 3D Medium-Range",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 185.2,
+        "rangeMin": 0.6
+      },
+      {
+        "name": "China Type 341 Rice Lamp",
+        "role": "Radar, FCR, Weapon Director",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "China SJD-5 [Tamir-11 Impr]",
+        "role": "Hull Sonar, Active-Only Search",
+        "type": "Hull Sonar, Active-Only",
+        "generation": "Early 1950s",
+        "rangeMax": 7.4,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "Depth Charge Rack [4 DC]",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "KN-11 Pukguksong-2 MRBM [10kT Nuclear]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 2748.4,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "100mm/56 Single",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AGM-158C LRASM",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": 796.4,
+            "landRange": 796.4,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "37mm/63 Type 715II Twin DP, PL-9",
+        "qty": 4,
+        "weapons": [
+          {
+            "name": "AIM-26A Falcon",
+            "type": "Guided Weapon",
+            "airRange": 11.1,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "C-802 Twin",
+        "qty": 2,
+        "weapons": []
+      },
+      {
+        "name": "37mm/63 Type 715I Twin DP",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "AIM-26A Falcon",
+            "type": "Guided Weapon",
+            "airRange": 11.1,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null
+          }
+        ]
+      },
+      {
+        "name": "China Type 945G DL",
+        "qty": 10,
+        "weapons": [
+          {
+            "name": "SS-9 Scarp Mod 3 FOBS [R-36O, 5mT Nuclear]",
+            "type": "Guided Weapon",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 10186,
+            "subRange": null
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "China Type 945G DL",
+        "qty": 1,
+        "capacity": 80,
+        "weapons": [
+          {
+            "name": "152mm/50 HE",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "37mm/63 Type 76A Twin DP",
+        "qty": 1,
+        "capacity": 720,
+        "weapons": [
+          {
+            "name": "14.5mm/79 Twin Burst [20 rnds]",
+            "type": "Gun"
+          }
+        ]
+      },
+      {
+        "name": "China Type 81 ASW Rockets",
+        "qty": 1,
+        "capacity": 8,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x 12E390VA Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 18
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 24
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 26
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 135,
+        "side": 136,
+        "rear": 137,
+        "top": 136
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 105.5,
+        "side": 106,
+        "rear": 107,
+        "top": 106
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 97.5,
+        "side": 98,
+        "rear": 99,
+        "top": 98
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 89,
+        "side": 90,
+        "rear": 91,
+        "top": 90
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 35,
+        "side": 200,
+        "rear": 35,
+        "top": 200
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 7.88,
+        "side": 13.4,
+        "rear": 7.88,
+        "top": 17.86
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 3.35,
+        "side": 5.95,
+        "rear": 3.35,
+        "top": 6.7
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 7.88,
+        "side": 13.4,
+        "rear": 7.88,
+        "top": 17.86
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 3.35,
+        "side": 5.95,
+        "rear": 3.35,
+        "top": 6.7
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 24.3,
+        "side": 27.8,
+        "rear": 24.3,
+        "top": 34.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 24.3,
+        "side": 27.8,
+        "rear": 24.3,
+        "top": 34.3
+      }
+    ],
+    "codes": [
+      "Degaussed Steel Hull"
+    ]
+  }
+}

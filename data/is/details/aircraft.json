@@ -1,0 +1,415 @@
+{
+  "1": {
+    "climbRate": 5.4,
+    "sensors": [
+      {
+        "name": "EL/M-2022A(V)3",
+        "role": "Radar, Surface Search, Long-Range",
+        "type": "Radar",
+        "generation": "Early 2000s",
+        "rangeMax": 370.4,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "MX-15 [FLIR/CCD/Laser Rangefinder]",
+        "role": "Sensor Group",
+        "type": "Sensor Group",
+        "generation": "Not Applicable (N/A)",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "Generic Infrared Line Scanner (IRLS)",
+        "role": "IRLS, Non-Imaging Infrared Line Scanner",
+        "type": "Infrared",
+        "generation": "Infrared, Non-Imaging",
+        "rangeMax": 9.3,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Maritime Patrol",
+        "weapons": []
+      },
+      {
+        "name": "Search And Rescue (SAR)",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x PW123B",
+      "engines": 2,
+      "thrustMil": 2619,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 12.46
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 200,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 15.58
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 220,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 33.82
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 9.72
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 220,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 12.15
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 240,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 26.37
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 7315.2,
+          "altMax": 7620,
+          "consumption": 7.2
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 285,
+          "altMin": 7315.2,
+          "altMax": 7620,
+          "consumption": 9
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 295,
+          "altMin": 7315.2,
+          "altMax": 7620,
+          "consumption": 19.52
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 5.03,
+        "side": 8.99,
+        "rear": 5.03,
+        "top": 13.73
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.54,
+        "side": 4.77,
+        "rear": 4.61,
+        "top": 6.78
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 5.03,
+        "side": 10.22,
+        "rear": 16.06,
+        "top": 13.55
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.54,
+        "side": 4.77,
+        "rear": 2.54,
+        "top": 6.78
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 13,
+        "side": 15,
+        "rear": 13,
+        "top": 15.4
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 13,
+        "side": 15,
+        "rear": 13,
+        "top": 15
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "2": {
+    "climbRate": 5.4,
+    "sensors": [
+      {
+        "name": "Generic Weather Radar",
+        "role": "Radar, Weather",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 64.8,
+        "rangeMin": 0.4
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Maritime Surveillance",
+        "weapons": []
+      },
+      {
+        "name": "Search And Rescue (SAR)",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Dart RDa.7 Mk.532-7L",
+      "engines": 2,
+      "thrustMil": 2100,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 170,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11.43
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 220,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 14.29
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 310,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 37.11
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 170,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 9.26
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 240,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 11.58
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 330,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 30.06
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 4.98,
+        "side": 8.72,
+        "rear": 4.98,
+        "top": 13.6
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.52,
+        "side": 4.65,
+        "rear": 4.56,
+        "top": 6.73
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.98,
+        "side": 10.01,
+        "rear": 16.01,
+        "top": 13.47
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.52,
+        "side": 4.65,
+        "rear": 2.52,
+        "top": 6.73
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 12.8,
+        "side": 14.9,
+        "rear": 12.8,
+        "top": 15.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 12.8,
+        "side": 14.9,
+        "rear": 12.8,
+        "top": 14.9
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "3": {
+    "climbRate": 6.3,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Cargo, 3 tons",
+        "weapons": []
+      },
+      {
+        "name": "Maritime Surveillance",
+        "weapons": []
+      },
+      {
+        "name": "Search And Rescue (SAR)",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Makila 1A1",
+      "engines": 2,
+      "thrustMil": 1877,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 5.06
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 140,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 6.33
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 150,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 12.18
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 3962.4,
+          "consumption": 5.06
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 140,
+          "altMin": 3657.6,
+          "altMax": 3962.4,
+          "consumption": 6.33
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 150,
+          "altMin": 3657.6,
+          "altMax": 3962.4,
+          "consumption": 12.18
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 1.98,
+        "side": 5.8,
+        "rear": 1.98,
+        "top": 5.42
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.17,
+        "side": 3.31,
+        "rear": 1.82,
+        "top": 3.13
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 1.98,
+        "side": 7.63,
+        "rear": 11.19,
+        "top": 7.29
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.17,
+        "side": 3.31,
+        "rear": 1.17,
+        "top": 3.13
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 1.7,
+        "side": 4.2,
+        "rear": 1.7,
+        "top": 4.6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 1.7,
+        "side": 4.2,
+        "rear": 1.7,
+        "top": 4.2
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

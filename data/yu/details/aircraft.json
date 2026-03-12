@@ -1,0 +1,2424 @@
+{
+  "1": {
+    "climbRate": 17.7,
+    "sensors": [
+      {
+        "name": "Iskra SO-1",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "FAB-1500M-46 GPB",
+            "type": "Bomb",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null,
+            "weight": 1347,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "BL.755 CB, Lo-Lo-Lo, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": []
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "FAB-250M-54 GPB, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag, Long-Range",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x Viper Mk.632-46",
+      "engines": 1,
+      "thrustMil": 1802,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 325,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 14.86
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 400,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 18.58
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 470,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 27.09
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 325,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 12.8
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 400,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 16
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 490,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 23.33
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 325,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 9.58
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 400,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 11.98
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 470,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 17.46
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 325,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 6.92
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 400,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 8.66
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 440,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 12.62
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.29,
+        "side": 4.82,
+        "rear": 2.29,
+        "top": 6.26
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.32,
+        "side": 2.84,
+        "rear": 2.1,
+        "top": 3.53
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.29,
+        "side": 6.74,
+        "rear": 11.84,
+        "top": 8.03
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.32,
+        "side": 2.84,
+        "rear": 1.32,
+        "top": 3.53
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 6.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 5.9
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Basic"
+    ]
+  },
+  "2": {
+    "climbRate": 12.7,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "SEALIR Flare [SEACLAD]",
+            "type": "Decoy (Expendable)",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": null,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": []
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Viper Mk.531",
+      "engines": 2,
+      "thrustMil": 1361,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 18.64
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 380,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 23.3
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 440,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 40.93
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 15.88
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 380,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 19.85
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 460,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 34.86
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 11.8
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 380,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 14.75
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 440,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 25.9
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 10972.8,
+          "altMax": 11582.4,
+          "consumption": 8.44
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 380,
+          "altMin": 10972.8,
+          "altMax": 11582.4,
+          "consumption": 10.56
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 410,
+          "altMin": 10972.8,
+          "altMax": 11582.4,
+          "consumption": 18.54
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.23,
+        "side": 4.27,
+        "rear": 2.23,
+        "top": 6.08
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.29,
+        "side": 2.56,
+        "rear": 2.04,
+        "top": 3.44
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.23,
+        "side": 6.22,
+        "rear": 11.71,
+        "top": 7.88
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.29,
+        "side": 2.56,
+        "rear": 1.29,
+        "top": 3.44
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.1,
+        "side": 5.5,
+        "rear": 3.1,
+        "top": 6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.1,
+        "side": 5.5,
+        "rear": 3.1,
+        "top": 5.5
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "3": {
+    "climbRate": 31.7,
+    "sensors": [
+      {
+        "name": "Generic Visual Reconnaissance Camera",
+        "role": "Visual, Reconnaissance Frame Camera",
+        "type": "Visual",
+        "generation": "Visual",
+        "rangeMax": 9.3,
+        "rangeMin": 0
+      },
+      {
+        "name": "Iskra SO-1",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Recon [Internal EO]",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Viper Mk.632-41",
+      "engines": 2,
+      "thrustMil": 1816,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 29.65
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 37.07
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 500,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 54.62
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 25.8
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 32.26
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 520,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 47.52
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 19.45
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 24.32
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 500,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 35.82
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 14.2
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 17.76
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 470,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 26.15
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.32,
+        "side": 5.11,
+        "rear": 2.32,
+        "top": 6.34
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.33,
+        "side": 2.98,
+        "rear": 2.13,
+        "top": 3.56
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.32,
+        "side": 7.01,
+        "rear": 11.89,
+        "top": 8.1
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.33,
+        "side": 2.98,
+        "rear": 1.33,
+        "top": 3.56
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.6,
+        "side": 6,
+        "rear": 3.6,
+        "top": 6.4
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.6,
+        "side": 6,
+        "rear": 3.6,
+        "top": 6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "4": {
+    "climbRate": 39.5,
+    "sensors": [
+      {
+        "name": "Iskra SO-1",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "GBU-12B/B Paveway II LGB [Mk82]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 275,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": []
+      },
+      {
+        "name": "AS-7 Kerry [Kh-23]",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag, Long-Range",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Viper Mk.633-47",
+      "engines": 2,
+      "thrustMil": 1816,
+      "thrustAB": 2270,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 29.39
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 36.74
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 510,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 54.62
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 600,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 72.72
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 25.48
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 31.86
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 510,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 47.36
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 590,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 66.07
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 19.28
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 24.1
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 500,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 35.82
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 570,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 51.19
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 14.2
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 17.76
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 26.39
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 540,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 38.7
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.32,
+        "side": 5.11,
+        "rear": 2.32,
+        "top": 6.34
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.33,
+        "side": 2.98,
+        "rear": 2.13,
+        "top": 3.56
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.32,
+        "side": 7.01,
+        "rear": 11.89,
+        "top": 8.1
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.33,
+        "side": 2.98,
+        "rear": 1.33,
+        "top": 3.56
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.6,
+        "side": 6,
+        "rear": 3.6,
+        "top": 6.4
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.6,
+        "side": 6,
+        "rear": 3.6,
+        "top": 6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "5": {
+    "climbRate": 5.2,
+    "sensors": [
+      {
+        "name": "Elk Tail [Oka-2]",
+        "role": "Dipping Sonar, Active/Passive Search & Track",
+        "type": "Dipping Sonar, Active/Passive",
+        "generation": "Early 1960s",
+        "rangeMax": 5.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "Mushroom [RPB-2M Initsiativa]",
+        "role": "Radar, FCR, Air-to-Surface, Long-Range",
+        "type": "Radar",
+        "generation": "Late 1970s",
+        "rangeMax": 333.4,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "Tie Rod",
+        "role": "Visual, Surveillance TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 55.6,
+        "rangeMin": 0
+      },
+      {
+        "name": "MAD [APM-60]",
+        "role": "MAD",
+        "type": "MAD",
+        "generation": "Early 1960s",
+        "rangeMax": 1.9,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "AT-1M",
+        "weapons": [
+          {
+            "name": "AIM-9H Sidewinder",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 18.5,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 84,
+            "internal": true
+          }
+        ]
+      },
+      {
+        "name": "PLAB-250",
+        "weapons": []
+      },
+      {
+        "name": "PLAB-250, Long Endurance",
+        "weapons": []
+      },
+      {
+        "name": "Maritime Surveillance",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x TV3-117M",
+      "engines": 2,
+      "thrustMil": 1900,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 5.9
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 100,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 7.38
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 115,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 14.82
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 5.9
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 100,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 7.38
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 115,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 14.82
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.35,
+        "side": 7.04,
+        "rear": 2.35,
+        "top": 6.41
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.35,
+        "side": 3.89,
+        "rear": 2.15,
+        "top": 3.6
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.35,
+        "side": 8.69,
+        "rear": 11.95,
+        "top": 8.16
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.35,
+        "side": 3.89,
+        "rear": 1.35,
+        "top": 3.6
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.8,
+        "side": 6.2,
+        "rear": 3.8,
+        "top": 6.6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.8,
+        "side": 6.2,
+        "rear": 3.8,
+        "top": 6.2
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "6": {
+    "climbRate": 3,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Troops, 12x, S-5K 57mm Rockets",
+        "weapons": [
+          {
+            "name": "SS-1c Scud B [8K14-8F44, Conventional]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 296.3,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "Troops, 24x",
+        "weapons": [
+          {
+            "name": "R.530",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 29.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 195,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "Cargo, 3 tons, Slung Load",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 4 tons",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x TV2-117A",
+      "engines": 2,
+      "thrustMil": 1670,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 17.73
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 11
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 17.73
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.45,
+        "side": 6.69,
+        "rear": 2.45,
+        "top": 6.69
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 2.25,
+        "top": 3.73
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.45,
+        "side": 8.39,
+        "rear": 12.15,
+        "top": 8.39
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 1.39,
+        "top": 3.73
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 7.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 6.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "7": {
+    "climbRate": 64.3,
+    "sensors": [
+      {
+        "name": "Jay Bird [RP-22M Sapfir-22]",
+        "role": "Radar, FCR, Air-to-Air, Short-Range",
+        "type": "Radar",
+        "generation": "Late 1960s",
+        "rangeMax": 29.6,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "SPO-10 Sirena-3M",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "A/A: AA-2c Advanced Atoll [R-13M]",
+        "weapons": [
+          {
+            "name": "2200 liter Drop Tank",
+            "type": "Drop Tank",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "A/A: AA-8 Aphid [R-60T], Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "AIM-92G Stinger ATAS RPM",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 5.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 15,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": []
+      },
+      {
+        "name": "RBK-250 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-10J/B Paveway II LGB [BLU-109/B]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 966,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "FAB-500M-54 GPB",
+        "weapons": [
+          {
+            "name": "Mk56",
+            "type": "Moored Mine",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 968,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "RBK-500 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-10E/B Paveway II LGB [Mk84]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 966,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": []
+      },
+      {
+        "name": "S-24B 240mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "A/A: AA-8 Aphid [R-60T], AA-2c Advanced Atoll [R-13M]",
+        "weapons": [
+          {
+            "name": "152mm/53 Twin Bofors HE Burst [2 rnds]",
+            "type": "Gun",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 22.2,
+            "landRange": 22.2,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "S-5K 57mm Rockets, Long-Range",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x R-25-300",
+      "engines": 1,
+      "thrustMil": 4100,
+      "thrustAB": 7100,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 34.89
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 43.62
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 580,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 61.08
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 650,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 143.91
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 30.89
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 38.62
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 570,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 54.07
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 700,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 131.57
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 23.56
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 29.45
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 550,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 41.23
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 800,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 108.46
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 17.48
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 21.86
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 520,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 30.6
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 925,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 102.83
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.21,
+        "side": 5.24,
+        "rear": 2.21,
+        "top": 6.03
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.28,
+        "side": 3.04,
+        "rear": 2.02,
+        "top": 3.42
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.21,
+        "side": 7.13,
+        "rear": 11.67,
+        "top": 7.83
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.28,
+        "side": 3.04,
+        "rear": 1.28,
+        "top": 3.42
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3,
+        "side": 5.4,
+        "rear": 3,
+        "top": 5.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3,
+        "side": 5.4,
+        "rear": 3,
+        "top": 5.4
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "8": {
+    "climbRate": 60.9,
+    "sensors": [
+      {
+        "name": "Jay Bird [RP-22M Sapfir-22]",
+        "role": "Radar, FCR, Air-to-Air, Short-Range",
+        "type": "Radar",
+        "generation": "Late 1960s",
+        "rangeMax": 29.6,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "SPO-10 Sirena-3M",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Early 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "A/A: AA-2a Atoll [R-3S]",
+        "weapons": [
+          {
+            "name": "RB 57 MBT LAW",
+            "type": "Rocket",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 1.1,
+            "landRange": 1.1,
+            "subRange": null,
+            "weight": 12,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "AIM-92G Stinger ATAS RPM",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 5.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 15,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "RBK-250 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-10J/B Paveway II LGB [BLU-109/B]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 966,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": []
+      },
+      {
+        "name": "RBK-500 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-10E/B Paveway II LGB [Mk84]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 966,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-500M-54 GPB",
+        "weapons": [
+          {
+            "name": "Mk56",
+            "type": "Moored Mine",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 968,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": []
+      },
+      {
+        "name": "S-24B 240mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "FAB-250M-54 GPB, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "OFAB-250-270 Frag, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "S-5K 57mm Rockets, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "A/A: AA-2a Atoll [R-3S], AA-1a Alkali Mod 2 [RS-2US]",
+        "weapons": [
+          {
+            "name": "5.56mm MG Burst [20 rnds]",
+            "type": "Gun",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 0.4,
+            "landRange": 0.4,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "1x R-13F-300",
+      "engines": 1,
+      "thrustMil": 4070,
+      "thrustAB": 6495,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 33.88
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 42.36
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 580,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 59.94
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 650,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 132.17
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 30
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 37.5
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 570,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 53.06
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 700,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 120.86
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 22.88
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 28.6
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 550,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 40.46
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 800,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 99.8
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 16.98
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 21.23
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 520,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 30.03
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 925,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 95.87
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.21,
+        "side": 5.24,
+        "rear": 2.21,
+        "top": 6.03
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.28,
+        "side": 3.04,
+        "rear": 2.02,
+        "top": 3.42
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.21,
+        "side": 7.13,
+        "rear": 11.67,
+        "top": 7.83
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.28,
+        "side": 3.04,
+        "rear": 1.28,
+        "top": 3.42
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3,
+        "side": 5.4,
+        "rear": 3,
+        "top": 5.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3,
+        "side": 5.4,
+        "rear": 3,
+        "top": 5.4
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "9": {
+    "climbRate": 110,
+    "sensors": [
+      {
+        "name": "OLS-K [IRST]",
+        "role": "IRST, Imaging Infrared Seach and Track",
+        "type": "Infrared",
+        "generation": "Infrared, 2nd Generation Imaging (1980s/1990s, LANTIRN, Litening)\r\n)",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      },
+      {
+        "name": "SPO-15 Beryoza [L-006]",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1970s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      },
+      {
+        "name": "Slot Back [N-019EB Rubin]",
+        "role": "Radar, FCR, Air-to-Air, Short-Range",
+        "type": "Radar",
+        "generation": "Early 1980s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "OLS-K [Laser Rangefinder]",
+        "role": "Laser Rangefinder for Weapon Director",
+        "type": "Laser Rangefinder",
+        "generation": "Not Applicable (N/A)",
+        "rangeMax": 0,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "A/A: AA-11 Archer [R-73]",
+        "weapons": [
+          {
+            "name": "600 USG Drop Tank",
+            "type": "Drop Tank",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "A/A: AA-10 Alamo A [R-27R]",
+        "weapons": [
+          {
+            "name": "S-25O 266mm Rocket",
+            "type": "Rocket",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 3.7,
+            "landRange": 3.7,
+            "subRange": null,
+            "weight": 380,
+            "internal": false
+          },
+          {
+            "name": "RBK-250-ZAB [48 x ZAB-2.5M Incendiary]",
+            "type": "Bomb",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 1.9,
+            "landRange": 1.9,
+            "subRange": null,
+            "weight": 194,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-100-120 Frag",
+        "weapons": [
+          {
+            "name": "GBU-12B/B Paveway II LGB [Mk82]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 275,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB",
+        "weapons": [
+          {
+            "name": "800 liter Drop Tank",
+            "type": "Drop Tank",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-500M-54 GPB",
+        "weapons": [
+          {
+            "name": "Mk36 Destructor [Mk82]",
+            "type": "Bottom Mine",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "RBK-250 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-16B/B Paveway II LGB [Mk83]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 495,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "RBK-500 Cluster Bombs",
+        "weapons": [
+          {
+            "name": "GBU-10E/B Paveway II LGB [Mk84]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 7.4,
+            "landRange": 7.4,
+            "subRange": null,
+            "weight": 966,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "S-5K 57mm Rockets",
+        "weapons": [
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "S-8KO 80mm Rockets",
+        "weapons": [
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-250-270 Frag",
+        "weapons": [
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-250M-54 GPB, Long-Range",
+        "weapons": [
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "FAB-500M-54 GPB, Long-Range",
+        "weapons": [
+          {
+            "name": "Mk56",
+            "type": "Moored Mine",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 968,
+            "internal": false
+          },
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "OFAB-250-270 Frag, Long-Range",
+        "weapons": [
+          {
+            "name": "RB 15KA Mk1",
+            "type": "Guided Weapon",
+            "qty": 2,
+            "airRange": null,
+            "surfaceRange": 83.3,
+            "landRange": null,
+            "subRange": null,
+            "weight": 600,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "2x RD-33",
+      "engines": 2,
+      "thrustMil": 5041,
+      "thrustAB": 8302,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 36.16
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 45.21
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 580,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 77.49
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 650,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 270.11
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 32.01
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 40.02
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 570,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 68.6
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 700,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 247.17
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 24.41
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 30.52
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 550,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 52.31
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 800,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 204.31
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 18.12
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 22.66
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 520,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 38.82
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 925,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 196.13
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.89,
+        "side": 6.22,
+        "rear": 2.89,
+        "top": 7.89
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.6,
+        "side": 3.51,
+        "rear": 2.65,
+        "top": 4.28
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.89,
+        "side": 7.99,
+        "rear": 12.95,
+        "top": 9.37
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.6,
+        "side": 3.51,
+        "rear": 1.6,
+        "top": 4.28
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 6.3,
+        "side": 8.6,
+        "rear": 6.3,
+        "top": 9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 6.3,
+        "side": 8.6,
+        "rear": 6.3,
+        "top": 8.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing",
+      "Helmet Mounted Sight / Display (HMS/HMD)"
+    ]
+  },
+  "10": {
+    "climbRate": 5.6,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Troops, 4x",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 0.5 ton",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x Astazou IIIB",
+      "engines": 1,
+      "thrustMil": 590,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 1.47
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 125,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 1.84
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 140,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 3.22
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 1.47
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 125,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 1.84
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 140,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 3.22
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 1.27,
+        "side": 3.79,
+        "rear": 1.27,
+        "top": 3.46
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 0.81,
+        "side": 2.32,
+        "rear": 1.16,
+        "top": 2.15
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 1.27,
+        "side": 5.74,
+        "rear": 9.4,
+        "top": 5.41
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 0.81,
+        "side": 2.32,
+        "rear": 0.81,
+        "top": 2.15
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": -3.7,
+        "side": -1,
+        "rear": -3.7,
+        "top": -0.6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": -3.7,
+        "side": -1,
+        "rear": -3.7,
+        "top": -1
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

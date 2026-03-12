@@ -1,0 +1,148 @@
+{
+  "1": {
+    "climbRate": 2.8,
+    "sensors": [
+      {
+        "name": "MX-15Di [FLIR/CCD/Daylight/Laser Designator]",
+        "role": "Sensor Group",
+        "type": "Sensor Group",
+        "generation": "Not Applicable (N/A)",
+        "rangeMax": 0,
+        "rangeMin": 0
+      },
+      {
+        "name": "AN/AAR-47(V)",
+        "role": "MAWS, Missile Approach Warning System",
+        "type": "Infrared",
+        "generation": "Late 1990s",
+        "rangeMax": 9.3,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "AGM-114K Hellfire II",
+        "weapons": [
+          {
+            "name": "CA/SSQ-517 Passive Non-Directional",
+            "type": "Sonobuoy",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 10,
+            "internal": true
+          }
+        ]
+      },
+      {
+        "name": "Area Surveillance",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x PT6A-114A",
+      "engines": 2,
+      "thrustMil": 675,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 120,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 3.12
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 180,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 3.9
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 220,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 6.69
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 120,
+          "altMin": 3657.6,
+          "altMax": 6858,
+          "consumption": 2.41
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 180,
+          "altMin": 3657.6,
+          "altMax": 6858,
+          "consumption": 3.02
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 220,
+          "altMin": 3657.6,
+          "altMax": 6858,
+          "consumption": 5.17
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.88,
+        "side": 4.92,
+        "rear": 2.88,
+        "top": 7.85
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.59,
+        "side": 2.89,
+        "rear": 2.63,
+        "top": 4.26
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.88,
+        "side": 6.84,
+        "rear": 12.93,
+        "top": 9.34
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.59,
+        "side": 2.89,
+        "rear": 1.59,
+        "top": 4.26
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 6.2,
+        "side": 8.5,
+        "rear": 6.2,
+        "top": 8.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 6.2,
+        "side": 8.5,
+        "rear": 6.2,
+        "top": 8.5
+      }
+    ],
+    "codes": [
+      "Night Navigation/Attack (Incl. Bomb, Rocket Delivery)"
+    ]
+  }
+}

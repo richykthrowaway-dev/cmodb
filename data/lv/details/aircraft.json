@@ -1,0 +1,135 @@
+{
+  "1": {
+    "climbRate": 3,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Cargo, 4 tons",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 4 tons, Slung Load",
+        "weapons": []
+      },
+      {
+        "name": "Troops, 24x",
+        "weapons": [
+          {
+            "name": "R.530",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 29.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 195,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "2x TV2-117A",
+      "engines": 2,
+      "thrustMil": 1670,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 17.73
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 11
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 17.73
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.45,
+        "side": 6.69,
+        "rear": 2.45,
+        "top": 6.69
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 2.25,
+        "top": 3.73
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.45,
+        "side": 8.39,
+        "rear": 12.15,
+        "top": 8.39
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 1.39,
+        "top": 3.73
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 7.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 6.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

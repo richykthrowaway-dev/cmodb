@@ -1,0 +1,2087 @@
+/* ============================================
+   CMO DB — Application Logic
+   Lazy-loaded JSON data with in-memory cache
+   ============================================ */
+
+const App = (() => {
+  // ── State ──────────────────────────────
+  const state = {
+    country: 'us',     // active country: 'us' | 'cn' | etc.
+    currentCategory: 'aircraft',
+    data: {},          // cache: { aircraft: [...], ships: [...], ... }
+    details: {},       // cache: { aircraft: { "1": {...}, ... }, ... }
+    compareList: [],   // [{ category, id, name }]
+    viewMode: 'grid',  // 'grid' | 'list'
+    filters: { type: '', operator: '', search: '' },
+    sort: 'name-asc',
+    imageMap: null,        // loaded from data/{country}/images.json
+    imageCache: new Map(), // wiki title -> thumbnail URL (shared across countries)
+    imageObserver: null,
+    imgQueue: [],          // queued image load tasks
+    imgActive: 0,          // currently loading image count
+    analytics: { category: 'aircraft' },  // Analytics tab state
+    chartCache: new Map(),                 // item ID -> rendered chart DOM nodes
+  };
+
+  // Category placeholder SVGs (reused from nav icons)
+  const catIcons = {
+    aircraft: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
+    ships: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.38 0 2.74-.35 4-.99 2.52 1.29 5.48 1.29 8 0 1.26.65 2.62.99 4 .99h2v-2h-2zM3.95 19H4c1.6 0 3.02-.88 4-2 .98 1.12 2.4 2 4 2s3.02-.88 4-2c.98 1.12 2.4 2 4 2h.05l1.89-6.68c.08-.26.06-.54-.06-.78s-.34-.42-.6-.5L20 10.62V6c0-1.1-.9-2-2-2h-3V1H9v3H6c-1.1 0-2 .9-2 2v4.62l-1.29.42c-.26.08-.48.26-.6.5s-.14.52-.05.78L3.95 19zM6 6h12v3.97L12 8 6 9.97V6z"/></svg>',
+    weapons: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M7 5h10v2h2V3c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v4h2V5zm8.41 11.59L20 12l-4.59-4.59L14 8.83 17.17 12 14 15.17l1.41 1.42zM10 15.17L6.83 12 10 8.83 8.59 7.41 4 12l4.59 4.59L10 15.17zM17 19H7v-2H5v4c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-4h-2v2z"/></svg>',
+    sensors: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>',
+    infantry: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M12 2C13.1 2 14 2.9 14 4S13.1 6 12 6 10 5.1 10 4 10.9 2 12 2zM21 9h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/></svg>',
+    armor: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M18 3H6C3.79 3 2 4.79 2 7v4c0 2.21 1.79 4 4 4h1l-1.5 3h2l1.5-3h6l1.5 3h2L16 15h2c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4zm-1 9H7c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1h10c.55 0 1 .45 1 1v3c0 .55-.45 1-1 1zM4 19h16v2H4v-2z"/></svg>',
+    artillery: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M7 19h10v2H7v-2zm14.4-8.2L17 4h-2l-1 3H10L9 4H7L2.6 10.8 4 12l3-2v5h10v-5l3 2 1.4-1.2zM12 2c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/></svg>',
+    airdefense: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2zm0 4.8L16.14 18H12v-3h-.01L7.86 18 12 6.8z"/></svg>',
+    radar: '<svg viewBox="0 0 24 24" width="48" height="48" opacity="0.3"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z"/></svg>',
+  };
+
+  // Category display config — file paths are now built dynamically per country
+  const categories = {
+    aircraft: { title: 'Aircraft', yearField: 'commissioned' },
+    ships:    { title: 'Ships & Submarines', yearField: 'commissioned' },
+    weapons:  { title: 'Weapons', yearField: 'yearIntroduced' },
+    sensors:  { title: 'Sensors', yearField: 'yearIntroduced' },
+    infantry:    { title: 'Infantry', yearField: 'commissioned' },
+    armor:       { title: 'Armor', yearField: 'commissioned' },
+    artillery:   { title: 'Artillery', yearField: 'commissioned' },
+    airdefense:  { title: 'Air Defense', yearField: 'commissioned' },
+    radar:       { title: 'Radar & Sensors', yearField: 'commissioned' },
+  };
+  function catFile(cat) { return `data/${state.country}/${cat}.json`; }
+  function detailFile(cat) { return `data/${state.country}/details/${cat}.json`; }
+  function imageFile() { return `data/${state.country}/images.json`; }
+
+  // ── Aircraft Type Icon SVGs ────────────────
+  // Plan-view (top-down) aircraft silhouettes, identification chart style
+  // viewBox 64×64, nose pointing UP, fill="currentColor"
+  const TYPE_ICON_DEFS = {
+    // ── Fighter (F-15 Eagle): swept wings, twin close vertical tails ──
+    'Fighter': { short: 'Fighter',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L29,6 L28,16 L12,27 L3,32 L3,36 L28,30 L28,44 L22,51 L22,55 L29,49 L31,59 L32,63 L33,59 L35,49 L42,55 L42,51 L36,44 L36,30 L61,36 L61,32 L52,27 L36,16 L35,6Z"/></svg>' },
+
+    // ── Multirole (F/A-18): wider LERX body, canted tails splay outward ──
+    'Multirole (Fighter/Attack)': { short: 'Multirole',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L28,8 L26,16 L24,22 L10,32 L2,38 L2,42 L25,34 L26,44 L18,54 L14,60 L14,63 L27,54 L31,62 L32,63 L33,62 L37,54 L50,63 L50,60 L46,54 L38,44 L39,34 L62,42 L62,38 L54,32 L40,22 L38,16 L36,8Z"/></svg>' },
+
+    // ── Attack (A-10): straight wings, twin engine pods, wide-set twin tails ──
+    'Attack': { short: 'Attack',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,2 L30,7 L30,24 L2,30 L1,32 L1,36 L30,31 L30,44 L23,52 L23,57 L30,50 L32,61 L34,50 L41,57 L41,52 L34,44 L34,31 L63,36 L63,32 L62,30 L34,24 L34,7Z"/><rect fill="currentColor" x="22" y="25" width="4" height="9" rx="1"/><rect fill="currentColor" x="38" y="25" width="4" height="9" rx="1"/></svg>' },
+
+    // ── Bomber (B-52): massive swept wings, 4 engine pod pairs, small tail ──
+    'Bomber': { short: 'Bomber',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,4 L30.5,8 L30,18 L8,30 L1,36 L1,40 L30,33 L30,42 L28,46 L31,44 L32,50 L33,44 L36,46 L34,42 L34,33 L63,40 L63,36 L56,30 L34,18 L33.5,8Z"/><rect fill="currentColor" x="14" y="28" width="3" height="5" rx="0.7"/><rect fill="currentColor" x="9" y="31" width="3" height="5" rx="0.7"/><rect fill="currentColor" x="47" y="28" width="3" height="5" rx="0.7"/><rect fill="currentColor" x="52" y="31" width="3" height="5" rx="0.7"/></svg>' },
+
+    // ── Stealth Bomber (B-2): flying wing boomerang, no tail ──
+    'Bomber (Stealth)': { short: 'Stealth',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,8 L26,16 L16,24 L2,34 L1,36 L8,44 L18,46 L28,48 L31,50 L32,58 L33,50 L36,48 L46,46 L56,44 L63,36 L62,34 L48,24 L38,16Z"/></svg>' },
+
+    // ── Transport (C-17): wide body, T-tail crossbar, 4 engines, swept wings ──
+    'Transport': { short: 'Transport',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M33,1 L31,1 L29,6 L28,16 L12,27 L4,32 L4,36 L28,30 L28,44 L25,49 L25,53 L29,50 L30,55 L34,55 L35,50 L39,53 L39,49 L36,44 L36,30 L60,36 L60,32 L52,27 L36,16 L35,6Z"/><rect fill="currentColor" x="25" y="54" width="14" height="2.5" rx="0.5"/><rect fill="currentColor" x="17" y="28" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="44" y="28" width="3" height="4.5" rx="0.7"/></svg>' },
+
+    // ── Tanker (KC-135): 4 engines, swept wings, refueling boom extending below tail ──
+    'Tanker (Air Refueling)': { short: 'Tanker',
+      svg: '<svg viewBox="0 0 64 68" width="46" height="46"><path fill="currentColor" d="M32,1 L30,6 L29,16 L12,27 L4,32 L4,36 L29,30 L29,44 L25,50 L25,54 L30,49 L31,56 L32,58 L33,56 L34,49 L39,54 L39,50 L35,44 L35,30 L60,36 L60,32 L52,27 L35,16 L34,6Z"/><rect fill="currentColor" x="17" y="28" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="44" y="28" width="3" height="4.5" rx="0.7"/><path fill="currentColor" d="M31,58 L29.5,65 L32,68 L34.5,65 L33,58Z"/></svg>' },
+
+    // ── Command Post (E-4B): widest body (747), 4 engines ──
+    'Airborne Command Post (ACP)': { short: 'Command\nPost',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M35,1 L29,1 L26,6 L25,16 L12,27 L4,32 L4,36 L25,30 L25,44 L22,50 L22,54 L27,49 L30,56 L26,58 L38,58 L34,56 L37,49 L42,54 L42,50 L39,44 L39,30 L60,36 L60,32 L52,27 L39,16 L38,6Z"/><rect fill="currentColor" x="16" y="28" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="45" y="28" width="3" height="4.5" rx="0.7"/></svg>' },
+
+    // ── Helicopter (UH-60): large rotor disc, cross blades, narrow body + tail boom ──
+    'Search And Rescue (SAR)': { short: 'Helicopter',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><ellipse cx="32" cy="28" rx="26" ry="26" fill="currentColor" opacity="0.1"/><path fill="currentColor" d="M31,6 L29,10 L28,16 L27,20 L23,23 L20,24 L20,27 L27,26 L28,30 L28,46 L26,50 L22,52 L22,56 L27,53 L29,50 L31,56 L32,62 L33,56 L35,50 L37,53 L42,56 L42,52 L38,50 L36,46 L36,30 L37,26 L44,27 L44,24 L41,23 L37,20 L36,16 L35,10 L33,6Z"/><line x1="6" y1="28" x2="58" y2="28" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="32" y1="2" x2="32" y2="54" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><circle cx="32" cy="28" r="3.5" fill="currentColor"/></svg>' },
+
+    // ── AEW (E-3 Sentry): airplane body + large thick rotodome ring ──
+    'Airborne Early Warning (AEW)': { short: 'Early\nWarning',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L30,6 L29,16 L14,27 L4,32 L4,36 L29,30 L29,42 L25,48 L25,52 L30,47 L31,56 L32,60 L33,56 L34,47 L39,52 L39,48 L35,42 L35,30 L60,36 L60,32 L50,27 L35,16 L34,6Z"/><circle cx="32" cy="24" r="12" fill="none" stroke="currentColor" stroke-width="5"/></svg>' },
+
+    // ── ASW (P-3 Orion): STRAIGHT wings, 4 engines, long MAD boom spike below tail ──
+    'Anti-Submarine Warfare (ASW)': { short: 'Anti-Sub',
+      svg: '<svg viewBox="0 0 64 70" width="46" height="46"><path fill="currentColor" d="M32,1 L30,5 L30,16 L2,27 L1,29 L1,33 L30,28 L30,42 L26,48 L26,52 L31,47 L32,55 L33,47 L38,52 L38,48 L34,42 L34,28 L63,33 L63,29 L62,27 L34,16 L34,5Z"/><rect fill="currentColor" x="13" y="25" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="7" y="27" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="48" y="25" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="54" y="27" width="3" height="4.5" rx="0.7"/><path fill="currentColor" d="M31.2,55 L31,63 L32,70 L33,63 L32.8,55Z"/></svg>' },
+
+    // ── Maritime Patrol (P-8): swept wings, 2 engines only, no MAD boom ──
+    'Maritime Patrol Aircraft (MPA)': { short: 'Maritime\nPatrol',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L30,6 L29,16 L14,27 L5,32 L5,36 L29,30 L29,44 L25,50 L25,54 L30,49 L31,58 L32,62 L33,58 L34,49 L39,54 L39,50 L35,44 L35,30 L59,36 L59,32 L50,27 L35,16 L34,6Z"/><rect fill="currentColor" x="20" y="27" width="3" height="5" rx="0.7"/><rect fill="currentColor" x="41" y="27" width="3" height="5" rx="0.7"/></svg>' },
+
+    // ── Surveillance (E-8C JSTARS): airplane + long belly canoe radar pod ──
+    'Area Surveillance': { short: 'Surveillance',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L30,6 L29,16 L14,27 L4,32 L4,36 L29,30 L29,42 L25,48 L25,52 L30,47 L31,55 L32,60 L33,55 L34,47 L39,52 L39,48 L35,42 L35,30 L60,36 L60,32 L50,27 L35,16 L34,6Z"/><rect fill="currentColor" x="17" y="28" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="44" y="28" width="3" height="4.5" rx="0.7"/><ellipse cx="32" cy="34" rx="3" ry="14" fill="currentColor" opacity="0.45"/></svg>' },
+
+    // ── Electronic Warfare (EA-18G): multirole body + wingtip jamming pods ──
+    'Electronic Warfare': { short: 'Elec.\nWarfare',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,1 L28,8 L26,16 L24,22 L10,32 L2,38 L2,42 L25,34 L26,44 L18,54 L14,60 L14,63 L27,54 L31,62 L32,63 L33,62 L37,54 L50,63 L50,60 L46,54 L38,44 L39,34 L62,42 L62,38 L54,32 L40,22 L38,16 L36,8Z"/><circle cx="2" cy="39" r="4" fill="currentColor"/><circle cx="62" cy="39" r="4" fill="currentColor"/></svg>' },
+
+    // ── Recon (U-2 Dragon Lady): extremely wide straight wings, tiny narrow body ──
+    'Recon': { short: 'Recon',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32.5,1 L31.5,1 L31,5 L31,20 L1,25 L1,29 L31,27 L31,44 L28,50 L28,54 L31.5,48 L32,58 L32.5,48 L36,54 L36,50 L33,44 L33,27 L63,29 L63,25 L33,20 L33,5Z"/></svg>' },
+
+    // ── UAV (RQ-4 Global Hawk): bulbous nose, long thin wings, V-tail ──
+    'Unmanned Aerial Vehicle (UAV)': { short: 'Drone',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><ellipse cx="32" cy="5" rx="4.5" ry="5" fill="currentColor"/><path fill="currentColor" d="M31,10 L30.5,18 L5,26 L3,28 L3,32 L30.5,28 L30.5,42 L26,50 L26,54 L31,47 L32,58 L33,47 L38,54 L38,50 L33.5,42 L33.5,28 L61,32 L61,28 L59,26 L33.5,18 L33,10Z"/></svg>' },
+
+    // ── UCAV (MQ-9 Reaper): sensor ball nose, slender body, long wings ──
+    'Unmanned Combat Aerial Vehicle (UCAV)': { short: 'Combat\nDrone',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="5" r="3.5" fill="currentColor"/><path fill="currentColor" d="M31.5,8 L31,18 L7,27 L5,29 L5,33 L31,29 L31,44 L26,52 L26,56 L31,49 L32,60 L33,49 L38,56 L38,52 L33,44 L33,29 L59,33 L59,29 L57,27 L33,18 L32.5,8Z"/></svg>' },
+  }
+
+
+
+  // ── Ship Type Icon Definitions (grouped by hull classification) ──
+  const SHIP_TYPE_ICON_DEFS = {
+    'carrier': {
+      short: 'Carrier',
+      types: ['CVN - Nuclear Powered Aircraft Carrier', 'CVA - Attack Carrier'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,32 L6,28 L8,26 L88,24 L92,26 L94,30 L94,32 L88,38 L48,42 L10,38Z"/><path fill="currentColor" d="M6,26 L88,24 L88,22 L4,24Z"/><path fill="currentColor" d="M56,22 L55,14 L58,12 L66,12 L68,14 L68,22Z"/><line x1="61" y1="12" x2="61" y2="6" stroke="currentColor" stroke-width="1.8"/><line x1="64" y1="12" x2="64" y2="8" stroke="currentColor" stroke-width="1.2"/></svg>'
+    },
+    'battleship': {
+      short: 'Battleship',
+      types: ['BB - Battleship'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,30 L8,26 L14,24 L80,24 L86,26 L92,30 L94,32 L86,38 L48,42 L10,38Z"/><path fill="currentColor" d="M18,24 L18,20 L28,20 L28,24Z"/><path fill="currentColor" d="M30,24 L30,22 L36,22 L36,24Z"/><path fill="currentColor" d="M40,24 L40,12 L58,12 L58,24Z"/><path fill="currentColor" d="M62,24 L62,20 L72,20 L72,24Z"/><line x1="46" y1="12" x2="46" y2="5" stroke="currentColor" stroke-width="2"/><line x1="54" y1="12" x2="54" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="22" y1="20" x2="12" y2="16" stroke="currentColor" stroke-width="2.5" opacity="0.55"/><line x1="66" y1="20" x2="76" y2="16" stroke="currentColor" stroke-width="2.5" opacity="0.55"/></svg>'
+    },
+    'cruiser': {
+      short: 'Cruiser',
+      types: ['CG - Guided Missile Cruiser', 'CGN - Nuclear Powered Guided Missile Cruiser'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,32 L8,28 L12,24 L78,24 L84,26 L90,30 L94,32 L86,38 L48,42 L10,38Z"/><path fill="currentColor" d="M16,24 L16,22 L30,22 L30,24Z"/><path fill="currentColor" d="M32,24 L32,14 L38,12 L52,12 L54,14 L54,24Z"/><path fill="currentColor" d="M56,24 L56,22 L64,22 L64,24Z"/><path fill="currentColor" d="M68,24 L68,20 L78,20 L78,24Z"/><line x1="42" y1="12" x2="42" y2="5" stroke="currentColor" stroke-width="2"/><rect fill="currentColor" x="36" y="13" width="4" height="6" opacity="0.35"/><rect fill="currentColor" x="48" y="13" width="4" height="6" opacity="0.35"/></svg>'
+    },
+    'destroyer': {
+      short: 'Destroyer',
+      types: ['DDG - Guided Missile Destroyer', 'DD - Destroyer'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M6,32 L10,28 L16,24 L72,24 L78,26 L84,30 L88,32 L80,38 L46,42 L14,38Z"/><path fill="currentColor" d="M20,24 L20,22 L30,22 L30,24Z"/><path fill="currentColor" d="M32,24 L30,14 L36,12 L50,12 L54,14 L54,24Z"/><path fill="currentColor" d="M58,24 L58,22 L72,22 L72,24Z"/><line x1="40" y1="12" x2="40" y2="5" stroke="currentColor" stroke-width="1.8"/><rect fill="currentColor" x="34" y="13" width="4" height="5" opacity="0.35"/><rect fill="currentColor" x="46" y="13" width="4" height="5" opacity="0.35"/></svg>'
+    },
+    'frigate': {
+      short: 'Frigate',
+      types: ['FFG - Guided Missile Frigate', 'FF - Frigate', 'LCS - Littoral Combat Ship'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M12,32 L18,28 L24,24 L66,24 L72,26 L78,30 L82,32 L74,38 L46,42 L20,38Z"/><path fill="currentColor" d="M30,24 L28,16 L44,14 L48,16 L48,24Z"/><path fill="currentColor" d="M52,24 L52,22 L66,22 L66,24Z"/><path fill="currentColor" d="M36,14 L35,7 L39,5 L42,7 L42,14Z"/></svg>'
+    },
+    'submarine': {
+      short: 'Submarine',
+      types: ['SSN - Nuclear Powered Attack Submarine', 'SS - Attack/Fleet Submarine', 'SSBN - Nuclear Powered Ballistic Missile Submarine', 'SDV - Swimmer Delivery Vehicle'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M6,32 L2,30 L6,26 L14,24 L80,24 L88,26 L94,30 L92,32 L88,36 L80,38 L14,38 L6,36Z"/><path fill="currentColor" d="M32,24 L30,16 L34,14 L42,14 L44,16 L44,24Z"/><line x1="36" y1="14" x2="36" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="40" y1="14" x2="40" y2="10" stroke="currentColor" stroke-width="1"/><path fill="currentColor" d="M88,22 L94,18 L92,24Z" opacity="0.45"/><path fill="currentColor" d="M88,40 L94,44 L92,38Z" opacity="0.45"/></svg>'
+    },
+    'amphibious': {
+      short: 'Amphibious',
+      types: ['LPD - Amphibious Transport Dock Vessel', 'LSD - Dock Landing Ship ', 'LHD - Amphibious Assault Ship, Multi-purpose', 'LHA - Amphibious Assault Ship, General Purpose', 'LST - Tank Landing Ship', 'LPH - Amphibious Assault Helicopter Carrier', 'LCC - Amphibious Command Vessel', 'LKA - Amphibious Cargo Vessel', 'EPF - Expeditionary Fast Transport', 'ESB - Expeditionary Mobile Base', 'ESD - Expeditionary Transfer Dock'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,32 L6,28 L10,26 L12,24 L86,24 L90,26 L94,32 L86,38 L48,42 L10,38Z"/><path fill="currentColor" d="M10,24 L86,24 L86,22 L8,24Z"/><path fill="currentColor" d="M16,24 L16,16 L22,14 L30,14 L32,16 L32,24Z"/><line x1="24" y1="14" x2="24" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="28" y1="14" x2="28" y2="9" stroke="currentColor" stroke-width="1"/></svg>'
+    },
+    'landing-craft': {
+      short: 'Landing\nCraft',
+      types: ['LCU - Utility Landing Craft', 'LCM - Mechanized Landing Craft', 'LCAC - Air Cushion Landing Craft', 'LCP - Personnel Landing Craft', 'LCVP - Vehicle and Personnel Landing Craft', 'LSV - Vehicle Landing Ship '],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M10,34 L8,32 L8,24 L12,20 L78,20 L82,24 L82,32 L80,34 L78,38 L12,38Z"/><path fill="currentColor" d="M8,34 L10,36 L80,36 L82,34Z" opacity="0.35"/><path fill="currentColor" d="M66,20 L66,12 L76,12 L76,20Z"/><circle cx="72" cy="16" r="4" fill="currentColor" opacity="0.3"/></svg>'
+    },
+    'patrol': {
+      short: 'Patrol',
+      types: ['PB - Patrol Boat', 'WHEC - Coast Guard High Endurance Cutter', 'WMEC - Coast Guard Medium Endurance Cutter', 'PC - Coastal Patrol Boat', 'WPB - Coast Guard Patrol Boat', 'PHM - Missile Hydrofoil ', 'OPV - Offshore Patrol Vessel'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M16,32 L22,28 L30,24 L62,24 L68,26 L74,30 L78,32 L70,38 L46,40 L22,38Z"/><path fill="currentColor" d="M36,24 L36,18 L50,18 L50,24Z"/><line x1="42" y1="18" x2="42" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>'
+    },
+    'mine-warfare': {
+      short: 'Mine\nWarfare',
+      types: ['MCM - Mine Countermeasures Ship ', 'MSO - Ocean Minesweeper ', 'MHC - Coastal Minehunter '],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M14,32 L20,28 L26,24 L64,24 L70,26 L76,30 L80,32 L72,38 L46,40 L22,38Z"/><path fill="currentColor" d="M34,24 L34,18 L48,18 L48,24Z"/><line x1="40" y1="18" x2="40" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="72" y1="26" x2="86" y2="30" stroke="currentColor" stroke-width="2" opacity="0.3"/><line x1="72" y1="28" x2="88" y2="34" stroke="currentColor" stroke-width="2" opacity="0.3"/></svg>'
+    },
+    'supply': {
+      short: 'Supply',
+      types: ['AO - Fleet Oiler ', 'AOE - Fast Combat Support Ship ', 'T-AO - MSC Fleet Oiler', 'AOR - Replenishment Oiler ', 'AE - Ammunition Ship ', 'AFS - Combat Stores Ship', 'T-AKE - MSC Dry Cargo Ship', 'T-AH  - MSC Hospital Ship', 'AS - Submarine Tender ', 'A - Auxiliary ', 'Platform'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,32 L8,28 L12,24 L80,24 L86,26 L92,30 L94,32 L86,38 L48,42 L10,38Z"/><path fill="currentColor" d="M68,24 L68,14 L80,14 L80,24Z"/><line x1="74" y1="14" x2="74" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="32" y1="24" x2="32" y2="12" stroke="currentColor" stroke-width="2"/><line x1="32" y1="12" x2="26" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="32" y1="12" x2="38" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="52" y1="24" x2="52" y2="14" stroke="currentColor" stroke-width="2"/><line x1="52" y1="14" x2="46" y2="20" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="52" y1="14" x2="58" y2="20" stroke="currentColor" stroke-width="1.5" opacity="0.4"/></svg>'
+    },
+    'cargo': {
+      short: 'Cargo',
+      types: ['T-AKR - MSC Roll-on/Roll-off Cargo Ship', 'T-AK - Cargo Ship', 'Merchant', 'Civilian'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,32 L6,28 L12,24 L82,24 L88,26 L92,30 L94,32 L86,38 L48,42 L10,38Z"/><path fill="currentColor" d="M70,24 L70,14 L84,14 L84,24Z"/><line x1="76" y1="14" x2="76" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="30" y1="24" x2="30" y2="12" stroke="currentColor" stroke-width="2"/><line x1="30" y1="12" x2="24" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="50" y1="24" x2="50" y2="12" stroke="currentColor" stroke-width="2"/><line x1="50" y1="12" x2="44" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.4"/></svg>'
+    },
+    'surveillance': {
+      short: 'Surveillance',
+      types: ['T-AGOS - MSC Ocean Surveillance Ship', 'AGM - Missile Range instrumentation Ship'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M10,32 L16,28 L22,24 L68,24 L74,26 L80,30 L84,32 L76,38 L46,40 L18,38Z"/><path fill="currentColor" d="M30,24 L30,16 L48,16 L48,24Z"/><circle cx="39" cy="10" r="7" fill="currentColor" opacity="0.35"/><line x1="39" y1="16" x2="39" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="78" y1="29" x2="94" y2="34" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2" opacity="0.3"/></svg>'
+    },
+    'unmanned': {
+      short: 'Unmanned',
+      types: ['ROV - Remotely Operated Vehicle', 'UUV - Unmanned Underwater Vehicle'],
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M8,33 L14,28 L78,28 L86,33 L78,38 L14,38Z"/><circle cx="14" cy="33" r="3.5" fill="currentColor" opacity="0.35"/><path fill="currentColor" d="M80,26 L88,22 L86,28Z" opacity="0.45"/><path fill="currentColor" d="M80,40 L88,44 L86,38Z" opacity="0.45"/></svg>'
+    },
+  };
+
+
+  // ── Sensor Type Icon Definitions (grouped, front/top-view silhouettes) ──
+  const SENSOR_TYPE_ICON_DEFS = {
+    // ── Radar: rotating dish antenna on pedestal, signal arcs ──
+    'radar': {
+      short: 'Radar',
+      types: ['Radar'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M18,18 L32,8 L46,18 L44,22 L20,22Z"/><rect fill="currentColor" x="30" y="22" width="4" height="22" rx="1"/><rect fill="currentColor" x="22" y="44" width="20" height="6" rx="2"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.3" d="M14,14 Q32,0 50,14"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.2" d="M8,10 Q32,-8 56,10"/></svg>'
+    },
+    // ── Sonar: concentric ripple rings from a transducer dome ──
+    'sonar': {
+      short: 'Sonar',
+      types: ['Hull Sonar, Active/Passive', 'Hull Sonar, Active-Only', 'Hull Sonar, Passive-Only', 'Dipping Sonar, Active/Passive', 'Dipping Sonar, Active-Only', 'VDS, Active/Passive Sonar', 'VDS, Active Only Sonar', 'TASS, Passive-Only Towed Array Sonar System', 'TASS, Active/Passive Towed Array Sonar System', 'TASS, Active Towed Array Sonar System', 'Bottom Fixed Sonar, Passive-Only', 'Acoustic Intercept (Active Sonar Warning)'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><ellipse cx="32" cy="32" rx="6" ry="8" fill="currentColor"/><ellipse cx="32" cy="32" rx="14" ry="18" fill="none" stroke="currentColor" stroke-width="2" opacity="0.35"/><ellipse cx="32" cy="32" rx="22" ry="26" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><ellipse cx="32" cy="32" rx="30" ry="31" fill="none" stroke="currentColor" stroke-width="1" opacity="0.12"/></svg>'
+    },
+    // ── ECM: jamming pod with antenna fins radiating waves ──
+    'ecm': {
+      short: 'ECM',
+      types: ['ECM'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><rect fill="currentColor" x="20" y="26" width="24" height="12" rx="3"/><path fill="currentColor" d="M16,28 L20,30 L20,34 L16,36Z"/><path fill="currentColor" d="M48,28 L44,30 L44,34 L48,36Z"/><line x1="14" y1="22" x2="8" y2="16" stroke="currentColor" stroke-width="2" opacity="0.35"/><line x1="14" y1="32" x2="4" y2="32" stroke="currentColor" stroke-width="2" opacity="0.35"/><line x1="14" y1="42" x2="8" y2="48" stroke="currentColor" stroke-width="2" opacity="0.35"/><line x1="50" y1="22" x2="56" y2="16" stroke="currentColor" stroke-width="2" opacity="0.35"/><line x1="50" y1="32" x2="60" y2="32" stroke="currentColor" stroke-width="2" opacity="0.35"/><line x1="50" y1="42" x2="56" y2="48" stroke="currentColor" stroke-width="2" opacity="0.35"/></svg>'
+    },
+    // ── ESM: passive receiver antenna array, no emission lines ──
+    'esm': {
+      short: 'ESM',
+      types: ['ESM'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,10 L38,18 L38,28 L26,28 L26,18Z"/><rect fill="currentColor" x="28" y="28" width="8" height="16" rx="1"/><rect fill="currentColor" x="22" y="44" width="20" height="5" rx="2"/><line x1="26" y1="16" x2="18" y2="10" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="38" y1="16" x2="46" y2="10" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="22" y1="12" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><line x1="42" y1="12" x2="50" y2="14" stroke="currentColor" stroke-width="1.5" opacity="0.2"/></svg>'
+    },
+    // ── Infrared/EO: targeting ball turret with lens ──
+    'infrared': {
+      short: 'IR / EO',
+      types: ['Infrared'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="28" r="16" fill="currentColor"/><circle cx="28" cy="24" r="8" fill="currentColor" opacity="0.2"/><circle cx="28" cy="24" r="4.5" fill="currentColor" opacity="0.35"/><rect fill="currentColor" x="26" y="44" width="12" height="8" rx="2"/><rect fill="currentColor" x="29" y="42" width="6" height="4" rx="1"/></svg>'
+    },
+    // ── Visual: binocular / optical sight ──
+    'visual': {
+      short: 'Visual',
+      types: ['Visual'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="22" cy="28" r="12" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="42" cy="28" r="12" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="22" cy="28" r="5" fill="currentColor" opacity="0.3"/><circle cx="42" cy="28" r="5" fill="currentColor" opacity="0.3"/><rect fill="currentColor" x="30" y="22" width="4" height="12" rx="1"/><rect fill="currentColor" x="18" y="42" width="28" height="6" rx="2" opacity="0.35"/></svg>'
+    },
+    // ── MAD: magnetometer boom extending from aircraft tail ──
+    'mad': {
+      short: 'MAD',
+      types: ['MAD'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><rect fill="currentColor" x="30" y="6" width="4" height="40" rx="1.5"/><circle cx="32" cy="6" r="5" fill="currentColor" opacity="0.4"/><circle cx="32" cy="6" r="2.5" fill="currentColor"/><rect fill="currentColor" x="22" y="46" width="20" height="6" rx="2"/><path fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25" d="M20,16 Q26,22 20,28 Q14,34 20,40"/><path fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25" d="M44,16 Q38,22 44,28 Q50,34 44,40"/></svg>'
+    },
+    // ── Laser: beam emitter housing with converging beam lines ──
+    'laser': {
+      short: 'Laser',
+      types: ['Laser Designator', 'Laser Rangefinder', 'Laser Spot Tracker (LST)'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><rect fill="currentColor" x="18" y="22" width="28" height="20" rx="3"/><circle cx="32" cy="32" r="6" fill="currentColor" opacity="0.35"/><circle cx="32" cy="32" r="2.5" fill="currentColor" opacity="0.6"/><line x1="32" y1="16" x2="32" y2="4" stroke="currentColor" stroke-width="2.5" opacity="0.5"/><line x1="28" y1="16" x2="22" y2="4" stroke="currentColor" stroke-width="1.5" opacity="0.25"/><line x1="36" y1="16" x2="42" y2="4" stroke="currentColor" stroke-width="1.5" opacity="0.25"/><rect fill="currentColor" x="26" y="42" width="12" height="6" rx="2" opacity="0.4"/></svg>'
+    },
+    // ── Mine Countermeasures: swept cable with cutter and influence gear ──
+    'mine': {
+      short: 'Mine\nCounter',
+      types: ['Mine Sweep, Mechanical Cable Cutter', 'Mine Sweep, Magnetic & Acoustic Multi-Influence', 'Mine Sweep, Magnetic Influence', 'Mine Sweep, Acoustic Influence', 'Mine Neutralization, Diver-deployed Explosive Charge', 'Mine Neutralization, Explosive Charge Mine Disposal', 'Mine Neutralization, Moored Mine Cable Cutter'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="20" r="10" fill="currentColor"/><circle cx="32" cy="10" r="2.5" fill="currentColor" opacity="0.4"/><circle cx="24" cy="16" r="2.5" fill="currentColor" opacity="0.4"/><circle cx="40" cy="16" r="2.5" fill="currentColor" opacity="0.4"/><line x1="32" y1="30" x2="32" y2="42" stroke="currentColor" stroke-width="2" opacity="0.3"/><line x1="22" y1="40" x2="42" y2="40" stroke="currentColor" stroke-width="3"/><path fill="currentColor" d="M20,44 L24,40 L20,36Z" opacity="0.5"/><path fill="currentColor" d="M44,44 L40,40 L44,36Z" opacity="0.5"/><line x1="32" y1="42" x2="32" y2="56" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.2"/></svg>'
+    },
+    // ── Sensor Group: cluster of multiple sensor icons ──
+    'sensor-group': {
+      short: 'Sensor\nGroup',
+      types: ['Sensor Group'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="20" cy="20" r="8" fill="currentColor" opacity="0.5"/><circle cx="44" cy="20" r="8" fill="currentColor" opacity="0.5"/><circle cx="32" cy="40" r="8" fill="currentColor" opacity="0.5"/><line x1="26" y1="24" x2="28" y2="34" stroke="currentColor" stroke-width="1.5" opacity="0.25"/><line x1="38" y1="24" x2="36" y2="34" stroke="currentColor" stroke-width="1.5" opacity="0.25"/><line x1="28" y1="20" x2="36" y2="20" stroke="currentColor" stroke-width="1.5" opacity="0.25"/></svg>'
+    },
+  };
+
+  // ── Infantry Name-Prefix Icon Definitions ──
+  // These filter by name prefix (not the `type` field which is generic)
+  const INFANTRY_TYPE_ICON_DEFS = {
+    // ── Infantry Platoon: standing soldiers in formation ──
+    'inf-plt': {
+      short: 'Infantry\nPlatoon',
+      prefixes: ['Inf Plt'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M20,14 A6,6 0 1,1 20,14.01Z"/><path fill="currentColor" d="M16,22 L24,22 L26,42 L22,42 L21,32 L20,42 L19,32 L18,42 L14,42Z"/><path fill="currentColor" d="M44,14 A6,6 0 1,1 44,14.01Z"/><path fill="currentColor" d="M40,22 L48,22 L50,42 L46,42 L45,32 L44,42 L43,32 L42,42 L38,42Z"/><path fill="currentColor" d="M32,18 A6,6 0 1,1 32,18.01Z"/><path fill="currentColor" d="M28,26 L36,26 L38,46 L34,46 L33,36 L32,46 L31,36 L30,46 L26,46Z"/><rect fill="currentColor" x="6" y="48" width="52" height="4" rx="1" opacity="0.15"/></svg>'
+    },
+    // ── Infantry Section: smaller fire team ──
+    'inf-sec': {
+      short: 'Infantry\nSection',
+      prefixes: ['Inf Sec'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M22,16 A6,6 0 1,1 22,16.01Z"/><path fill="currentColor" d="M18,24 L26,24 L28,44 L24,44 L23,34 L22,44 L21,34 L20,44 L16,44Z"/><path fill="currentColor" d="M42,16 A6,6 0 1,1 42,16.01Z"/><path fill="currentColor" d="M38,24 L46,24 L48,44 L44,44 L43,34 L42,44 L41,34 L40,44 L36,44Z"/><line x1="26" y1="30" x2="36" y2="30" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><rect fill="currentColor" x="10" y="48" width="44" height="4" rx="1" opacity="0.15"/></svg>'
+    },
+    // ── Mechanized Infantry: IFV/APC with troops ──
+    'mech-inf': {
+      short: 'Mech\nInfantry',
+      prefixes: ['Mech Inf'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M8,28 L12,22 L52,22 L56,28 L56,40 L8,40Z"/><path fill="currentColor" d="M36,22 L36,14 L48,14 L48,22Z"/><line x1="42" y1="14" x2="42" y2="8" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="44" r="5" fill="currentColor" opacity="0.5"/><circle cx="32" cy="44" r="5" fill="currentColor" opacity="0.5"/><circle cx="48" cy="44" r="5" fill="currentColor" opacity="0.5"/><rect fill="currentColor" x="10" y="24" width="4" height="4" rx="1" opacity="0.3"/><rect fill="currentColor" x="16" y="24" width="4" height="4" rx="1" opacity="0.3"/><rect fill="currentColor" x="22" y="24" width="4" height="4" rx="1" opacity="0.3"/></svg>'
+    },
+    // ── SAM: man-portable air defense (shoulder-launched missile) ──
+    'sam': {
+      short: 'MANPADS',
+      prefixes: ['SAM'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,16 A5,5 0 1,1 32,16.01Z"/><path fill="currentColor" d="M28,22 L36,22 L38,44 L34,44 L33,34 L32,44 L31,34 L30,44 L26,44Z"/><path fill="currentColor" d="M36,24 L56,12 L58,14 L40,28Z" opacity="0.7"/><path fill="currentColor" d="M56,12 L62,8 L60,14Z" opacity="0.45"/></svg>'
+    },
+    // ── SSM: anti-tank missile team ──
+    'ssm': {
+      short: 'Anti-Tank',
+      prefixes: ['SSM'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M32,20 A5,5 0 1,1 32,20.01Z"/><path fill="currentColor" d="M28,26 L36,26 L38,46 L34,46 L33,38 L32,46 L31,38 L30,46 L26,46Z"/><rect fill="currentColor" x="14" y="28" width="16" height="6" rx="2"/><path fill="currentColor" d="M14,31 L6,31 L4,29 L4,33Z" opacity="0.5"/><line x1="4" y1="28" x2="2" y2="26" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><line x1="4" y1="31" x2="0" y2="31" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><line x1="4" y1="34" x2="2" y2="36" stroke="currentColor" stroke-width="1.5" opacity="0.3"/></svg>'
+    },
+    // ── Mortar: mortar tube on baseplate ──
+    'mortar': {
+      short: 'Mortar',
+      prefixes: ['Mortar'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M30,8 L34,8 L38,40 L26,40Z"/><path fill="currentColor" d="M20,40 L44,40 L48,48 L16,48Z" opacity="0.5"/><circle cx="32" cy="6" r="4" fill="currentColor" opacity="0.35"/><line x1="38" y1="28" x2="48" y2="36" stroke="currentColor" stroke-width="2.5" opacity="0.3"/></svg>'
+    },
+    // ── Radar (in infantry context): ground surveillance ──
+    'inf-radar': {
+      short: 'Radar',
+      prefixes: ['Radar'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M18,18 L32,8 L46,18 L44,22 L20,22Z"/><rect fill="currentColor" x="30" y="22" width="4" height="22" rx="1"/><rect fill="currentColor" x="22" y="44" width="20" height="6" rx="2"/></svg>'
+    },
+  };
+
+  // ── Armor Name-Prefix Icon Definitions ──
+  const ARMOR_TYPE_ICON_DEFS = {
+    // ── Armored Platoon (MBT): tank with turret and gun barrel ──
+    'armored': {
+      short: 'Tank',
+      prefixes: ['Armored'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,30 L54,30 L56,36 L56,44 L8,44 L8,36Z"/><path fill="currentColor" d="M24,30 L24,20 L44,20 L44,30Z"/><path fill="currentColor" d="M44,24 L60,18 L62,20 L44,28Z"/><circle cx="14" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="26" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="38" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="50" cy="48" r="5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+    // ── Mechanized Infantry (IFV/APC): lower-profile vehicle with autocannon ──
+    'mech-inf': {
+      short: 'IFV / APC',
+      prefixes: ['Mech Inf'],
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M8,30 L12,24 L52,24 L56,30 L56,42 L8,42Z"/><path fill="currentColor" d="M30,24 L30,18 L42,18 L42,24Z"/><path fill="currentColor" d="M42,20 L56,14 L58,16 L42,24Z" opacity="0.7"/><circle cx="14" cy="46" r="5" fill="currentColor" opacity="0.45"/><circle cx="26" cy="46" r="5" fill="currentColor" opacity="0.45"/><circle cx="38" cy="46" r="5" fill="currentColor" opacity="0.45"/><circle cx="50" cy="46" r="5" fill="currentColor" opacity="0.45"/><rect fill="currentColor" x="10" y="26" width="4" height="4" rx="1" opacity="0.25"/><rect fill="currentColor" x="16" y="26" width="4" height="4" rx="1" opacity="0.25"/><rect fill="currentColor" x="22" y="26" width="4" height="4" rx="1" opacity="0.25"/></svg>'
+    },
+  };
+
+  // ── Artillery Name-Prefix Icon Definitions ──
+  const ARTILLERY_TYPE_ICON_DEFS = {
+    // ── Howitzer: self-propelled or towed gun battery ──
+    'howitzer': {
+      short: 'Howitzer',
+      prefixes: ['howitzer'],
+      match: n => /Howitzer|Light Gun/.test(n),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,32 L54,32 L56,38 L56,44 L8,44 L8,38Z"/><path fill="currentColor" d="M26,32 L26,24 L42,24 L42,32Z"/><path fill="currentColor" d="M42,27 L62,16 L64,18 L42,31Z"/><circle cx="14" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="28" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="42" cy="48" r="5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+    // ── MLRS: multiple rocket launcher truck ──
+    'mlrs': {
+      short: 'MLRS',
+      prefixes: ['mlrs'],
+      match: n => /MLRS|Arty Plt|Arty Bn|Arty Sec/.test(n),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,34 L54,34 L56,40 L56,44 L8,44 L8,40Z"/><path fill="currentColor" d="M18,34 L18,20 L46,14 L46,34Z"/><line x1="22" y1="18" x2="22" y2="32" stroke="currentColor" stroke-width="2" opacity="0.25"/><line x1="28" y1="17" x2="28" y2="32" stroke="currentColor" stroke-width="2" opacity="0.25"/><line x1="34" y1="16" x2="34" y2="32" stroke="currentColor" stroke-width="2" opacity="0.25"/><line x1="40" y1="15" x2="40" y2="32" stroke="currentColor" stroke-width="2" opacity="0.25"/><circle cx="14" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="28" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="42" cy="48" r="5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+    // ── SSM: ballistic/cruise missile TEL ──
+    'ssm': {
+      short: 'SSM',
+      prefixes: ['ssm'],
+      match: n => n.startsWith('SSM'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M8,36 L56,36 L58,40 L58,44 L6,44 L6,40Z"/><path fill="currentColor" d="M14,36 L14,28 L22,22 L50,22 L50,36Z"/><path fill="currentColor" d="M22,22 L18,14 L20,12 L24,20Z" opacity="0.5"/><circle cx="14" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="30" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="46" cy="48" r="5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+    // ── Mortar: self-propelled mortar ──
+    'mortar': {
+      short: 'Mortar',
+      prefixes: ['mortar'],
+      match: n => /Mortar/.test(n),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,34 L54,34 L56,40 L56,44 L8,44 L8,40Z"/><path fill="currentColor" d="M26,34 L26,22 L34,18 L34,34Z"/><circle cx="30" cy="16" r="4" fill="currentColor" opacity="0.35"/><circle cx="14" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="28" cy="48" r="5" fill="currentColor" opacity="0.45"/><circle cx="42" cy="48" r="5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+  };
+
+  // ── Air Defense Name-Prefix Icon Definitions ──
+  const AIRDEFENSE_TYPE_ICON_DEFS = {
+    // ── SAM: surface-to-air missile launcher/battery ──
+    'sam': {
+      short: 'SAM',
+      prefixes: ['sam'],
+      match: n => n.startsWith('SAM'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M8,38 L56,38 L58,42 L58,46 L6,46 L6,42Z"/><path fill="currentColor" d="M20,38 L20,28 L44,28 L44,38Z"/><path fill="currentColor" d="M24,28 L22,14 L26,12 L28,26Z"/><path fill="currentColor" d="M36,28 L34,14 L38,12 L40,26Z"/><path fill="currentColor" d="M22,14 L20,8 L24,6Z" opacity="0.5"/><path fill="currentColor" d="M34,14 L32,8 L36,6Z" opacity="0.5"/><circle cx="14" cy="50" r="4.5" fill="currentColor" opacity="0.45"/><circle cx="28" cy="50" r="4.5" fill="currentColor" opacity="0.45"/><circle cx="42" cy="50" r="4.5" fill="currentColor" opacity="0.45"/></svg>'
+    },
+    // ── AAA: anti-aircraft artillery (gun systems) ──
+    'aaa': {
+      short: 'AAA',
+      prefixes: ['aaa'],
+      match: n => n.startsWith('AAA'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,38 L54,38 L56,42 L56,46 L8,46 L8,42Z"/><path fill="currentColor" d="M26,38 L26,28 L38,28 L38,38Z"/><path fill="currentColor" d="M30,28 L20,10 L24,8 L32,24Z"/><path fill="currentColor" d="M34,28 L44,10 L40,8 L32,24Z"/><circle cx="14" cy="50" r="4.5" fill="currentColor" opacity="0.45"/><circle cx="28" cy="50" r="4.5" fill="currentColor" opacity="0.45"/><circle cx="42" cy="50" r="4.5" fill="currentColor" opacity="0.45"/><line x1="22" y1="12" x2="18" y2="6" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="42" y1="12" x2="46" y2="6" stroke="currentColor" stroke-width="1" opacity="0.3"/></svg>'
+    },
+  };
+
+  // ── Radar Tab Name-Prefix Icon Definitions ──
+  const RADAR_TYPE_ICON_DEFS = {
+    // ── Radar: ground-based radar installation ──
+    'radar': {
+      short: 'Radar',
+      prefixes: ['radar'],
+      match: n => n.startsWith('Radar'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M16,20 L32,8 L48,20 L46,24 L18,24Z"/><rect fill="currentColor" x="30" y="24" width="4" height="20" rx="1"/><rect fill="currentColor" x="22" y="44" width="20" height="6" rx="2"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.3" d="M12,16 Q32,0 52,16"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.2" d="M6,12 Q32,-8 58,12"/></svg>'
+    },
+    // ── Vehicle: EW/ELINT/jammer vehicle ──
+    'vehicle': {
+      short: 'EW\nVehicle',
+      prefixes: ['vehicle'],
+      match: n => n.startsWith('Vehicle'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M10,30 L54,30 L56,36 L56,42 L8,42 L8,36Z"/><path fill="currentColor" d="M22,30 L22,20 L42,20 L42,30Z"/><circle cx="14" cy="46" r="5" fill="currentColor" opacity="0.45"/><circle cx="32" cy="46" r="5" fill="currentColor" opacity="0.45"/><circle cx="50" cy="46" r="5" fill="currentColor" opacity="0.45"/><line x1="32" y1="20" x2="32" y2="10" stroke="currentColor" stroke-width="2"/><line x1="28" y1="12" x2="36" y2="12" stroke="currentColor" stroke-width="2"/><line x1="26" y1="8" x2="38" y2="8" stroke="currentColor" stroke-width="1.5" opacity="0.3"/></svg>'
+    },
+    // ── Sensor: passive optical/IR sensor ──
+    'sensor': {
+      short: 'Sensor',
+      prefixes: ['sensor'],
+      match: n => n.startsWith('Sensor'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="24" r="14" fill="currentColor"/><circle cx="30" cy="22" r="6" fill="currentColor" opacity="0.2"/><circle cx="30" cy="22" r="3" fill="currentColor" opacity="0.35"/><rect fill="currentColor" x="28" y="38" width="8" height="12" rx="2"/><rect fill="currentColor" x="22" y="50" width="20" height="5" rx="2" opacity="0.4"/></svg>'
+    },
+    // ── HF/DF: high-frequency direction finding ──
+    'hfdf': {
+      short: 'HF/DF',
+      prefixes: ['hfdf'],
+      match: n => n.startsWith('HF/DF'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.25"/><circle cx="32" cy="32" r="14" fill="none" stroke="currentColor" stroke-width="2" opacity="0.35"/><circle cx="32" cy="32" r="6" fill="currentColor"/><line x1="32" y1="32" x2="32" y2="6" stroke="currentColor" stroke-width="2.5"/><line x1="32" y1="32" x2="50" y2="48" stroke="currentColor" stroke-width="2" opacity="0.4"/></svg>'
+    },
+    // ── Fixed: bottom-fixed array (SOSUS etc.) ──
+    'fixed': {
+      short: 'Fixed\nArray',
+      prefixes: ['fixed'],
+      match: n => n.startsWith('Bottom Fixed') || n.startsWith('Support'),
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><rect fill="currentColor" x="12" y="28" width="40" height="16" rx="3"/><circle cx="22" cy="36" r="4" fill="currentColor" opacity="0.3"/><circle cx="32" cy="36" r="4" fill="currentColor" opacity="0.3"/><circle cx="42" cy="36" r="4" fill="currentColor" opacity="0.3"/><line x1="20" y1="28" x2="20" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><line x1="32" y1="28" x2="32" y2="16" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><line x1="44" y1="28" x2="44" y2="18" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><path fill="currentColor" d="M8,44 L56,44 L60,50 L4,50Z" opacity="0.15"/></svg>'
+    },
+  };
+
+  // ── Weapon Type Icon Definitions (side-profile silhouettes) ──
+  const WEAPON_TYPE_ICON_DEFS = {
+    // ── Guided Weapon (missile): pointed seeker, cylindrical body, cruciform fins, nozzle ──
+    'Guided Weapon': { short: 'Missile',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M2,24 L14,19 L76,19 L76,29 L14,29Z"/><path fill="currentColor" d="M72,19 L82,10 L84,19Z"/><path fill="currentColor" d="M72,29 L82,38 L84,29Z"/><path fill="currentColor" d="M76,20 L86,22 L86,26 L76,28Z" opacity="0.45"/></svg>' },
+
+    // ── Gun: long barrel, turret housing, mount base ──
+    'Gun': { short: 'Gun',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M2,22 L56,22 L56,26 L2,26Z"/><path fill="currentColor" d="M52,16 L60,14 L78,14 L82,18 L82,30 L78,34 L60,34 L52,32Z"/><path fill="currentColor" d="M58,34 L58,40 L82,40 L82,34Z" opacity="0.4"/></svg>' },
+
+    // ── Bomb: fat teardrop body, tail fins, nose fuse ──
+    'Bomb': { short: 'Bomb',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M8,24 L16,16 L68,16 L74,20 L74,28 L68,32 L16,32Z"/><path fill="currentColor" d="M70,16 L82,8 L84,16Z"/><path fill="currentColor" d="M70,32 L82,40 L84,32Z"/><circle cx="12" cy="24" r="3.5" fill="currentColor" opacity="0.35"/></svg>' },
+
+    // ── Decoy: small body, chaff/flare dispersion lines ──
+    'Decoy (Expendable)': { short: 'Decoy',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M28,24 L34,19 L68,19 L74,22 L74,26 L68,29 L34,29Z"/><line x1="28" y1="22" x2="14" y2="14" stroke="currentColor" stroke-width="2" opacity="0.3"/><line x1="28" y1="24" x2="10" y2="24" stroke="currentColor" stroke-width="2" opacity="0.3"/><line x1="28" y1="26" x2="14" y2="34" stroke="currentColor" stroke-width="2" opacity="0.3"/><path fill="currentColor" d="M68,19 L76,16 L76,19Z" opacity="0.4"/><path fill="currentColor" d="M68,29 L76,32 L76,29Z" opacity="0.4"/></svg>' },
+
+    // ── Torpedo: fat cigar body, propeller blades at tail, sonar nose ──
+    'Torpedo': { short: 'Torpedo',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M6,24 L14,16 L74,16 L82,24 L74,32 L14,32Z"/><circle cx="12" cy="24" r="4" fill="currentColor" opacity="0.3"/><path fill="currentColor" d="M78,14 L88,10 L84,20Z" opacity="0.45"/><path fill="currentColor" d="M78,34 L88,38 L84,28Z" opacity="0.45"/></svg>' },
+
+    // ── RV/MRV/MIRV: cone-shaped reentry vehicle, ablative nose, heat shield base ──
+    'RV / MRV/ MIRV': { short: 'Warhead',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M4,24 L48,12 L76,12 L80,16 L80,32 L76,36 L48,36Z"/><rect fill="currentColor" x="78" y="14" width="8" height="20" rx="2" opacity="0.4"/></svg>' },
+
+    // ── Helicopter-Towed Package: cable from above, sensor pod body, transducer ──
+    'Helicopter-Towed Package': { short: 'Towed\nPackage',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><line x1="48" y1="2" x2="48" y2="18" stroke="currentColor" stroke-width="2" stroke-dasharray="4,3" opacity="0.4"/><path fill="currentColor" d="M22,26 L30,20 L66,20 L72,26 L66,32 L30,32Z"/><circle cx="28" cy="26" r="4" fill="currentColor" opacity="0.35"/></svg>' },
+
+    // ── Depth Charge: cylindrical barrel, flat ends ──
+    'Depth Charge': { short: 'Depth\nCharge',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M22,14 L26,12 L70,12 L74,14 L74,34 L70,36 L26,36 L22,34Z"/><line x1="22" y1="16" x2="22" y2="32" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="74" y1="16" x2="74" y2="32" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="36" y1="12" x2="36" y2="36" stroke="currentColor" stroke-width="1" opacity="0.2"/><line x1="48" y1="12" x2="48" y2="36" stroke="currentColor" stroke-width="1" opacity="0.2"/><line x1="60" y1="12" x2="60" y2="36" stroke="currentColor" stroke-width="1" opacity="0.2"/></svg>' },
+
+    // ── Bottom Mine: spherical body, contact horns, anchor chain ──
+    'Bottom Mine': { short: 'Bottom\nMine',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><circle cx="48" cy="22" r="15" fill="currentColor"/><circle cx="48" cy="6" r="3" fill="currentColor" opacity="0.4"/><circle cx="34" cy="14" r="3" fill="currentColor" opacity="0.4"/><circle cx="62" cy="14" r="3" fill="currentColor" opacity="0.4"/><circle cx="36" cy="32" r="3" fill="currentColor" opacity="0.4"/><circle cx="60" cy="32" r="3" fill="currentColor" opacity="0.4"/><line x1="48" y1="37" x2="48" y2="46" stroke="currentColor" stroke-width="2" opacity="0.25"/></svg>' },
+
+    // ── Rising Mine: vertical torpedo/rocket body, fins, upward launch ──
+    'Rising Mine': { short: 'Rising\nMine',
+      svg: '<svg viewBox="0 0 96 48" width="58" height="30"><path fill="currentColor" d="M42,6 L48,2 L54,6 L56,16 L56,34 L52,38 L44,38 L40,34 L40,16Z"/><path fill="currentColor" d="M40,30 L34,36 L40,34Z"/><path fill="currentColor" d="M56,30 L62,36 L56,34Z"/><path fill="currentColor" d="M44,38 L46,44 L48,42 L50,44 L52,38Z" opacity="0.35"/></svg>' },
+  };
+
+  // ── DOM refs ───────────────────────────
+  const $ = id => document.getElementById(id);
+  const content = $('content');
+  const categoryTitle = $('categoryTitle');
+  const itemCount = $('itemCount');
+  const filterType = $('filterType');
+  const filterOperator = $('filterOperator');
+  const sortBy = $('sortBy');
+  const globalSearch = $('globalSearch');
+  const compareBtn = $('compareBtn');
+  const compareCount = $('compareCount');
+  const detailModal = $('detailModal');
+  const compareModal = $('compareModal');
+  const modalBody = $('modalBody');
+  const compareBody = $('compareBody');
+  const viewToggle = $('viewToggle');
+  const typeIconFiltersEl = $('typeIconFilters');
+
+  // ── Data Loading ───────────────────────
+  async function loadCategory(cat) {
+    if (state.data[cat]) return state.data[cat];
+    try {
+      const res = await fetch(catFile(cat));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      state.data[cat] = await res.json();
+      return state.data[cat];
+    } catch (e) {
+      console.error(`Failed to load ${cat}:`, e);
+      return [];
+    }
+  }
+
+  // ── Detail Loading (lazy, on card click) ──
+  async function loadDetails(cat) {
+    if (state.details[cat]) return state.details[cat];
+    try {
+      const res = await fetch(detailFile(cat));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      state.details[cat] = await res.json();
+      return state.details[cat];
+    } catch (e) {
+      console.error(`Failed to load ${cat} details:`, e);
+      return {};
+    }
+  }
+
+  // ── Image Loading ──────────────────────
+  let _imageMapPromise = null;
+  async function loadImageMap() {
+    if (state.imageMap) return;
+    if (!_imageMapPromise) {
+      _imageMapPromise = (async () => {
+        try {
+          const res = await fetch(imageFile());
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          state.imageMap = await res.json();
+        } catch (e) {
+          console.error('Failed to load image map:', e);
+          state.imageMap = {};
+        }
+      })();
+    }
+    return _imageMapPromise;
+  }
+
+  function getWikiTitle(cat, id) {
+    if (!state.imageMap || !state.imageMap[cat]) return null;
+    return state.imageMap[cat][String(id)] || null;
+  }
+
+  // Resize a Wikimedia Commons URL to a given width (px)
+  function wikiThumbUrl(originalUrl, width) {
+    if (!originalUrl) return null;
+    // Convert commons/X/XX/File.ext → commons/thumb/X/XX/File.ext/{width}px-File.ext[.png]
+    const m = originalUrl.match(/\/commons\/([0-9a-f]\/[0-9a-f]{2}\/([^/?#]+))/);
+    if (m) {
+      const fname = m[2];
+      const suffix = fname.toLowerCase().endsWith('.svg') ? '.png' : '';
+      return `https://upload.wikimedia.org/wikipedia/commons/thumb/${m[1]}/${width}px-${fname}${suffix}`;
+    }
+    // Already a thumb URL — replace width
+    const tm = originalUrl.match(/(\/thumb\/.*\/)(\d+)(px-)/);
+    if (tm) return originalUrl.replace(tm[0], `${tm[1]}${width}${tm[3]}`);
+    return originalUrl;
+  }
+
+  // SessionStorage key for wiki image cache
+  const SS_IMG_KEY = 'cmodb_imgcache_v2';
+  function loadSessionCache() {
+    try {
+      const raw = sessionStorage.getItem(SS_IMG_KEY);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        for (const [k, v] of Object.entries(obj)) state.imageCache.set(k, v);
+      }
+    } catch (e) { /* ignore */ }
+  }
+  function saveSessionCache() {
+    try {
+      const obj = {};
+      state.imageCache.forEach((v, k) => { obj[k] = v; });
+      sessionStorage.setItem(SS_IMG_KEY, JSON.stringify(obj));
+    } catch (e) { /* ignore quota errors */ }
+  }
+  loadSessionCache();
+
+  // Batch-fetch thumbnails for up to 50 wiki titles at once
+  async function fetchWikiBatch(titles, width) {
+    if (!titles.length) return;
+    const toFetch = titles.filter(t => !state.imageCache.has(t));
+    if (!toFetch.length) return;
+
+    // Wikipedia query API: up to 50 titles per request
+    const fetches = [];
+    for (let i = 0; i < toFetch.length; i += 50) {
+      const batch = toFetch.slice(i, i + 50);
+      fetches.push((async () => {
+        try {
+          const params = new URLSearchParams({
+            action: 'query', format: 'json', origin: '*',
+            redirects: '', titles: batch.join('|'),
+            prop: 'pageimages', piprop: 'original', pilimit: '50'
+          });
+          const res = await fetch(`https://en.wikipedia.org/w/api.php?${params}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          // Build title-resolution chain (normalize → redirect → final)
+          const normMap = {}, redirMap = {};
+          if (data.query?.normalized)
+            for (const n of data.query.normalized) normMap[n.from] = n.to;
+          if (data.query?.redirects)
+            for (const r of data.query.redirects) redirMap[r.from] = r.to;
+          const resolve = t => {
+            let r = normMap[t] || t;
+            return redirMap[r] || r;
+          };
+          const titleToUrl = {};
+          if (data.query?.pages) {
+            for (const page of Object.values(data.query.pages)) {
+              if (page.original?.source) {
+                titleToUrl[page.title] = wikiThumbUrl(page.original.source, width);
+              }
+            }
+          }
+          batch.forEach(t => {
+            const resolved = resolve(t);
+            state.imageCache.set(t, titleToUrl[resolved] || null);
+          });
+        } catch (e) {
+          batch.forEach(t => state.imageCache.set(t, null));
+        }
+      })());
+    }
+    await Promise.all(fetches);
+    saveSessionCache();
+  }
+
+  // Single-title fallback (used by detail hero)
+  async function fetchWikiThumbnail(wikiTitle, width = 800) {
+    if (state.imageCache.has(wikiTitle)) return state.imageCache.get(wikiTitle);
+    await fetchWikiBatch([wikiTitle], width);
+    return state.imageCache.get(wikiTitle) || null;
+  }
+
+  // Pre-fetch all images for the current category in one batch
+  async function prefetchCategoryImages(cat) {
+    await loadImageMap(); // ensure image map loaded
+    if (!state.imageMap || !state.imageMap[cat]) return;
+    const titles = Object.values(state.imageMap[cat]).filter(Boolean);
+    await fetchWikiBatch(titles, 400);
+  }
+
+  // Concurrency-limited image loader (max 6 parallel downloads)
+  const IMG_MAX_CONCURRENT = 6;
+  function enqueueImageLoad(el, imgUrl) {
+    state.imgQueue.push({ el, imgUrl });
+    drainImageQueue();
+  }
+  function drainImageQueue() {
+    while (state.imgActive < IMG_MAX_CONCURRENT && state.imgQueue.length) {
+      const { el, imgUrl } = state.imgQueue.shift();
+      state.imgActive++;
+      const img = document.createElement('img');
+      img.alt = el.dataset.alt || '';
+      img.decoding = 'async';
+      img.onload = () => {
+        state.imgActive--;
+        el.dataset.loaded = 'true';
+        el.appendChild(img);
+        requestAnimationFrame(() => img.classList.add('img-loaded'));
+        const ph = el.querySelector('.card-image-placeholder, .card-image-placeholder-sm');
+        if (ph) ph.style.opacity = '0';
+        drainImageQueue();
+      };
+      img.onerror = () => {
+        state.imgActive--;
+        el.dataset.loaded = 'failed';
+        drainImageQueue();
+      };
+      img.src = imgUrl;
+    }
+  }
+
+  function initImageObserver() {
+    if (state.imageObserver) state.imageObserver.disconnect();
+    state.imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const wiki = el.dataset.wiki;
+        if (!wiki || el.dataset.loaded) return;
+        // Image should already be in cache from batch prefetch
+        const imgUrl = state.imageCache.get(wiki);
+        if (imgUrl === undefined) { el.dataset.loaded = 'pending'; return; }
+        if (!imgUrl) { el.dataset.loaded = 'failed'; state.imageObserver.unobserve(el); return; }
+        el.dataset.loaded = 'pending';
+        state.imageObserver.unobserve(el);
+        enqueueImageLoad(el, imgUrl);
+      });
+    }, { rootMargin: '200px 0px', threshold: 0.01 });
+  }
+
+  function observeImages() {
+    if (!state.imageObserver) return;
+    document.querySelectorAll('.card-image[data-wiki]:not([data-loaded]), .card-list-thumb[data-wiki]:not([data-loaded])').forEach(el => {
+      state.imageObserver.observe(el);
+    });
+  }
+
+  // ── Filtering & Sorting ────────────────
+  function getFilteredData(data) {
+    const cat = state.currentCategory;
+    const yearField = categories[cat].yearField;
+    let filtered = [...data];
+
+    // Text search
+    if (state.filters.search) {
+      const q = state.filters.search.toLowerCase();
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(q) ||
+        (item.type && item.type.toLowerCase().includes(q)) ||
+        (item.description && item.description.toLowerCase().includes(q)) ||
+        (item.operator && item.operator.toLowerCase().includes(q))
+      );
+    }
+
+    // Type filter (supports ship/sensor group keys and name-prefix groups)
+    if (state.filters.type) {
+      const groupDef = SHIP_TYPE_ICON_DEFS[state.filters.type] || SENSOR_TYPE_ICON_DEFS[state.filters.type];
+      if (groupDef && groupDef.types) {
+        // Ship/sensor: filter by type field
+        const typeSet = new Set(groupDef.types.map(t => t.trim()));
+        filtered = filtered.filter(item => typeSet.has((item.type || '').trim()));
+      } else {
+        // Check name-prefix group defs (infantry, armor, artillery, airdefense, radar)
+        const prefixDefs = { ...INFANTRY_TYPE_ICON_DEFS, ...ARMOR_TYPE_ICON_DEFS, ...ARTILLERY_TYPE_ICON_DEFS, ...AIRDEFENSE_TYPE_ICON_DEFS, ...RADAR_TYPE_ICON_DEFS };
+        const prefixDef = prefixDefs[state.filters.type];
+        if (prefixDef && (prefixDef.match || prefixDef.prefixes)) {
+          filtered = filtered.filter(item => prefixDef.match ? prefixDef.match(item.name) : prefixDef.prefixes.some(p => item.name.startsWith(p)));
+        } else {
+          filtered = filtered.filter(item =>
+            (item.type || item.category || '') === state.filters.type
+          );
+        }
+      }
+    }
+
+    // Operator filter
+    if (state.filters.operator) {
+      filtered = filtered.filter(item =>
+        (item.operator || '').includes(state.filters.operator)
+      );
+    }
+
+    // Sorting
+    const [field, dir] = state.sort.split('-');
+    filtered.sort((a, b) => {
+      let va, vb;
+      if (field === 'name') {
+        va = a.name.toLowerCase();
+        vb = b.name.toLowerCase();
+        return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      }
+      if (field === 'year') {
+        va = a[yearField] || 0;
+        vb = b[yearField] || 0;
+        return dir === 'asc' ? va - vb : vb - va;
+      }
+      if (field === 'speed') {
+        va = a.maxSpeed || 0;
+        vb = b.maxSpeed || 0;
+        return dir === 'asc' ? va - vb : vb - va;
+      }
+      if (field === 'range') {
+        va = a.maxRange || a.rangeMax || 0;
+        vb = b.maxRange || b.rangeMax || 0;
+        return dir === 'asc' ? va - vb : vb - va;
+      }
+      if (field === 'weight') {
+        va = a.weight || a.displacementFull || a.maxWeight || 0;
+        vb = b.weight || b.displacementFull || b.maxWeight || 0;
+        return dir === 'asc' ? va - vb : vb - va;
+      }
+      return 0;
+    });
+
+    return filtered;
+  }
+
+  // ── Populate Filters ───────────────────
+  function populateFilters(data) {
+    const cat = state.currentCategory;
+    const types = new Set();
+    const operators = new Set();
+
+    data.forEach(item => {
+      if (item.type) types.add(item.type);
+      if (item.category) types.add(item.category);
+      if (item.operator) {
+        item.operator.split(',').map(o => o.trim()).forEach(o => operators.add(o));
+      }
+    });
+
+    filterType.innerHTML = '<option value="">All Types</option>' +
+      [...types].sort().map(t => `<option value="${t}">${t}</option>`).join('');
+
+    filterOperator.innerHTML = '<option value="">All Branches</option>' +
+      [...operators].sort().map(o => `<option value="${o}">${o}</option>`).join('');
+
+    // Update sort options based on category
+    let extraSorts = '';
+    if (cat === 'aircraft') {
+      extraSorts = `
+        <option value="speed-desc">Speed (Fastest)</option>
+        <option value="speed-asc">Speed (Slowest)</option>
+        <option value="weight-desc">Weight (Heaviest)</option>
+        <option value="weight-asc">Weight (Lightest)</option>`;
+    } else if (cat === 'ships') {
+      extraSorts = `
+        <option value="speed-desc">Speed (Fastest)</option>
+        <option value="weight-desc">Displacement (Largest)</option>
+        <option value="weight-asc">Displacement (Smallest)</option>`;
+    } else if (cat === 'weapons') {
+      extraSorts = `
+        <option value="range-desc">Range (Longest)</option>
+        <option value="range-asc">Range (Shortest)</option>
+        <option value="weight-desc">Weight (Heaviest)</option>`;
+    } else if (cat === 'sensors') {
+      extraSorts = `
+        <option value="range-desc">Range (Longest)</option>
+        <option value="range-asc">Range (Shortest)</option>`;
+    }
+
+    sortBy.innerHTML = `
+      <option value="name-asc">Name (A-Z)</option>
+      <option value="name-desc">Name (Z-A)</option>
+      <option value="year-asc">Year (Oldest)</option>
+      <option value="year-desc">Year (Newest)</option>
+      ${extraSorts}`;
+  }
+
+  // ── Operator Badge ─────────────────────
+  function operatorClass(op) {
+    if (!op) return 'operator-default';
+    const l = op.toLowerCase();
+    if (l.includes('navy')) return 'operator-navy';
+    if (l.includes('army')) return 'operator-army';
+    if (l.includes('air force')) return 'operator-air-force';
+    if (l.includes('marine')) return 'operator-marine-corps';
+    return 'operator-default';
+  }
+
+  // ── Type Icon Filter Buttons ───────────
+  function renderTypeIconFilters(data, cat) {
+    if (!typeIconFiltersEl) return;
+
+    // Aircraft: direct type → icon mapping
+    if (cat === 'aircraft') {
+      const types = [...new Set(data.map(d => d.type).filter(Boolean))].sort();
+      typeIconFiltersEl.innerHTML = types.map(type => {
+        const def = TYPE_ICON_DEFS[type];
+        if (!def) return '';
+        const active = state.filters.type === type;
+        const iconHtml = def.svg || '';
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type="${esc(type)}" title="${esc(type)}">
+          <span class="type-icon-symbol">${iconHtml}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      return;
+    }
+
+    // Ships: grouped type → icon mapping
+    if (cat === 'ships') {
+      const dataTypes = new Set(data.map(d => (d.type || '').trim()).filter(Boolean));
+      typeIconFiltersEl.innerHTML = Object.entries(SHIP_TYPE_ICON_DEFS).map(([groupKey, def]) => {
+        // Only show groups that have matching data
+        const trimmedTypes = def.types.map(t => t.trim());
+        if (!trimmedTypes.some(t => dataTypes.has(t))) return '';
+        const active = state.filters.type === groupKey;
+        const count = data.filter(d => trimmedTypes.includes((d.type || '').trim())).length;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type-group="${esc(groupKey)}" title="${esc(def.short.replace(/\\n/g, ' '))} (${count})">
+          <span class="type-icon-symbol">${def.svg}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      return;
+    }
+
+    // Sensors: grouped type → icon mapping
+    if (cat === 'sensors') {
+      const dataTypes = new Set(data.map(d => (d.type || '').trim()).filter(Boolean));
+      typeIconFiltersEl.innerHTML = Object.entries(SENSOR_TYPE_ICON_DEFS).map(([groupKey, def]) => {
+        const trimmedTypes = def.types.map(t => t.trim());
+        if (!trimmedTypes.some(t => dataTypes.has(t))) return '';
+        const active = state.filters.type === groupKey;
+        const count = data.filter(d => trimmedTypes.includes((d.type || '').trim())).length;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type-group="${esc(groupKey)}" title="${esc(def.short.replace(/\\n/g, ' '))} (${count})">
+          <span class="type-icon-symbol">${def.svg}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      return;
+    }
+
+    // Weapons: direct type → icon mapping
+    if (cat === 'weapons') {
+      const types = [...new Set(data.map(d => d.type).filter(Boolean))].sort();
+      typeIconFiltersEl.innerHTML = types.map(type => {
+        const def = WEAPON_TYPE_ICON_DEFS[type];
+        if (!def) return '';
+        const active = state.filters.type === type;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type="${esc(type)}" title="${esc(type)}">
+          <span class="type-icon-symbol">${def.svg}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      return;
+    }
+
+    // Name-prefix based categories: infantry, armor, artillery, airdefense, radar
+    const PREFIX_DEFS = {
+      infantry: INFANTRY_TYPE_ICON_DEFS,
+      armor: ARMOR_TYPE_ICON_DEFS,
+      artillery: ARTILLERY_TYPE_ICON_DEFS,
+      airdefense: AIRDEFENSE_TYPE_ICON_DEFS,
+      radar: RADAR_TYPE_ICON_DEFS,
+    };
+    const prefixDef = PREFIX_DEFS[cat];
+    if (prefixDef) {
+      typeIconFiltersEl.innerHTML = Object.entries(prefixDef).map(([groupKey, def]) => {
+        const count = data.filter(d => def.match ? def.match(d.name) : def.prefixes.some(p => d.name.startsWith(p))).length;
+        if (count === 0) return '';
+        const active = state.filters.type === groupKey;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type-group="${esc(groupKey)}" title="${esc(def.short.replace(/\\n/g, ' '))} (${count})">
+          <span class="type-icon-symbol">${def.svg}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      return;
+    }
+
+    typeIconFiltersEl.innerHTML = '';
+  }
+
+  // ── Card Rendering ─────────────────────
+  function renderCards(data) {
+    const cat = state.currentCategory;
+    const yearField = categories[cat].yearField;
+
+    if (data.length === 0) {
+      content.innerHTML = `<div class="no-results"><h3>No results found</h3><p>Try adjusting your filters or search terms.</p></div>`;
+      itemCount.textContent = '(0 items)';
+      return;
+    }
+
+    itemCount.textContent = `(${data.length} items)`;
+
+    content.innerHTML = data.map(item => {
+      const isCompared = state.compareList.some(c => c.id === item.id && c.category === cat);
+      const meta = getCardMeta(item, cat);
+      const tags = getCardTags(item, cat);
+      const year = item[yearField] || '—';
+      const wikiTitle = getWikiTitle(cat, item.id);
+      const cachedImg = wikiTitle ? state.imageCache.get(wikiTitle) : null;
+      const icon = catIcons[cat] || '';
+
+      return `
+        <div class="card" data-id="${item.id}" data-category="${cat}" tabindex="0" role="button" aria-label="${esc(item.name)}">
+          ${state.viewMode === 'grid' ? `
+            <div class="card-image" data-wiki="${esc(wikiTitle || '')}" data-alt="${esc(item.name)}" ${cachedImg ? 'data-loaded="true"' : ''}>
+              <div class="card-image-placeholder" ${cachedImg ? 'style="opacity:0"' : ''}>${icon}</div>
+              ${cachedImg ? `<img src="${cachedImg}" alt="${esc(item.name)}" class="img-loaded">` : ''}
+            </div>
+          ` : `
+            <div class="card-list-thumb" data-wiki="${esc(wikiTitle || '')}" data-alt="${esc(item.name)}" ${cachedImg ? 'data-loaded="true"' : ''}>
+              <div class="card-image-placeholder-sm" ${cachedImg ? 'style="opacity:0"' : ''}>${icon}</div>
+              ${cachedImg ? `<img src="${cachedImg}" alt="${esc(item.name)}" class="img-loaded">` : ''}
+            </div>
+          `}
+          <div class="card-header">
+            <div>
+              <div class="card-name">${esc(item.name)}</div>
+              <span class="card-type">${esc(item.type || item.category || '')}</span>
+            </div>
+            <span class="card-year">${year}</span>
+          </div>
+          <div class="card-meta">
+            ${meta.map(m => `
+              <div class="card-meta-item">
+                <span class="card-meta-label">${m.label}</span>
+                <span class="card-meta-value">${m.value}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card-desc">${esc(item.description || '')}</div>
+          <div class="card-footer">
+            <div class="card-tags">
+              <span class="card-operator ${operatorClass(item.operator)}">${esc(item.operator || '—')}</span>
+              ${tags.map(t => `<span class="card-tag">${esc(t)}</span>`).join('')}
+            </div>
+            <button class="card-compare ${isCompared ? 'selected' : ''}" data-id="${item.id}" title="Add to compare">&nbsp;</button>
+          </div>
+          ${state.viewMode === 'list' ? `
+            <div class="card-list-stats">
+              ${meta.slice(0, 4).map(m => `<span><span class="card-list-stat-label">${m.label}:</span> ${m.value}</span>`).join('')}
+            </div>
+            <span class="card-operator ${operatorClass(item.operator)}">${esc(item.operator || '')}</span>
+            <span class="card-year">${year}</span>
+            <button class="card-compare ${isCompared ? 'selected' : ''}" data-id="${item.id}" title="Add to compare">&nbsp;</button>
+          ` : ''}
+        </div>`;
+    }).join('');
+
+    requestAnimationFrame(() => observeImages());
+  }
+
+  function getCardMeta(item, cat) {
+    switch (cat) {
+      case 'aircraft':
+        return [
+          { label: 'Max Speed', value: item.maxSpeed ? `${item.maxSpeed.toLocaleString()} kt` : '—' },
+          { label: 'Crew', value: item.crew ?? '—' },
+          { label: 'Max Weight', value: item.maxWeight ? `${item.maxWeight.toLocaleString()} kg` : '—' },
+          { label: 'Sensors', value: item.sensorCount || 0 },
+          { label: 'Weapons', value: item.weaponCount || 0 },
+          { label: 'Propulsion', value: truncate(item.propulsion || '', 28) },
+        ];
+      case 'ships':
+        return [
+          { label: 'Max Speed', value: item.maxSpeed ? `${item.maxSpeed} kt` : '—' },
+          { label: 'Crew', value: item.crew ? item.crew.toLocaleString() : '—' },
+          { label: 'Displacement', value: item.displacementFull ? `${item.displacementFull.toLocaleString()} t` : '—' },
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Weapons', value: item.weaponCount || 0 },
+          { label: 'Sensors', value: item.sensorCount || 0 },
+        ];
+      case 'weapons': {
+        const primaryRange = item.airRange != null ? { label: 'Air Range', value: `${item.airRange.toLocaleString()} km` }
+          : item.surfaceRange != null ? { label: 'Surface Range', value: `${item.surfaceRange.toLocaleString()} km` }
+          : item.landRange != null ? { label: 'Land Range', value: `${item.landRange.toLocaleString()} km` }
+          : item.subRange != null ? { label: 'Sub Range', value: `${item.subRange.toLocaleString()} km` }
+          : { label: 'Max Range', value: item.maxRange ? `${item.maxRange.toLocaleString()} km` : '—' };
+        return [
+          primaryRange,
+          { label: 'Weight', value: item.weight ? `${item.weight.toLocaleString()} kg` : '—' },
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Diameter', value: item.diameter ? `${item.diameter} m` : '—' },
+        ];
+      }
+      case 'sensors':
+        return [
+          { label: 'Max Range', value: `${item.rangeMax || '—'} km` },
+          { label: 'Role', value: truncate(item.role || '', 36) },
+          { label: 'Type', value: item.type || '—' },
+          { label: 'Generation', value: item.generation || '—' },
+        ];
+      case 'infantry':
+      case 'armor':
+      case 'artillery':
+      case 'airdefense':
+      case 'radar':
+        return [
+          { label: 'Type', value: truncate(item.type || '', 28) },
+          { label: 'Crew', value: item.crew ?? '—' },
+          { label: 'Size', value: item.length && item.width ? `${item.length}×${item.width} m` : '—' },
+          { label: 'Sensors', value: item.sensorCount || 0 },
+          { label: 'Weapons', value: item.weaponCount || 0 },
+        ];
+      case 'facilities':
+        return [
+          { label: 'Type', value: truncate(item.type || '', 28) },
+          { label: 'Crew', value: item.crew ?? '—' },
+          { label: 'Size', value: item.length && item.width ? `${item.length}×${item.width} m` : '—' },
+          { label: 'Sensors', value: item.sensorCount || 0 },
+          { label: 'Weapons', value: item.weaponCount || 0 },
+          { label: 'HP', value: item.damagePoints || '—' },
+        ];
+      default:
+        return [];
+    }
+  }
+
+  function getCardTags(item, cat) {
+    const tags = [];
+    if (cat === 'weapons') {
+      // Show which domains this weapon can target
+      if (item.airRange) tags.push('Air');
+      if (item.surfaceRange) tags.push('Surface');
+      if (item.landRange) tags.push('Land');
+      if (item.subRange) tags.push('Sub');
+    }
+    if (cat === 'ships' && item.maxDepth != null) {
+      tags.push('Submarine');
+    }
+    return tags;
+  }
+
+  // ── Detail Modal ───────────────────────
+  async function showDetail(item, cat) {
+    // Show modal immediately with index data + loading indicator
+    const yearField = categories[cat].yearField;
+    const year = item[yearField] || '—';
+    const wikiTitle = getWikiTitle(cat, item.id);
+    const cachedImg = wikiTitle ? state.imageCache.get(wikiTitle) : null;
+
+    // Lazy-load detail data for this category
+    const allDetails = await loadDetails(cat);
+    const detail = allDetails[String(item.id)] || {};
+    // Merge index + detail into one object
+    const d = { ...item, ...detail };
+
+    let html = '';
+
+    // Hero image
+    if (wikiTitle) {
+      if (cachedImg) {
+        html += `<div class="detail-hero"><img src="${cachedImg}" alt="${esc(d.name)}" class="img-loaded"></div>`;
+      } else {
+        html += `<div class="detail-hero" id="detailHeroContainer" data-wiki="${esc(wikiTitle)}">
+          <div class="card-image-placeholder detail-hero-placeholder">${catIcons[cat] || ''}</div>
+        </div>`;
+      }
+    }
+
+    // DB variant info
+    const dbInfo = d.dbName && d.dbName !== d.name ? `<div class="detail-desc" style="font-size:12px">CMO DB: ${esc(d.dbName)}${d.comments && d.comments !== '-' ? ' [' + esc(d.comments) + ']' : ''}</div>` : '';
+
+    html += `
+      <div class="detail-header">
+        <div class="detail-name">${esc(d.name)}</div>
+        <div class="detail-badges">
+          <span class="detail-badge card-type">${esc(d.type || d.category || '')}</span>
+          <span class="detail-badge card-operator ${operatorClass(d.operator)}">${esc(d.operator || '')}</span>
+          <span class="detail-badge card-year">${year}</span>
+        </div>
+      </div>${dbInfo}`;
+
+    // General specs
+    html += `<div class="detail-section">
+      <div class="detail-section-title">General Specifications</div>
+      <div class="detail-section-body">
+        <div class="detail-grid">${getDetailFields(d, cat).map(f =>
+          `<div class="detail-field">
+            <span class="detail-field-label">${f.label}</span>
+            <span class="detail-field-value">${f.value}</span>
+          </div>`
+        ).join('')}</div>
+      </div>
+    </div>`;
+
+    // Sensors table (from detail data)
+    if (d.sensors && d.sensors.length > 0) {
+      const maxRange = Math.max(...d.sensors.map(s => s.rangeMax || s.maxRange || 0));
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Sensors & EW (${d.sensors.length})</div>
+        <div class="detail-section-body">
+          <table class="detail-table">
+            <thead><tr><th>Name</th><th>Role</th><th>Max Range</th><th></th></tr></thead>
+            <tbody>${d.sensors.map(s => {
+              const rng = s.rangeMax || s.maxRange || 0;
+              return `<tr>
+                <td style="color:var(--text-primary)">${esc(s.name)}</td>
+                <td>${esc(s.role || s.type || '')}</td>
+                <td>${rng ? rng + ' km' : '—'}</td>
+                <td><div class="range-bar" title="${rng ? rng + ' km' : ''}"><div class="range-bar-fill" style="width:${maxRange ? (rng / maxRange * 100) : 0}%"></div></div></td>
+              </tr>`;
+            }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Aircraft: Loadouts (from detail)
+    if (d.loadouts && d.loadouts.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Loadouts (${d.loadouts.length} configurations)</div>
+        <div class="detail-section-body">`;
+      d.loadouts.forEach(lo => {
+        const allR = lo.weapons.flatMap(w => [w.airRange, w.surfaceRange, w.landRange].filter(r => r != null));
+        const maxR = allR.length ? Math.max(...allR) : 0;
+        html += `<div style="margin-bottom:18px">
+          <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600">${esc(lo.name)}</div>
+          <table class="detail-table">
+            <thead><tr><th>Weapon</th><th>Qty</th><th>Type</th><th>Air</th><th>Surface</th><th>Land</th><th></th></tr></thead>
+            <tbody>${lo.weapons.map(w => {
+              const best = w.airRange || w.surfaceRange || w.landRange || 0;
+              return `<tr>
+                <td style="color:var(--text-primary)">${esc(w.name)}</td>
+                <td>${w.qty}x</td>
+                <td>${esc(w.type)}</td>
+                <td>${w.airRange != null ? w.airRange + ' km' : '—'}</td>
+                <td>${w.surfaceRange != null ? w.surfaceRange + ' km' : '—'}</td>
+                <td>${w.landRange != null ? w.landRange + ' km' : '—'}</td>
+                <td><div class="range-bar"><div class="range-bar-fill" style="width:${maxR ? (best / maxR * 100) : 0}%"></div></div></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Ships/Facilities: Mounts
+    if (d.mounts && d.mounts.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Weapons Mounts (${d.mounts.length})</div>
+        <div class="detail-section-body">
+          <table class="detail-table">
+            <thead><tr><th>Mount</th><th>Qty</th><th>Weapons</th></tr></thead>
+            <tbody>${d.mounts.map(m => `<tr>
+              <td style="color:var(--text-primary)">${esc(m.name)}</td>
+              <td>${m.qty}x</td>
+              <td>${m.weapons.map(w => esc(w.name)).join(', ') || '—'}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Ships: Magazines
+    if (d.magazines && d.magazines.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Magazines</div>
+        <div class="detail-section-body">
+          <table class="detail-table">
+            <thead><tr><th>Magazine</th><th>Qty</th><th>Capacity</th><th>Weapons</th></tr></thead>
+            <tbody>${d.magazines.map(m => `<tr>
+              <td style="color:var(--text-primary)">${esc(m.name)}</td>
+              <td>${m.qty}x</td>
+              <td>${m.capacity ?? '—'}</td>
+              <td>${m.weapons.map(w => esc(w.name)).join(', ') || '—'}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Old-style weapons (for backward compat)
+    if (d.weapons && d.weapons.length > 0 && !d.loadouts && !d.mounts) {
+      const hasAir = d.weapons.some(w => w.airRange != null);
+      const hasSurf = d.weapons.some(w => w.surfaceRange != null);
+      const hasLand = d.weapons.some(w => w.landRange != null);
+      const allRanges = d.weapons.flatMap(w => [w.airRange, w.surfaceRange, w.landRange].filter(r => r != null));
+      const maxR = allRanges.length ? Math.max(...allRanges) : 0;
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Weapons / Loadout</div>
+        <div class="detail-section-body">
+          <table class="detail-table">
+            <thead><tr><th>Name</th><th>Type</th>${hasAir ? '<th>Air</th>' : ''}${hasSurf ? '<th>Surface</th>' : ''}${hasLand ? '<th>Land</th>' : ''}${!hasAir && !hasSurf && !hasLand ? '<th>Max Range</th>' : ''}<th></th></tr></thead>
+            <tbody>${d.weapons.map(w => {
+              const best = w.airRange || w.surfaceRange || w.landRange || w.maxRange || 0;
+              return `<tr>
+                <td style="color:var(--text-primary)">${esc(w.name)}</td>
+                <td>${esc(w.type)}</td>
+                ${hasAir ? `<td>${w.airRange != null ? w.airRange + ' km' : '—'}</td>` : ''}
+                ${hasSurf ? `<td>${w.surfaceRange != null ? w.surfaceRange + ' km' : '—'}</td>` : ''}
+                ${hasLand ? `<td>${w.landRange != null ? w.landRange + ' km' : '—'}</td>` : ''}
+                ${!hasAir && !hasSurf && !hasLand ? `<td>${w.maxRange ? w.maxRange + ' km' : '—'}</td>` : ''}
+                <td><div class="range-bar"><div class="range-bar-fill" style="width:${maxR ? (best / maxR * 100) : 0}%"></div></div></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Signatures
+    if (d.signatures && d.signatures.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Signatures</div>
+        <div class="detail-section-body">
+          <table class="detail-table">
+            <thead><tr><th>Type</th><th>Front</th><th>Side</th><th>Rear</th><th>Top</th></tr></thead>
+            <tbody>${d.signatures.map(s => `<tr>
+              <td style="color:var(--text-primary);font-size:11px">${esc(s.type)}</td>
+              <td>${s.front}</td><td>${s.side}</td><td>${s.rear}</td><td>${s.top}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Propulsion Performance
+    if (d.propulsion && typeof d.propulsion === 'object' && d.propulsion.performances && d.propulsion.performances.length > 0) {
+      const throttleMap = { 1: 'Cruise', 2: 'Military', 3: 'Afterburner' };
+      const hasAlt = d.propulsion.performances[0].altBand != null;
+      const thrustInfo = d.propulsion.thrustMil ? ` (${d.propulsion.engines || ''}x, ${d.propulsion.thrustMil} kgf mil${d.propulsion.thrustAB ? ', ' + d.propulsion.thrustAB + ' kgf AB' : ''})` : '';
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Propulsion Performance</div>
+        <div class="detail-section-body">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">${esc(d.propulsion.name || '')}${thrustInfo}</div>
+          <table class="detail-table">
+            <thead><tr>${hasAlt ? '<th>Alt Band</th>' : ''}<th>Throttle</th><th>Speed (kt)</th>${hasAlt ? '<th>Alt Range (m)</th>' : ''}<th>Consumption</th></tr></thead>
+            <tbody>${d.propulsion.performances.map(p => `<tr>
+              ${hasAlt ? `<td>${p.altBand}</td>` : ''}
+              <td>${throttleMap[p.throttle] || p.throttle}</td>
+              <td style="color:var(--text-primary)">${p.speed}</td>
+              ${hasAlt ? `<td>${Math.round(p.altMin)} – ${Math.round(p.altMax)}</td>` : ''}
+              <td>${p.consumption}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    // Codes / Capabilities
+    if (d.codes && d.codes.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Capabilities & Codes</div>
+        <div class="detail-section-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${d.codes.map(c => `<span class="card-type">${esc(c)}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Sensor detail: capabilities & frequencies
+    if (d.capabilities && d.capabilities.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Capabilities</div>
+        <div class="detail-section-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${d.capabilities.map(c => `<span class="card-type">${esc(c)}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+    if (d.frequencies && d.frequencies.length > 0) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Frequencies</div>
+        <div class="detail-section-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${d.frequencies.map(f => `<span class="card-tag" style="font-size:12px;padding:4px 10px">${esc(f)}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Weapon detail: warhead, envelope
+    if (d.warhead) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Warhead</div>
+        <div class="detail-section-body">
+          <div class="detail-grid">
+            <div class="detail-field"><span class="detail-field-label">Name</span><span class="detail-field-value">${esc(d.warhead.name)}</span></div>
+            <div class="detail-field"><span class="detail-field-label">Type</span><span class="detail-field-value">${esc(d.warhead.type)}</span></div>
+            <div class="detail-field"><span class="detail-field-label">Damage</span><span class="detail-field-value">${d.warhead.damage}</span></div>
+            <div class="detail-field"><span class="detail-field-label">Explosive</span><span class="detail-field-value">${d.warhead.explosiveWeight} kg</span></div>
+            ${d.warhead.numWarheads > 1 ? `<div class="detail-field"><span class="detail-field-label">Warheads</span><span class="detail-field-value">${d.warhead.numWarheads}</span></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if (d.targetSpeedMax || d.launchAltMax) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Launch / Target Envelope</div>
+        <div class="detail-section-body">
+          <div class="detail-grid">
+            ${d.launchSpeedMin != null || d.launchSpeedMax ? `<div class="detail-field"><span class="detail-field-label">Launch Speed</span><span class="detail-field-value">${d.launchSpeedMin || 0} – ${d.launchSpeedMax || '—'} kt</span></div>` : ''}
+            ${d.launchAltMin != null || d.launchAltMax ? `<div class="detail-field"><span class="detail-field-label">Launch Altitude</span><span class="detail-field-value">${Math.round(d.launchAltMin || 0)} – ${Math.round(d.launchAltMax || 0)} m</span></div>` : ''}
+            ${d.targetSpeedMax ? `<div class="detail-field"><span class="detail-field-label">Target Speed</span><span class="detail-field-value">${d.targetSpeedMin || 0} – ${d.targetSpeedMax} kt</span></div>` : ''}
+            ${d.targetAltMax ? `<div class="detail-field"><span class="detail-field-label">Target Altitude</span><span class="detail-field-value">${Math.round(d.targetAltMin || 0)} – ${Math.round(d.targetAltMax)} m</span></div>` : ''}
+            ${d.maxFlightTime ? `<div class="detail-field"><span class="detail-field-label">Max Flight Time</span><span class="detail-field-value">${d.maxFlightTime} s</span></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Probability of Kill
+    if (d.airPoK || d.surfacePoK || d.landPoK || d.subPoK) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Probability of Kill</div>
+        <div class="detail-section-body">
+          <div class="detail-grid">
+            ${d.airPoK ? `<div class="detail-field"><span class="detail-field-label">Air</span><span class="detail-field-value">${d.airPoK}%</span></div>` : ''}
+            ${d.surfacePoK ? `<div class="detail-field"><span class="detail-field-label">Surface</span><span class="detail-field-value">${d.surfacePoK}%</span></div>` : ''}
+            ${d.landPoK ? `<div class="detail-field"><span class="detail-field-label">Land</span><span class="detail-field-value">${d.landPoK}%</span></div>` : ''}
+            ${d.subPoK ? `<div class="detail-field"><span class="detail-field-label">Subsurface</span><span class="detail-field-value">${d.subPoK}%</span></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    modalBody.innerHTML = html;
+    detailModal.classList.remove('hidden');
+    detailModal.querySelector('.modal-close')?.focus();
+
+    // ── Render per-item D3 charts ──
+    if (typeof Charts !== 'undefined' && Charts.d3Ready()) {
+      // Radar chart: aircraft + ships
+      if (cat === 'aircraft' || cat === 'ships') {
+        const radarDiv = document.createElement('div');
+        radarDiv.className = 'detail-section';
+        radarDiv.innerHTML = '<div class="detail-section-title">Performance Profile</div><div class="detail-section-body"><div class="chart-container" id="detailRadarChart"></div></div>';
+        modalBody.appendChild(radarDiv);
+        const allItems = state.data[cat] || [];
+        Charts.renderRadarChart(document.getElementById('detailRadarChart'), d, cat, allItems);
+      }
+
+      // Sensor bars: aircraft + ships with sensors
+      if ((cat === 'aircraft' || cat === 'ships') && d.sensors && d.sensors.length > 0) {
+        const sensorDiv = document.createElement('div');
+        sensorDiv.className = 'detail-section';
+        sensorDiv.innerHTML = '<div class="detail-section-title">Sensor Ranges</div><div class="detail-section-body"><div class="chart-container" id="detailSensorBars"></div></div>';
+        modalBody.appendChild(sensorDiv);
+        Charts.renderSensorBars(document.getElementById('detailSensorBars'), d);
+      }
+
+      // Signature polar: any category with signatures
+      if (d.signatures && d.signatures.length > 0) {
+        const sigDiv = document.createElement('div');
+        sigDiv.className = 'detail-section';
+        sigDiv.innerHTML = '<div class="detail-section-title">Signature Profile</div><div class="detail-section-body"><div class="chart-container" id="detailSigPolar"></div></div>';
+        modalBody.appendChild(sigDiv);
+        Charts.renderSignaturePolar(document.getElementById('detailSigPolar'), d);
+      }
+
+      // Performance curves: aircraft + ships
+      if ((cat === 'aircraft' || cat === 'ships') && d.propulsion?.performances?.length > 0) {
+        const perfDiv = document.createElement('div');
+        perfDiv.className = 'detail-section';
+        perfDiv.innerHTML = '<div class="detail-section-title">Performance Curves</div><div class="detail-section-body"><div class="chart-container" id="detailPerfCurves"></div></div>';
+        modalBody.appendChild(perfDiv);
+        Charts.renderPerfCurves(document.getElementById('detailPerfCurves'), d);
+      }
+
+      // Range rings: weapons
+      if (cat === 'weapons') {
+        const ringDiv = document.createElement('div');
+        ringDiv.className = 'detail-section';
+        ringDiv.innerHTML = '<div class="detail-section-title">Engagement Ranges</div><div class="detail-section-body"><div class="chart-container" id="detailRangeRings"></div></div>';
+        modalBody.appendChild(ringDiv);
+        Charts.renderRangeRings(document.getElementById('detailRangeRings'), d);
+      }
+
+      // Loadout analysis: aircraft
+      if (cat === 'aircraft' && d.loadouts && d.loadouts.length > 0) {
+        const loDiv = document.createElement('div');
+        loDiv.className = 'detail-section';
+        loDiv.innerHTML = '<div class="detail-section-title">Loadout Analysis</div><div class="detail-section-body"><div class="chart-container" id="detailLoadout"></div></div>';
+        modalBody.appendChild(loDiv);
+        Charts.renderLoadoutAnalysis(document.getElementById('detailLoadout'), d);
+      }
+    }
+
+    // Lazy-fetch hero image if not cached
+    const heroContainer = document.getElementById('detailHeroContainer');
+    if (heroContainer) {
+      fetchWikiThumbnail(heroContainer.dataset.wiki).then(imgUrl => {
+        if (imgUrl && heroContainer.isConnected) {
+          const img = document.createElement('img');
+          img.src = imgUrl;
+          img.alt = d.name;
+          img.onload = () => {
+            heroContainer.appendChild(img);
+            requestAnimationFrame(() => img.classList.add('img-loaded'));
+            const ph = heroContainer.querySelector('.detail-hero-placeholder');
+            if (ph) ph.style.opacity = '0';
+          };
+        }
+      });
+    }
+  }
+
+  function getDetailFields(item, cat) {
+    const propName = typeof item.propulsion === 'object' ? item.propulsion.name : item.propulsion;
+    switch (cat) {
+      case 'aircraft':
+        return [
+          { label: 'Crew', value: item.crew ?? '—' },
+          { label: 'Max Speed', value: item.maxSpeed ? `${item.maxSpeed.toLocaleString()} kt` : '—' },
+          { label: 'Wingspan', value: item.span ? `${item.span} m` : '—' },
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Height', value: item.height ? `${item.height} m` : '—' },
+          { label: 'Empty Weight', value: item.emptyWeight ? `${item.emptyWeight.toLocaleString()} kg` : '—' },
+          { label: 'Max Weight', value: item.maxWeight ? `${item.maxWeight.toLocaleString()} kg` : '—' },
+          { label: 'Max Payload', value: item.maxPayload ? `${item.maxPayload.toLocaleString()} kg` : '—' },
+          { label: 'Propulsion', value: propName || '—' },
+          item.agility ? { label: 'Agility', value: item.agility } : null,
+          item.climbRate ? { label: 'Climb Rate', value: `${item.climbRate} m/s` } : null,
+          item.totalEndurance ? { label: 'Endurance', value: `${item.totalEndurance} hrs` } : null,
+          item.damagePoints ? { label: 'Damage Points', value: item.damagePoints } : null,
+          item.fuselageArmor ? { label: 'Fuselage Armor', value: item.fuselageArmor } : null,
+          item.engineArmor ? { label: 'Engine Armor', value: item.engineArmor } : null,
+          item.cockpitArmor ? { label: 'Cockpit Armor', value: item.cockpitArmor } : null,
+        ].filter(Boolean);
+      case 'ships':
+        return [
+          { label: 'Crew', value: item.crew ? item.crew.toLocaleString() : '—' },
+          { label: 'Max Speed', value: item.maxSpeed ? `${item.maxSpeed} kt` : '—' },
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Beam', value: item.beam ? `${item.beam} m` : '—' },
+          { label: 'Draft', value: item.draft ? `${item.draft} m` : '—' },
+          { label: 'Height', value: item.height ? `${item.height} m` : '—' },
+          item.displacementEmpty ? { label: 'Empty Displacement', value: `${item.displacementEmpty.toLocaleString()} t` } : null,
+          item.displacementStandard ? { label: 'Standard Disp.', value: `${item.displacementStandard.toLocaleString()} t` } : null,
+          { label: 'Full Displacement', value: item.displacementFull ? `${item.displacementFull.toLocaleString()} t` : '—' },
+          item.maxDepth != null && item.maxDepth > 0 ? { label: 'Max Depth', value: `${item.maxDepth} m` } : null,
+          item.damagePoints ? { label: 'Damage Points', value: item.damagePoints.toLocaleString() } : null,
+          propName ? { label: 'Propulsion', value: propName } : null,
+        ].filter(Boolean);
+      case 'weapons': {
+        const ranges = [
+          item.airRange != null ? { label: 'Air Range', value: `${item.airRange} km` } : null,
+          item.surfaceRange != null ? { label: 'Surface Range', value: `${item.surfaceRange} km` } : null,
+          item.landRange != null ? { label: 'Land Range', value: `${item.landRange} km` } : null,
+          item.subRange != null ? { label: 'Subsurface Range', value: `${item.subRange} km` } : null,
+        ].filter(Boolean);
+        const minRanges = [
+          item.airRangeMin ? { label: 'Air Min Range', value: `${item.airRangeMin} km` } : null,
+          item.surfaceRangeMin ? { label: 'Surface Min Range', value: `${item.surfaceRangeMin} km` } : null,
+          item.landRangeMin ? { label: 'Land Min Range', value: `${item.landRangeMin} km` } : null,
+          item.subRangeMin ? { label: 'Sub Min Range', value: `${item.subRangeMin} km` } : null,
+        ].filter(Boolean);
+        return [
+          { label: 'Weight', value: item.weight ? `${item.weight.toLocaleString()} kg` : '—' },
+          item.burnoutWeight ? { label: 'Burnout Weight', value: `${item.burnoutWeight.toLocaleString()} kg` } : null,
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Diameter', value: item.diameter ? `${item.diameter} m` : '—' },
+          { label: 'Span', value: item.span ? `${item.span} m` : '—' },
+          ...ranges,
+          ...minRanges,
+          item.climbRate ? { label: 'Climb Rate', value: `${item.climbRate} m/s` } : null,
+          item.cruiseAltitude ? { label: 'Cruise Altitude', value: `${Math.round(item.cruiseAltitude).toLocaleString()} m` } : null,
+          item.cep ? { label: 'CEP (Air)', value: `${item.cep} m` } : null,
+          item.cepSurface ? { label: 'CEP (Surface)', value: `${item.cepSurface} m` } : null,
+          item.torpSpeedCruise ? { label: 'Torpedo Speed (Cruise)', value: `${item.torpSpeedCruise} kt` } : null,
+          item.torpRangeCruise ? { label: 'Torpedo Range (Cruise)', value: `${item.torpRangeCruise} km` } : null,
+          item.torpSpeedFull ? { label: 'Torpedo Speed (Full)', value: `${item.torpSpeedFull} kt` } : null,
+          item.torpRangeFull ? { label: 'Torpedo Range (Full)', value: `${item.torpRangeFull} km` } : null,
+        ].filter(Boolean);
+      }
+      case 'sensors':
+        return [
+          { label: 'Role', value: item.role || '—' },
+          { label: 'Max Range', value: `${item.rangeMax || '—'} km` },
+          { label: 'Min Range', value: `${item.rangeMin || '—'} km` },
+          item.altitudeMax ? { label: 'Alt. Max', value: `${item.altitudeMax.toLocaleString()} m` } : null,
+          item.altitudeMin ? { label: 'Alt. Min', value: `${item.altitudeMin.toLocaleString()} m` } : null,
+          { label: 'Generation', value: item.generation || '—' },
+          item.scanInterval ? { label: 'Scan Interval', value: `${item.scanInterval} s` } : null,
+          item.maxContactsAir ? { label: 'Max Contacts (Air)', value: item.maxContactsAir } : null,
+          item.maxContactsSurface ? { label: 'Max Contacts (Surface)', value: item.maxContactsSurface } : null,
+          item.maxContactsSub ? { label: 'Max Contacts (Sub)', value: item.maxContactsSub } : null,
+          // Radar specs
+          item.radarPeakPower ? { label: 'Peak Power', value: `${item.radarPeakPower} kW` } : null,
+          item.radarHBeamwidth ? { label: 'H Beamwidth', value: `${item.radarHBeamwidth}°` } : null,
+          item.radarVBeamwidth ? { label: 'V Beamwidth', value: `${item.radarVBeamwidth}°` } : null,
+          item.radarPulseWidth ? { label: 'Pulse Width', value: `${item.radarPulseWidth} μs` } : null,
+          item.radarPRF ? { label: 'PRF', value: `${item.radarPRF} Hz` } : null,
+          item.radarNoiseLevel ? { label: 'Noise Level', value: `${item.radarNoiseLevel} dB` } : null,
+          item.radarProcessingGL ? { label: 'Processing G/L', value: `${item.radarProcessingGL} dB` } : null,
+          item.radarBlindTime ? { label: 'Blind Time', value: `${item.radarBlindTime} s` } : null,
+          // Resolution
+          item.resolutionRange ? { label: 'Range Resolution', value: `${item.resolutionRange} m` } : null,
+          item.resolutionHeight ? { label: 'Height Resolution', value: `${item.resolutionHeight} m` } : null,
+          item.resolutionAngle ? { label: 'Angle Resolution', value: `${item.resolutionAngle}°` } : null,
+          item.directionFindingAccuracy ? { label: 'DF Accuracy', value: `${item.directionFindingAccuracy}°` } : null,
+          // ESM/ECM
+          item.esmSensitivity ? { label: 'ESM Sensitivity', value: `${item.esmSensitivity} dBm` } : null,
+          item.esmChannels ? { label: 'ESM Channels', value: item.esmChannels } : null,
+          item.ecmGain ? { label: 'ECM Gain', value: `${item.ecmGain} dB` } : null,
+          item.ecmPeakPower ? { label: 'ECM Peak Power', value: `${item.ecmPeakPower} kW` } : null,
+          item.ecmTargets ? { label: 'ECM Max Targets', value: item.ecmTargets } : null,
+          // Sonar
+          item.sonarSourceLevel ? { label: 'Sonar Source Level', value: `${item.sonarSourceLevel} dB` } : null,
+          item.sonarDirectivity ? { label: 'Sonar Directivity', value: `${item.sonarDirectivity} dB` } : null,
+        ].filter(Boolean);
+      case 'infantry':
+      case 'armor':
+      case 'artillery':
+      case 'airdefense':
+      case 'radar':
+      case 'facilities':
+        return [
+          { label: 'Crew', value: item.crew ?? '—' },
+          { label: 'Length', value: item.length ? `${item.length} m` : '—' },
+          { label: 'Width', value: item.width ? `${item.width} m` : '—' },
+          item.area ? { label: 'Area', value: `${item.area.toLocaleString()} m²` } : null,
+          item.damagePoints ? { label: 'Damage Points', value: item.damagePoints } : null,
+          item.armorGeneral ? { label: 'Armor', value: item.armorGeneral } : null,
+          item.mastHeight ? { label: 'Mast Height', value: `${item.mastHeight} m` } : null,
+        ].filter(Boolean);
+      default:
+        return [];
+    }
+  }
+
+  // ── Compare View ───────────────────────
+  function showCompare() {
+    if (state.compareList.length < 2) return;
+
+    // Group by category
+    const byCat = {};
+    state.compareList.forEach(c => {
+      if (!byCat[c.category]) byCat[c.category] = [];
+      byCat[c.category].push(c);
+    });
+
+    let html = '';
+
+    for (const [cat, items] of Object.entries(byCat)) {
+      const data = state.data[cat] || [];
+      const fullItems = items.map(c => data.find(d => d.id === c.id)).filter(Boolean);
+      if (fullItems.length < 2) continue;
+
+      const fields = getCompareFields(cat);
+      const cols = fullItems.length + 1;
+
+      html += `<h3 style="color:var(--accent);margin:16px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title}</h3>`;
+      html += `<div class="compare-grid" style="margin-bottom:24px">`;
+
+      // Header row
+      html += `<div class="compare-row header-row" style="grid-template-columns: 180px repeat(${fullItems.length}, 1fr)">
+        <div class="compare-cell label-cell"></div>
+        ${fullItems.map(item => `<div class="compare-cell header-cell">${esc(item.name)}</div>`).join('')}
+      </div>`;
+
+      // Data rows
+      fields.forEach(f => {
+        const values = fullItems.map(item => f.getValue(item));
+        const numericValues = values.map(v => typeof v === 'number' ? v : parseFloat(v)).filter(v => !isNaN(v));
+        const best = f.higherIsBetter !== undefined && numericValues.length > 0
+          ? (f.higherIsBetter ? Math.max(...numericValues) : Math.min(...numericValues))
+          : null;
+
+        html += `<div class="compare-row" style="grid-template-columns: 180px repeat(${fullItems.length}, 1fr)">
+          <div class="compare-cell label-cell">${f.label}</div>
+          ${values.map(v => {
+            const num = typeof v === 'number' ? v : parseFloat(v);
+            const isBest = best !== null && !isNaN(num) && num === best && numericValues.filter(n => n === best).length === 1;
+            return `<div class="compare-cell value-cell ${isBest ? 'compare-best' : ''}">${typeof v === 'number' ? v.toLocaleString() : v}</div>`;
+          }).join('')}
+        </div>`;
+      });
+
+      html += `</div>`;
+    }
+
+    compareBody.innerHTML = html || '<p style="color:var(--text-muted)">Select at least 2 items from the same category to compare.</p>';
+    compareModal.classList.remove('hidden');
+  }
+
+  function getCompareFields(cat) {
+    switch (cat) {
+      case 'aircraft':
+        return [
+          { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Crew', getValue: i => i.crew ?? '—' },
+          { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0, higherIsBetter: true },
+          { label: 'Wingspan (m)', getValue: i => i.span || 0 },
+          { label: 'Length (m)', getValue: i => i.length || 0 },
+          { label: 'Empty Weight (kg)', getValue: i => i.emptyWeight || 0, higherIsBetter: false },
+          { label: 'Max Weight (kg)', getValue: i => i.maxWeight || 0, higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
+          { label: 'Propulsion', getValue: i => i.propulsion || '—' },
+        ];
+      case 'ships':
+        return [
+          { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Crew', getValue: i => i.crew || 0 },
+          { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0, higherIsBetter: true },
+          { label: 'Length (m)', getValue: i => i.length || 0, higherIsBetter: true },
+          { label: 'Displacement (t)', getValue: i => i.displacementFull || 0, higherIsBetter: true },
+          { label: 'Max Depth (m)', getValue: i => i.maxDepth ?? '—', higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
+        ];
+      case 'weapons':
+        return [
+          { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Air Range (km)', getValue: i => i.airRange ?? '—', higherIsBetter: true },
+          { label: 'Surface Range (km)', getValue: i => i.surfaceRange ?? '—', higherIsBetter: true },
+          { label: 'Land Range (km)', getValue: i => i.landRange ?? '—', higherIsBetter: true },
+          { label: 'Sub Range (km)', getValue: i => i.subRange ?? '—', higherIsBetter: true },
+          { label: 'Weight (kg)', getValue: i => i.weight || 0, higherIsBetter: false },
+          { label: 'Length (m)', getValue: i => i.length || 0 },
+          { label: 'Diameter (m)', getValue: i => i.diameter || 0 },
+        ];
+      case 'sensors':
+        return [
+          { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Max Range (km)', getValue: i => i.rangeMax || 0, higherIsBetter: true },
+          { label: 'Min Range (km)', getValue: i => i.rangeMin || 0, higherIsBetter: false },
+          { label: 'Alt. Max (m)', getValue: i => i.altitudeMax ?? '—', higherIsBetter: true },
+          { label: 'Generation', getValue: i => i.generation || '—' },
+          { label: 'Role', getValue: i => i.role || '—' },
+        ];
+      case 'infantry':
+      case 'armor':
+      case 'artillery':
+      case 'airdefense':
+      case 'radar':
+      case 'facilities':
+        return [
+          { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Crew', getValue: i => i.crew || 0 },
+          { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Damage Points', getValue: i => i.damagePoints || 0, higherIsBetter: true },
+        ];
+      default:
+        return [];
+    }
+  }
+
+  // ── Compare List Management ────────────
+  function toggleCompare(id, category) {
+    const idx = state.compareList.findIndex(c => c.id === id && c.category === category);
+    if (idx >= 0) {
+      state.compareList.splice(idx, 1);
+    } else {
+      if (state.compareList.length >= 5) {
+        state.compareList.shift(); // max 5
+      }
+      const data = state.data[category] || [];
+      const item = data.find(d => d.id === id);
+      if (item) {
+        state.compareList.push({ id, category, name: item.name });
+      }
+    }
+    updateCompareButton();
+  }
+
+  function updateCompareButton() {
+    compareCount.textContent = state.compareList.length;
+    compareBtn.disabled = state.compareList.length < 2;
+  }
+
+  // ── Main Render ────────────────────────
+  async function render() {
+    content.innerHTML = '<div class="loading">Loading data...</div>';
+    const cat = state.currentCategory;
+    // Load category data + prefetch images in parallel
+    const [data] = await Promise.all([
+      loadCategory(cat),
+      prefetchCategoryImages(cat)
+    ]);
+
+    categoryTitle.textContent = categories[cat].title;
+    populateFilters(data);
+
+    // Restore filter/sort selections after repopulating dropdowns
+    filterType.value = state.filters.type;
+    filterOperator.value = state.filters.operator;
+    sortBy.value = state.sort;
+
+    const filtered = getFilteredData(data);
+    renderTypeIconFilters(data, cat);
+
+    content.className = `content ${state.viewMode === 'grid' ? 'grid-view' : 'list-view'}`;
+    renderCards(filtered);
+  }
+
+  // ── Utilities ──────────────────────────
+  function esc(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function truncate(str, max) {
+    return str.length > max ? str.slice(0, max) + '...' : str;
+  }
+
+  // ── Analytics Rendering ────────────────
+  async function renderAnalytics(cat) {
+    const data = await loadCategory(cat);
+    if (typeof Charts !== 'undefined' && Charts.d3Ready()) {
+      // Row 1: Donut + Scatter
+      Charts.renderDonut(document.getElementById('analyticsDonut'), data, cat);
+      Charts.renderScatter(document.getElementById('analyticsScatter'), data, cat);
+      // Row 2: Operator + Histogram
+      Charts.renderOperatorBreakdown(document.getElementById('analyticsOperator'), data, cat);
+      Charts.renderHistogram(document.getElementById('analyticsHistogram'), data, cat);
+      // Row 3: Domain heatmap + Top 10
+      if (cat === 'weapons') {
+        Charts.renderDomainHeatmap(document.getElementById('analyticsHeatmap'), data);
+      } else {
+        const hm = document.getElementById('analyticsHeatmap');
+        if (hm) hm.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Select Weapons to see domain coverage</div>';
+      }
+      Charts.renderTopTen(document.getElementById('analyticsTopTen'), data, cat);
+      // Row 4: Capability radar + Timeline
+      Charts.renderCapabilityRadar(document.getElementById('analyticsCapRadar'), data, cat);
+      Charts.renderTimeline(document.getElementById('analyticsTimeline'), data, cat);
+      // Row 5: Sensor generations (full width, sensors only)
+      Charts.renderSensorGenerations(document.getElementById('analyticsSensorGen'), data, cat);
+    }
+  }
+
+  // ── Event Handlers ─────────────────────
+  function initEvents() {
+    // Category nav
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          b.classList.remove('active');
+          b.removeAttribute('aria-current');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-current', 'page');
+        const cat = btn.dataset.category;
+        state.currentCategory = cat;
+
+        // Analytics tab: show analytics view instead of card grid
+        if (cat === 'analytics') {
+          document.querySelector('.toolbar').classList.add('hidden');
+          const content = document.getElementById('content');
+          content.className = 'content';
+          content.innerHTML = `
+            <div class="analytics-view">
+              <div class="analytics-toolbar">
+                <div class="filter-group">
+                  <label>Category:</label>
+                  <select id="analyticsCatSelect" class="filter-select">
+                    <option value="aircraft">Aircraft</option>
+                    <option value="ships">Ships</option>
+                    <option value="weapons">Weapons</option>
+                    <option value="sensors">Sensors</option>
+                    <option value="infantry">Infantry</option>
+                    <option value="armor">Armor</option>
+                    <option value="artillery">Artillery</option>
+                    <option value="airdefense">Air Defense</option>
+                    <option value="radar">Radar</option>
+                  </select>
+                </div>
+              </div>
+              <div class="analytics-grid">
+                <div class="analytics-panel" id="analyticsDonut"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsScatter"></div>
+                <div class="analytics-panel" id="analyticsOperator"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsHistogram"></div>
+                <div class="analytics-panel" id="analyticsHeatmap"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsTopTen"></div>
+                <div class="analytics-panel" id="analyticsCapRadar"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsTimeline"></div>
+                <div class="analytics-panel analytics-panel-full" id="analyticsSensorGen"></div>
+              </div>
+            </div>`;
+          renderAnalytics(state.analytics.category);
+          document.getElementById('analyticsCatSelect').value = state.analytics.category;
+          document.getElementById('analyticsCatSelect').addEventListener('change', (e) => {
+            state.analytics.category = e.target.value;
+            renderAnalytics(e.target.value);
+          });
+          return;
+        }
+        // Restore toolbar when leaving analytics
+        document.querySelector('.toolbar').classList.remove('hidden');
+
+        state.filters = { type: '', operator: '', search: '' };
+        state.sort = 'name-asc';
+        globalSearch.value = '';
+        sortBy.value = 'name-asc';
+        render();
+      });
+    });
+
+    // Type icon filter buttons
+    typeIconFiltersEl.addEventListener('click', e => {
+      const btn = e.target.closest('.type-icon-btn');
+      if (!btn) return;
+      const group = btn.dataset.typeGroup;
+      if (group) {
+        // Ship group button
+        state.filters.type = state.filters.type === group ? '' : group;
+        filterType.value = ''; // groups don't map to dropdown options
+      } else {
+        // Aircraft direct type button
+        const type = btn.dataset.type;
+        state.filters.type = state.filters.type === type ? '' : type;
+        filterType.value = state.filters.type;
+      }
+      render();
+    });
+
+    // Filters
+    filterType.addEventListener('change', () => {
+      state.filters.type = filterType.value;
+      render();
+    });
+
+    filterOperator.addEventListener('change', () => {
+      state.filters.operator = filterOperator.value;
+      render();
+    });
+
+    sortBy.addEventListener('change', () => {
+      state.sort = sortBy.value;
+      render();
+    });
+
+    // Global search
+    let searchTimeout;
+    globalSearch.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        state.filters.search = globalSearch.value;
+        render();
+      }, 200);
+    });
+
+    // Card keyboard activation
+    content.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const card = e.target.closest('.card');
+        if (card && e.target === card) {
+          e.preventDefault();
+          card.click();
+        }
+      }
+    });
+
+    // Card click (detail + compare checkbox)
+    content.addEventListener('click', (e) => {
+      const compareBtn = e.target.closest('.card-compare');
+      if (compareBtn) {
+        e.stopPropagation();
+        const id = parseInt(compareBtn.dataset.id);
+        toggleCompare(id, state.currentCategory);
+        compareBtn.classList.toggle('selected');
+        return;
+      }
+
+      const card = e.target.closest('.card');
+      if (card) {
+        const id = parseInt(card.dataset.id);
+        const cat = card.dataset.category;
+        const data = state.data[cat] || [];
+        const item = data.find(d => d.id === id);
+        if (item) showDetail(item, cat);
+      }
+    });
+
+    // Compare button
+    compareBtn.addEventListener('click', showCompare);
+
+    // View toggle
+    viewToggle.setAttribute('aria-label', 'Switch to list view');
+    viewToggle.addEventListener('click', () => {
+      state.viewMode = state.viewMode === 'grid' ? 'list' : 'grid';
+      $('gridIcon').classList.toggle('hidden', state.viewMode === 'grid');
+      $('listIcon').classList.toggle('hidden', state.viewMode === 'list');
+      viewToggle.setAttribute('aria-label', state.viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view');
+      render();
+    });
+
+    // Section collapse toggle
+    modalBody.addEventListener('click', (e) => {
+      const title = e.target.closest('.detail-section-title');
+      if (!title) return;
+      title.parentElement.classList.toggle('collapsed');
+    });
+
+    // Modal close
+    document.querySelectorAll('.modal-overlay, .modal-close').forEach(el => {
+      el.addEventListener('click', () => {
+        detailModal.classList.add('hidden');
+        compareModal.classList.add('hidden');
+      });
+    });
+
+    // Escape key closes modals + focus trap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        detailModal.classList.add('hidden');
+        compareModal.classList.add('hidden');
+        return;
+      }
+      // Focus trap within open modal
+      if (e.key === 'Tab') {
+        const openModal = !detailModal.classList.contains('hidden') ? detailModal
+          : !compareModal.classList.contains('hidden') ? compareModal : null;
+        if (!openModal) return;
+        const focusable = openModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  }
+
+  // ── Init ───────────────────────────────
+  async function init() {
+    initImageObserver();
+    initEvents();
+    // Load image map concurrently — render() will wait for it via prefetchCategoryImages
+    loadImageMap();
+    render();
+  }
+
+  // ── Country switching ───────────────────
+  function switchCountry(code) {
+    if (state.country === code) return;
+    state.country = code;
+    // Clear per-country caches
+    state.data = {};
+    state.details = {};
+    state.imageMap = null;
+    _imageMapPromise = null;
+    // Cancel queued image loads
+    state.imgQueue = [];
+    state.imgActive = 0;
+    state.chartCache.clear();
+    // Disconnect existing observer so cards get re-observed after re-render
+    if (state.imageObserver) { state.imageObserver.disconnect(); state.imageObserver = null; }
+    // Reset filters and re-render current tab
+    state.filters = { type: '', operator: '', search: '' };
+    state.sort = 'name-asc';
+    // Update page title/subtitle
+    // Use manifest name if available, else fallback
+    const entry = (window._countriesManifest || []).find(c => c.code === code);
+    const label = entry ? entry.name : code.toUpperCase();
+    const sub = document.getElementById('logoSubtitle');
+    if (sub) sub.textContent = `${label} Military Equipment Database`;
+    document.title = `CMO Database - ${label} Military Equipment`;
+    // Update header button
+    const flagEl = document.getElementById('countrySelectFlag');
+    const labelEl = document.getElementById('countrySelectLabel');
+    if (flagEl && entry) { flagEl.src = entry.flag; flagEl.alt = code.toUpperCase(); }
+    if (labelEl && entry) labelEl.textContent = entry.name;
+    // Re-render current tab with new country's data
+    render();
+  }
+
+  return { init, switchCountry };
+})();
+
+document.addEventListener('DOMContentLoaded', App.init);
+
+// Country picker modal
+(function() {
+  const btn = document.getElementById('countrySelectBtn');
+  const modal = document.getElementById('countryModal');
+  const grid = document.getElementById('countryGrid');
+  const searchEl = document.getElementById('countrySearch');
+  let countries = [];
+
+  function openModal() {
+    modal.classList.remove('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+    searchEl.value = '';
+    renderGrid('');
+    requestAnimationFrame(() => searchEl.focus());
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderGrid(query) {
+    const q = query.toLowerCase().trim();
+    const filtered = q ? countries.filter(c => c.name.toLowerCase().includes(q)) : countries;
+    grid.innerHTML = filtered.map(c => `
+      <button class="country-tile${c.code === (window._activeCountry || 'us') ? ' active' : ''}" data-code="${c.code}" data-flag="${c.flag}" data-name="${c.name}">
+        <img src="${c.flag}" width="32" height="22" alt="${c.name}" onerror="this.style.display='none'">
+        <span>${c.name}</span>
+      </button>`).join('');
+  }
+
+  function init(data) {
+    countries = data;
+    window._countriesManifest = data;
+    window._activeCountry = 'us';
+
+    btn.addEventListener('click', openModal);
+
+    grid.addEventListener('click', e => {
+      const tile = e.target.closest('.country-tile');
+      if (!tile) return;
+      window._activeCountry = tile.dataset.code;
+      closeModal();
+      App.switchCountry(tile.dataset.code);
+    });
+
+    searchEl.addEventListener('input', () => renderGrid(searchEl.value));
+
+    modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+    modal.querySelector('.modal-close').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+  }
+
+  fetch('data/countries.json')
+    .then(r => r.json())
+    .then(init)
+    .catch(() => console.warn('Could not load countries.json'));
+})();

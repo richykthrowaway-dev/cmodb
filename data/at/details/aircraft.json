@@ -1,0 +1,480 @@
+{
+  "1": {
+    "climbRate": 116.8,
+    "sensors": [
+      {
+        "name": "CAPTOR",
+        "role": "Radar, FCR, Air-to-Air & Air-to-Surface, Medium-Range",
+        "type": "Radar",
+        "generation": "Early 2000s",
+        "rangeMax": 185.2,
+        "rangeMin": 0.4
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "A/A: AIM-2000A IRIS-T, Heavy CAP",
+        "weapons": [
+          {
+            "name": "Jericho 3 [Conventional]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 5556,
+            "subRange": null,
+            "weight": 29000,
+            "internal": false
+          },
+          {
+            "name": "M4B/TN71 MRV [150kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 5000.4,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "A/A: AIM-2000A IRIS-T, Standard CAP, Standard CAP",
+        "weapons": [
+          {
+            "name": "120mm/80 HE",
+            "type": "Gun",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 22.2,
+            "landRange": 22.2,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          },
+          {
+            "name": "M4B/TN71 MRV [150kT Nuclear]",
+            "type": "RV / MRV/ MIRV",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": 5000.4,
+            "subRange": null,
+            "weight": 0,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "2x EJ200",
+      "engines": 2,
+      "thrustMil": 6015,
+      "thrustAB": 9080,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 33.87
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 42.34
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 620,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 146.41
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 650,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 266.24
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 30.77
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 38.47
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 650,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 133.02
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 750,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 244.12
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 24.81
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 31.02
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 700,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 107.25
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 850,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 204.88
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 20.76
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 25.95
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 750,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 89.7
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 925,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 187.16
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.76,
+        "side": 6.03,
+        "rear": 2.76,
+        "top": 7.54
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.54,
+        "side": 3.42,
+        "rear": 2.53,
+        "top": 4.12
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.76,
+        "side": 7.83,
+        "rear": 12.73,
+        "top": 9.09
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.54,
+        "side": 3.42,
+        "rear": 1.54,
+        "top": 4.12
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 1.8,
+        "side": 4.1,
+        "rear": 1.8,
+        "top": 4.5
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": -3.3,
+        "side": -1,
+        "rear": -3.3,
+        "top": -1
+      }
+    ],
+    "codes": [
+      "Supermanouverability (5th Gen Fighters)",
+      "Fly-by-Wire",
+      "Night Navigation/Attack (Incl. Bomb, Rocket Delivery)",
+      "Helmet Mounted Sight / Display (HMS/HMD)",
+      "Probe Refuelling"
+    ]
+  },
+  "2": {
+    "climbRate": 58.3,
+    "sensors": [
+      {
+        "name": "PS-011/A",
+        "role": "Radar, FCR, Air-to-Air, Short-Range",
+        "type": "Radar",
+        "generation": "Late 1960s",
+        "rangeMax": 37,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Sky Guardian 200",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "A/A: RB 24J Sidewinder [AIM-9P-5]",
+        "weapons": [
+          {
+            "name": "BGM-71G TOW 2B Aero Wireless",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 4.6,
+            "landRange": 4.6,
+            "subRange": null,
+            "weight": 23,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "1x RM6C",
+      "engines": 1,
+      "thrustMil": 5493,
+      "thrustAB": 7134,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 34.03
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 42.54
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 580,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 73.02
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 650,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 120.71
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 30.12
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 37.66
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 570,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 64.63
+        },
+        {
+          "altBand": 2,
+          "throttle": 4,
+          "speed": 700,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 109.81
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 22.97
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 28.72
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 550,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 49.28
+        },
+        {
+          "altBand": 3,
+          "throttle": 4,
+          "speed": 800,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 89.91
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 350,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 17.05
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 480,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 21.32
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 520,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 36.58
+        },
+        {
+          "altBand": 4,
+          "throttle": 4,
+          "speed": 925,
+          "altMin": 10972.8,
+          "altMax": 13716,
+          "consumption": 86.92
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.53,
+        "side": 5.52,
+        "rear": 2.53,
+        "top": 6.92
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.43,
+        "side": 3.18,
+        "rear": 2.32,
+        "top": 3.83
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.53,
+        "side": 7.38,
+        "rear": 12.31,
+        "top": 8.58
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.43,
+        "side": 3.18,
+        "rear": 1.43,
+        "top": 3.83
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 4.7,
+        "side": 7,
+        "rear": 4.7,
+        "top": 7.4
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 4.7,
+        "side": 7,
+        "rear": 4.7,
+        "top": 7
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

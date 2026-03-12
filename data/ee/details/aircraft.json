@@ -1,0 +1,131 @@
+{
+  "1": {
+    "climbRate": 2.6,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Cargo, 2 tons",
+        "weapons": [
+          {
+            "name": "FRAS-1 [RPK-1 Vikhr, 5kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 22.2,
+            "weight": 1800,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "Passengers, 12",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x Shvetsov ASh-62",
+      "engines": 1,
+      "thrustMil": 1000,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 80,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 3.5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 100,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 4.38
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 7.5
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 80,
+          "altMin": 3657.6,
+          "altMax": 4267.2,
+          "consumption": 2.52
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 100,
+          "altMin": 3657.6,
+          "altMax": 4267.2,
+          "consumption": 3.16
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 3657.6,
+          "altMax": 4267.2,
+          "consumption": 5.41
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 3.06,
+        "side": 4.79,
+        "rear": 3.06,
+        "top": 8.36
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.68,
+        "side": 2.82,
+        "rear": 2.8,
+        "top": 4.49
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 3.06,
+        "side": 6.72,
+        "rear": 13.25,
+        "top": 9.74
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.68,
+        "side": 2.82,
+        "rear": 1.68,
+        "top": 4.49
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 7,
+        "side": 9.2,
+        "rear": 7,
+        "top": 9.6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 7,
+        "side": 9.2,
+        "rear": 7,
+        "top": 9.2
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

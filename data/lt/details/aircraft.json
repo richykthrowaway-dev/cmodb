@@ -1,0 +1,726 @@
+{
+  "1": {
+    "climbRate": 5.6,
+    "sensors": [
+      {
+        "name": "Agrion 15",
+        "role": "Radar, FCR, Air-to-Surface, Long-Range",
+        "type": "Radar",
+        "generation": "Late 1980s",
+        "rangeMax": 370.4,
+        "rangeMin": 0.4
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Maritime Surveillance",
+        "weapons": []
+      },
+      {
+        "name": "Search And Rescue (SAR)",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x Arriel 1C",
+      "engines": 2,
+      "thrustMil": 660,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 3.39
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 140,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 4.24
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 155,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 7.4
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4572,
+          "consumption": 3.39
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 140,
+          "altMin": 3657.6,
+          "altMax": 4572,
+          "consumption": 4.24
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 155,
+          "altMin": 3657.6,
+          "altMax": 4572,
+          "consumption": 7.4
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 1.54,
+        "side": 4.51,
+        "rear": 1.54,
+        "top": 4.22
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 0.95,
+        "side": 2.68,
+        "rear": 1.41,
+        "top": 2.54
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 1.54,
+        "side": 6.45,
+        "rear": 10.15,
+        "top": 6.17
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 0.95,
+        "side": 2.68,
+        "rear": 0.95,
+        "top": 2.54
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": -1.3,
+        "side": 1.3,
+        "rear": -1.3,
+        "top": 1.7
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": -1.3,
+        "side": 1.3,
+        "rear": -1.3,
+        "top": 1.3
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "2": {
+    "climbRate": 5.9,
+    "sensors": [
+      {
+        "name": "Generic Weather Radar",
+        "role": "Radar, Weather",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 64.8,
+        "rangeMin": 0.4
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Cargo, 11 tons",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 6 tons",
+        "weapons": []
+      },
+      {
+        "name": "Troops, 60x",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x AE2100D3",
+      "engines": 2,
+      "thrustMil": 6000,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 19.69
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 220,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 24.62
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 260,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 47.58
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 15.63
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 240,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 19.54
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 280,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 37.75
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 180,
+          "altMin": 7315.2,
+          "altMax": 9144,
+          "consumption": 11.64
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 315,
+          "altMin": 7315.2,
+          "altMax": 9144,
+          "consumption": 14.55
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 330,
+          "altMin": 7315.2,
+          "altMax": 9144,
+          "consumption": 28.1
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 4.88,
+        "side": 8.78,
+        "rear": 4.88,
+        "top": 13.33
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.48,
+        "side": 4.67,
+        "rear": 4.47,
+        "top": 6.62
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.88,
+        "side": 10.06,
+        "rear": 15.88,
+        "top": 13.29
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.48,
+        "side": 4.67,
+        "rear": 2.48,
+        "top": 6.62
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 12.6,
+        "side": 14.6,
+        "rear": 12.6,
+        "top": 15
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 12.6,
+        "side": 14.6,
+        "rear": 12.6,
+        "top": 14.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "3": {
+    "climbRate": 12.7,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Training",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x AI-25TL",
+      "engines": 1,
+      "thrustMil": 1721,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11.13
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 13.92
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 380,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 20.01
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 9.27
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 11.6
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 400,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 16.66
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 6.8
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 8.5
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 380,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 12.2
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.24,
+        "side": 4.9,
+        "rear": 2.24,
+        "top": 6.11
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.29,
+        "side": 2.87,
+        "rear": 2.05,
+        "top": 3.45
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.24,
+        "side": 6.82,
+        "rear": 11.73,
+        "top": 7.9
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.29,
+        "side": 2.87,
+        "rear": 1.29,
+        "top": 3.45
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.2,
+        "side": 5.6,
+        "rear": 3.2,
+        "top": 6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.2,
+        "side": 5.6,
+        "rear": 3.2,
+        "top": 5.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "4": {
+    "climbRate": 12.7,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "68mm TBA Rockets",
+        "weapons": []
+      },
+      {
+        "name": "68mm TBA Rockets, Long-Range",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 LDGP",
+        "weapons": [
+          {
+            "name": "HY-1A [CSS-N-2 Silkworm, Land]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 129.6,
+            "landRange": null,
+            "subRange": null,
+            "weight": 2300,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "Mk82 LDGP, Long-Range",
+        "weapons": [
+          {
+            "name": "AS-4 Kitchen A Mod 3 [Kh-22N ASM, 350kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 398.2,
+            "landRange": null,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "1x AI-25TL",
+      "engines": 1,
+      "thrustMil": 1721,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11.13
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 13.92
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 380,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 20.01
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 9.27
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 11.6
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 400,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 16.66
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 300,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 6.8
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 350,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 8.5
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 380,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 12.2
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.24,
+        "side": 4.9,
+        "rear": 2.24,
+        "top": 6.11
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.29,
+        "side": 2.87,
+        "rear": 2.05,
+        "top": 3.45
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.24,
+        "side": 6.82,
+        "rear": 11.73,
+        "top": 7.9
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.29,
+        "side": 2.87,
+        "rear": 1.29,
+        "top": 3.45
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.2,
+        "side": 5.6,
+        "rear": 3.2,
+        "top": 6
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.2,
+        "side": 5.6,
+        "rear": 3.2,
+        "top": 5.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "5": {
+    "climbRate": 3,
+    "sensors": [],
+    "loadouts": [
+      {
+        "name": "Cargo, 3 tons, Slung Load",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 4 tons",
+        "weapons": []
+      },
+      {
+        "name": "Troops, 24x",
+        "weapons": [
+          {
+            "name": "R.530",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": 29.6,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": null,
+            "weight": 195,
+            "internal": false
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "2x TV2-117A",
+      "engines": 2,
+      "thrustMil": 1670,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 11
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 17.73
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 55,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 8.8
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 130,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 11
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 135,
+          "altMin": 3657.6,
+          "altMax": 4876.8,
+          "consumption": 17.73
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.45,
+        "side": 6.69,
+        "rear": 2.45,
+        "top": 6.69
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 2.25,
+        "top": 3.73
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.45,
+        "side": 8.39,
+        "rear": 12.15,
+        "top": 8.39
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.39,
+        "side": 3.73,
+        "rear": 1.39,
+        "top": 3.73
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 7.1
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 4.3,
+        "side": 6.6,
+        "rear": 4.3,
+        "top": 6.6
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  }
+}

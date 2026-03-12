@@ -1,0 +1,594 @@
+{
+  "1": {
+    "climbRate": 6.2,
+    "sensors": [
+      {
+        "name": "RDR 1400C",
+        "role": "Radar, Surface Search, Medium-Range",
+        "type": "Radar",
+        "generation": "Late 1990s",
+        "rangeMax": 148.2,
+        "rangeMin": 0.6
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Cargo, 4 tons",
+        "weapons": []
+      },
+      {
+        "name": "Cargo, 9 tons",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x PW127G",
+      "engines": 2,
+      "thrustMil": 2645,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 185,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 10.48
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 240,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 13.1
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 290,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 20.99
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 185,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 8.42
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 260,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 10.53
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 310,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 16.86
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 4.79,
+        "side": 8.97,
+        "rear": 4.79,
+        "top": 13.07
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.44,
+        "side": 4.76,
+        "rear": 4.39,
+        "top": 6.51
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 4.79,
+        "side": 10.2,
+        "rear": 15.76,
+        "top": 13.12
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.44,
+        "side": 4.76,
+        "rear": 2.44,
+        "top": 6.51
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 12.4,
+        "side": 14.4,
+        "rear": 12.4,
+        "top": 14.8
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 12.4,
+        "side": 14.4,
+        "rear": 12.4,
+        "top": 14.4
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)"
+    ]
+  },
+  "2": {
+    "climbRate": 31.8,
+    "sensors": [
+      {
+        "name": "Grifo L",
+        "role": "Radar, FCR, Air-to-Air & Air-to-Surface, Short-Range",
+        "type": "Radar",
+        "generation": "Early 2000s",
+        "rangeMax": 74.1,
+        "rangeMin": 0.2
+      },
+      {
+        "name": "Sky Guardian 200",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Mk82 LDGP, AIM-9M Sidewinder",
+        "weapons": [
+          {
+            "name": "AS-4 Kitchen A Mod 3 [Kh-22N ASM, 350kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 398.2,
+            "landRange": null,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "GBU-12D/B Paveway II LGB [Mk82] - Requires Buddy Illumination",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 AIR, AIM-9M Sidewinder",
+        "weapons": []
+      },
+      {
+        "name": "CRV-7 70mm Rockets, Heavy",
+        "weapons": []
+      },
+      {
+        "name": "CRV-7 70mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 AIR",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 LDGP",
+        "weapons": [
+          {
+            "name": "AS-4 Kitchen A Mod 3 [Kh-22N ASM, 350kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 398.2,
+            "landRange": null,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "A/A: AIM-9M Sidewinder, Night Capable, Max",
+        "weapons": []
+      },
+      {
+        "name": "A/A: AIM-9M Sidewinder, Night Capable",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x F124-GA-100",
+      "engines": 1,
+      "thrustMil": 2870,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 16.68
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 20.85
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 490,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 34.26
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 14.46
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 18.08
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 510,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 29.7
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 10.88
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 13.6
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 490,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 22.33
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 7.92
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 9.9
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 460,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 16.25
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.3,
+        "side": 5.08,
+        "rear": 2.3,
+        "top": 6.28
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.32,
+        "side": 2.96,
+        "rear": 2.11,
+        "top": 3.53
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.3,
+        "side": 6.98,
+        "rear": 11.85,
+        "top": 8.04
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.32,
+        "side": 2.96,
+        "rear": 1.32,
+        "top": 3.53
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 6.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 5.9
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  },
+  "3": {
+    "climbRate": 31.8,
+    "sensors": [
+      {
+        "name": "Sky Guardian 200",
+        "role": "RWR, Radar Warning Receiver",
+        "type": "ESM",
+        "generation": "Late 1980s",
+        "rangeMax": 222.2,
+        "rangeMin": 0
+      }
+    ],
+    "loadouts": [
+      {
+        "name": "Mk82 LDGP, AIM-9M Sidewinder",
+        "weapons": [
+          {
+            "name": "AS-4 Kitchen A Mod 3 [Kh-22N ASM, 350kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 398.2,
+            "landRange": null,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "GBU-12D/B Paveway II LGB [Mk82] - Requires Buddy Illumination",
+        "weapons": []
+      },
+      {
+        "name": "Training",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 AIR, AIM-9M Sidewinder",
+        "weapons": []
+      },
+      {
+        "name": "CRV-7 70mm Rockets, Heavy",
+        "weapons": []
+      },
+      {
+        "name": "CRV-7 70mm Rockets",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 AIR",
+        "weapons": []
+      },
+      {
+        "name": "Mk82 LDGP",
+        "weapons": [
+          {
+            "name": "AS-4 Kitchen A Mod 3 [Kh-22N ASM, 350kT Nuclear]",
+            "type": "Guided Weapon",
+            "qty": 1,
+            "airRange": null,
+            "surfaceRange": 398.2,
+            "landRange": null,
+            "subRange": null,
+            "weight": 5900,
+            "internal": false
+          }
+        ]
+      },
+      {
+        "name": "A/A: AIM-9M Sidewinder, Max",
+        "weapons": []
+      },
+      {
+        "name": "A/A: AIM-9M Sidewinder",
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "1x F124-GA-100",
+      "engines": 1,
+      "thrustMil": 2870,
+      "thrustAB": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 16.68
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 20.85
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 490,
+          "altMin": 0,
+          "altMax": 3657.6,
+          "consumption": 34.26
+        },
+        {
+          "altBand": 2,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 14.46
+        },
+        {
+          "altBand": 2,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 18.08
+        },
+        {
+          "altBand": 2,
+          "throttle": 3,
+          "speed": 510,
+          "altMin": 3657.6,
+          "altMax": 7315.2,
+          "consumption": 29.7
+        },
+        {
+          "altBand": 3,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 10.88
+        },
+        {
+          "altBand": 3,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 13.6
+        },
+        {
+          "altBand": 3,
+          "throttle": 3,
+          "speed": 490,
+          "altMin": 7315.2,
+          "altMax": 10972.8,
+          "consumption": 22.33
+        },
+        {
+          "altBand": 4,
+          "throttle": 1,
+          "speed": 280,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 7.92
+        },
+        {
+          "altBand": 4,
+          "throttle": 2,
+          "speed": 420,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 9.9
+        },
+        {
+          "altBand": 4,
+          "throttle": 3,
+          "speed": 460,
+          "altMin": 10972.8,
+          "altMax": 12801.6,
+          "consumption": 16.25
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Visual Detection Range",
+        "front": 2.3,
+        "side": 5.08,
+        "rear": 2.3,
+        "top": 6.28
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 1.32,
+        "side": 2.96,
+        "rear": 2.11,
+        "top": 3.53
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 2.3,
+        "side": 6.98,
+        "rear": 11.85,
+        "top": 8.04
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 1.32,
+        "side": 2.96,
+        "rear": 1.32,
+        "top": 3.53
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 6.3
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 3.5,
+        "side": 5.9,
+        "rear": 3.5,
+        "top": 5.9
+      }
+    ],
+    "codes": [
+      "Night Navigation (Ferry, Air-to-Air, Air-to-Surface Missiles)",
+      "Bombsight - Ballistic Computing"
+    ]
+  }
+}

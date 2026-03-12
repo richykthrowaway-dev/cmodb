@@ -1,0 +1,300 @@
+{
+  "1": {
+    "damagePoints": 80,
+    "displacementEmpty": 0,
+    "displacementStandard": 270,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Furuno",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      },
+      {
+        "name": "NAJA [Optronic]",
+        "role": "Visual, Weapon Director TV Camera",
+        "type": "Visual",
+        "generation": "Visual, 1st Generation TV Camera (1960s/1970s, TISEO)",
+        "rangeMax": 74.1,
+        "rangeMin": 0
+      }
+    ],
+    "mounts": [
+      {
+        "name": "40mm/70 Single Bofors",
+        "qty": 2,
+        "weapons": [
+          {
+            "name": "MG-54 Magma",
+            "type": "Decoy (Expendable)",
+            "airRange": null,
+            "surfaceRange": null,
+            "landRange": null,
+            "subRange": 1.9
+          }
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "name": "40mm/70 Single Bofors",
+        "qty": 1,
+        "capacity": 270,
+        "weapons": []
+      }
+    ],
+    "propulsion": {
+      "name": "2x SACM 195V16 CZSHR Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 16
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 22
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 25
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 6.35,
+        "side": 10.79,
+        "rear": 6.35,
+        "top": 14.39
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.7,
+        "side": 4.8,
+        "rear": 2.7,
+        "top": 5.4
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 6.35,
+        "side": 10.79,
+        "rear": 6.35,
+        "top": 14.39
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.7,
+        "side": 4.8,
+        "rear": 2.7,
+        "top": 5.4
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 16.8,
+        "side": 20,
+        "rear": 16.8,
+        "top": 26.5
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 16.8,
+        "side": 20,
+        "rear": 16.8,
+        "top": 26.5
+      }
+    ],
+    "codes": []
+  },
+  "2": {
+    "damagePoints": 26,
+    "displacementEmpty": 0,
+    "displacementStandard": 63,
+    "height": 0,
+    "maxDepth": null,
+    "sensors": [
+      {
+        "name": "Furuno",
+        "role": "Radar, Surface Search & Navigation",
+        "type": "Radar",
+        "generation": "Early 1970s",
+        "rangeMax": 37,
+        "rangeMin": 0.4
+      }
+    ],
+    "mounts": [
+      {
+        "name": "12.7mm/50 Twin MG",
+        "qty": 1,
+        "weapons": []
+      }
+    ],
+    "magazines": [
+      {
+        "name": "12.7mm/50 Twin MG",
+        "qty": 1,
+        "capacity": 100,
+        "weapons": [
+          {
+            "name": "PMT-1 Mine Warhead [Rising, Acoustic Narrow-Band Fuze]",
+            "type": "Rocket"
+          }
+        ]
+      }
+    ],
+    "propulsion": {
+      "name": "2x Diesels",
+      "engines": 0,
+      "performances": [
+        {
+          "altBand": 1,
+          "throttle": 1,
+          "speed": 5
+        },
+        {
+          "altBand": 1,
+          "throttle": 2,
+          "speed": 18
+        },
+        {
+          "altBand": 1,
+          "throttle": 3,
+          "speed": 22
+        },
+        {
+          "altBand": 1,
+          "throttle": 4,
+          "speed": 26
+        }
+      ]
+    },
+    "signatures": [
+      {
+        "type": "Passive Sonar, VLF (0-1000 Hz, 200 Hz Center Frequency)",
+        "front": 115,
+        "side": 116,
+        "rear": 117,
+        "top": 116
+      },
+      {
+        "type": "Passive Sonar, LF (1-5 KHz, 3 KHz Center Frequency)",
+        "front": 85.5,
+        "side": 86,
+        "rear": 87,
+        "top": 86
+      },
+      {
+        "type": "Passive Sonar, MF (5-10 KHz, 7.5 KHz Center Frequency)",
+        "front": 77.5,
+        "side": 78,
+        "rear": 79,
+        "top": 78
+      },
+      {
+        "type": "Passive Sonar, HF (10-500 KHz, 20 KHz Center Frequency)",
+        "front": 69,
+        "side": 70,
+        "rear": 71,
+        "top": 70
+      },
+      {
+        "type": "Active Sonar, VLF-HF (0-500 KHz)",
+        "front": 8,
+        "side": 40,
+        "rear": 8,
+        "top": 40
+      },
+      {
+        "type": "Visual Detection Range",
+        "front": 5.44,
+        "side": 9.25,
+        "rear": 5.44,
+        "top": 12.33
+      },
+      {
+        "type": "Visual Classification Range",
+        "front": 2.31,
+        "side": 4.11,
+        "rear": 2.31,
+        "top": 4.62
+      },
+      {
+        "type": "Infrared Detection Range",
+        "front": 5.44,
+        "side": 9.25,
+        "rear": 5.44,
+        "top": 12.33
+      },
+      {
+        "type": "Infrared Classification Range",
+        "front": 2.31,
+        "side": 4.11,
+        "rear": 2.31,
+        "top": 4.62
+      },
+      {
+        "type": "Radar, A-D Band (30-2000 MHz)",
+        "front": 11.5,
+        "side": 14.4,
+        "rear": 11.5,
+        "top": 20.9
+      },
+      {
+        "type": "Radar, E-M Band (2-100 GHz)",
+        "front": 11.5,
+        "side": 14.4,
+        "rear": 11.5,
+        "top": 20.9
+      }
+    ],
+    "codes": []
+  }
+}
