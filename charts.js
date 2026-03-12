@@ -1353,6 +1353,639 @@ const Charts = (() => {
     });
   }
 
+  // ══════════════════════════════════════════
+  //  Tactical Analytics (detail-data charts)
+  // ══════════════════════════════════════════
+
+  // ── 16. Weapon Engagement Envelope ──
+  function renderEngagementEnvelope(container, indexData, details) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || Object.keys(details).length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Engagement envelopes available for Weapons</div>';
+      return;
+    }
+    // Build envelope data: weapons with non-zero launch/target alt ranges
+    const items = indexData.map(w => {
+      const d = details[w.id];
+      if (!d) return null;
+      const hasEnvelope = (d.launchAltMax > 0 || d.targetAltMax > 0 || d.targetSpeedMax > 0);
+      if (!hasEnvelope) return null;
+      return {
+        name: w.name,
+        launchAltMin: d.launchAltMin || 0,
+        launchAltMax: d.launchAltMax || 0,
+        targetAltMin: d.targetAltMin || 0,
+        targetAltMax: d.targetAltMax || 0,
+        targetSpeedMin: d.targetSpeedMin || 0,
+        targetSpeedMax: d.targetSpeedMax || 0,
+        launchSpeedMin: d.launchSpeedMin || 0,
+        launchSpeedMax: d.launchSpeedMax || 0,
+      };
+    }).filter(Boolean);
+    if (items.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No engagement envelope data available</div>';
+      return;
+    }
+    // Sort by target alt range (largest first), take top 15
+    items.sort((a, b) => (b.targetAltMax - b.targetAltMin) - (a.targetAltMax - a.targetAltMin));
+    const top = items.slice(0, 15);
+
+    const W = 520, H = 340, M = { top: 30, right: 20, bottom: 50, left: 55 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    // Title
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text('Weapon Engagement Envelopes (Target Altitude)');
+
+    const maxAlt = d3.max(top, d => d.targetAltMax) || 100;
+    const x = d3.scaleBand().domain(top.map(d => d.name)).range([0, w]).padding(0.15);
+    const y = d3.scaleLinear().domain([0, maxAlt * 1.05]).range([h, 0]);
+
+    // Grid
+    g.selectAll('.gridH').data(y.ticks(5)).enter().append('line')
+      .attr('x1', 0).attr('x2', w).attr('y1', d => y(d)).attr('y2', d => y(d))
+      .attr('stroke', COLORS.grid);
+
+    // Bars showing target altitude envelope
+    const barColors = d3.scaleOrdinal(d3.schemeTableau10);
+    g.selectAll('.env-bar').data(top).enter().append('rect')
+      .attr('x', d => x(d.name)).attr('width', x.bandwidth())
+      .attr('y', d => y(d.targetAltMax))
+      .attr('height', d => Math.max(1, y(d.targetAltMin) - y(d.targetAltMax)))
+      .attr('fill', (d, i) => barColors(i)).attr('opacity', 0.75).attr('rx', 2)
+      .on('mouseover', (evt, d) => showTooltip(evt,
+        `<b>${esc(d.name)}</b><br>Target Alt: ${d.targetAltMin.toLocaleString()}–${d.targetAltMax.toLocaleString()} ft<br>` +
+        `Target Speed: ${d.targetSpeedMin}–${d.targetSpeedMax} kt<br>` +
+        `Launch Alt: ${d.launchAltMin.toLocaleString()}–${d.launchAltMax.toLocaleString()} ft`))
+      .on('mousemove', (evt) => showTooltip(evt, getTooltip().innerHTML))
+      .on('mouseout', hideTooltip);
+
+    // Min altitude marker (diamond)
+    g.selectAll('.env-min').data(top.filter(d => d.targetAltMin > 0)).enter()
+      .append('path')
+      .attr('d', d3.symbol().type(d3.symbolDiamond).size(30))
+      .attr('transform', d => `translate(${x(d.name) + x.bandwidth() / 2},${y(d.targetAltMin)})`)
+      .attr('fill', '#fff').attr('opacity', 0.9);
+
+    // Axes
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x).tickSize(0))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 8)
+      .attr('transform', 'rotate(-35)').attr('text-anchor', 'end');
+    g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+    svg.append('text').attr('x', M.left - 40).attr('y', H / 2).attr('text-anchor', 'middle')
+      .attr('transform', `rotate(-90,${M.left - 40},${H / 2})`).attr('fill', COLORS.text).attr('font-size', 10)
+      .text('Target Altitude (ft)');
+  }
+
+  // ── 17. Kill Probability Matrix ──
+  function renderPokMatrix(container, indexData, details) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || Object.keys(details).length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Kill probability matrix available for Weapons</div>';
+      return;
+    }
+    const domains = ['airPoK', 'surfacePoK', 'landPoK', 'subPoK'];
+    const domainLabels = ['Air', 'Surface', 'Land', 'Sub'];
+    // Filter weapons that have at least one non-zero PoK
+    const items = indexData.map(w => {
+      const d = details[w.id];
+      if (!d) return null;
+      const poks = domains.map(k => d[k] || 0);
+      if (poks.every(v => v === 0)) return null;
+      return { name: w.name, poks, maxPok: Math.max(...poks) };
+    }).filter(Boolean);
+    if (items.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No kill probability data</div>';
+      return;
+    }
+    items.sort((a, b) => b.maxPok - a.maxPok);
+    const top = items.slice(0, 25);
+
+    const cellW = 55, cellH = 18, labelW = 180;
+    const W = labelW + cellW * 4 + 30, H = 30 + top.length * cellH + 30;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+
+    // Title
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text('Kill Probability by Domain (%)');
+
+    const gY = 30;
+    // Column headers
+    domainLabels.forEach((label, i) => {
+      svg.append('text').attr('x', labelW + i * cellW + cellW / 2).attr('y', gY - 4)
+        .attr('text-anchor', 'middle').attr('fill', COLORS.text).attr('font-size', 10).attr('font-weight', 600)
+        .text(label);
+    });
+
+    // Color scale: 0=dark, 100=bright green
+    const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([0, 100]);
+
+    top.forEach((item, row) => {
+      const ry = gY + row * cellH;
+      // Label
+      const displayName = item.name.length > 28 ? item.name.slice(0, 26) + '…' : item.name;
+      svg.append('text').attr('x', labelW - 6).attr('y', ry + cellH / 2 + 3)
+        .attr('text-anchor', 'end').attr('fill', COLORS.text).attr('font-size', 8.5)
+        .text(displayName);
+      // Cells
+      item.poks.forEach((pok, col) => {
+        const cx = labelW + col * cellW;
+        svg.append('rect').attr('x', cx + 1).attr('y', ry + 1)
+          .attr('width', cellW - 2).attr('height', cellH - 2).attr('rx', 2)
+          .attr('fill', pok > 0 ? colorScale(pok) : 'rgba(255,255,255,0.03)')
+          .attr('opacity', pok > 0 ? 0.85 : 1)
+          .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)}</b><br>${domainLabels[col]}: ${pok}%`))
+          .on('mouseout', hideTooltip);
+        if (pok > 0) {
+          svg.append('text').attr('x', cx + cellW / 2).attr('y', ry + cellH / 2 + 3)
+            .attr('text-anchor', 'middle').attr('fill', pok > 60 ? '#000' : '#fff')
+            .attr('font-size', 8.5).attr('font-weight', 500)
+            .text(pok);
+        }
+      });
+    });
+  }
+
+  // ── 18. Sensor Coverage Comparison ──
+  function renderSensorCoverage(container, indexData, details, cat) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || !['aircraft', 'ships'].includes(cat)) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Sensor coverage comparison available for Aircraft and Ships</div>';
+      return;
+    }
+    // Build per-platform sensor breakdown
+    const sensorTypes = ['Radar', 'ESM', 'Sonar', 'E/O', 'Other'];
+    const sTypeColor = { Radar: COLORS.radar, ESM: COLORS.esm, Sonar: COLORS.sonar, 'E/O': COLORS.eo, Other: '#999' };
+    const platforms = indexData.map(item => {
+      const d = details[item.id];
+      if (!d || !d.sensors || d.sensors.length === 0) return null;
+      const byType = {};
+      let total = 0;
+      d.sensors.forEach(s => {
+        let t = s.type || 'Other';
+        if (!sensorTypes.includes(t)) {
+          if (t.includes('Radar')) t = 'Radar';
+          else if (t.includes('ESM') || t.includes('RWR')) t = 'ESM';
+          else if (t.includes('Sonar')) t = 'Sonar';
+          else t = 'Other';
+        }
+        const range = s.rangeMax || 0;
+        if (!byType[t]) byType[t] = 0;
+        byType[t] = Math.max(byType[t], range);
+        total += range;
+      });
+      return { name: item.name, byType, total };
+    }).filter(Boolean);
+    platforms.sort((a, b) => b.total - a.total);
+    const top = platforms.slice(0, 12);
+    if (top.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No sensor data available</div>';
+      return;
+    }
+
+    const W = 520, H = 30 + top.length * 28 + 40, M = { top: 30, right: 20, bottom: 30, left: 170 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text(`Sensor Coverage — Top ${top.length} ${cat === 'aircraft' ? 'Aircraft' : 'Ships'}`);
+
+    const maxRange = d3.max(top, d => d3.max(sensorTypes, t => d.byType[t] || 0)) || 100;
+    const yBand = d3.scaleBand().domain(top.map(d => d.name)).range([0, h]).padding(0.2);
+    const xScale = d3.scaleLog().domain([1, maxRange * 1.2]).range([0, w]).clamp(true);
+
+    // Grid
+    g.selectAll('.gridV').data(xScale.ticks(5)).enter().append('line')
+      .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h)
+      .attr('stroke', COLORS.grid);
+
+    const barH = yBand.bandwidth() / sensorTypes.length;
+    top.forEach(platform => {
+      sensorTypes.forEach((t, ti) => {
+        const val = platform.byType[t] || 0;
+        if (val <= 0) return;
+        g.append('rect')
+          .attr('x', 0)
+          .attr('y', yBand(platform.name) + ti * barH)
+          .attr('width', xScale(Math.max(1, val)))
+          .attr('height', barH - 1)
+          .attr('fill', sTypeColor[t] || '#666').attr('opacity', 0.8).attr('rx', 2)
+          .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(platform.name)}</b><br>${t}: ${val.toLocaleString()} km`))
+          .on('mouseout', hideTooltip);
+      });
+    });
+
+    // Y axis labels
+    g.append('g').call(d3.axisLeft(yBand).tickSize(0))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 8)
+      .text(function() { const t = d3.select(this).text(); return t.length > 24 ? t.slice(0, 22) + '…' : t; });
+    // X axis
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+    svg.append('text').attr('x', M.left + w / 2).attr('y', H - 4).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.text).attr('font-size', 10).text('Max Range (km, log scale)');
+
+    // Legend
+    const legend = d3.select(container).append('div').attr('class', 'chart-legend');
+    sensorTypes.forEach(t => {
+      const el = legend.append('span').attr('class', 'chart-legend-item');
+      el.append('span').attr('class', 'chart-legend-dot').style('background', sTypeColor[t]);
+      el.append('span').text(t);
+    });
+  }
+
+  // ── 19. Weapon Weight-Range Bubble ──
+  function renderWeaponBubble(container, indexData, details) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || Object.keys(details).length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Weapon bubble chart available for Weapons</div>';
+      return;
+    }
+    const items = indexData.map(w => {
+      const d = details[w.id];
+      if (!d || !d.warhead) return null;
+      const range = w.maxRange || 0;
+      const weight = w.weight || 0;
+      if (range <= 0 || weight <= 0) return null;
+      return {
+        name: w.name,
+        range, weight,
+        damage: d.warhead.damage || 1,
+        warheadName: d.warhead.name || 'Unknown',
+        warheadType: d.warhead.type || 'Unknown',
+        explosiveWeight: d.warhead.explosiveWeight || 0,
+      };
+    }).filter(Boolean);
+    if (items.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No weapon weight/range data</div>';
+      return;
+    }
+
+    const W = 520, H = 340, M = { top: 30, right: 30, bottom: 50, left: 60 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text('Weapon Weight vs. Range (bubble = warhead damage)');
+
+    const xScale = d3.scaleLog().domain([d3.min(items, d => d.range) * 0.7, d3.max(items, d => d.range) * 1.3]).range([0, w]).clamp(true);
+    const yScale = d3.scaleLog().domain([d3.min(items, d => d.weight) * 0.7, d3.max(items, d => d.weight) * 1.3]).range([h, 0]).clamp(true);
+    const rScale = d3.scaleSqrt().domain([0, d3.max(items, d => d.damage)]).range([3, 22]);
+
+    // Warhead type colors
+    const typeSet = [...new Set(items.map(d => d.warheadType))];
+    const typeColor = d3.scaleOrdinal(d3.schemeTableau10).domain(typeSet);
+
+    // Grid
+    g.selectAll('.gridH').data(yScale.ticks(4)).enter().append('line')
+      .attr('x1', 0).attr('x2', w).attr('y1', d => yScale(d)).attr('y2', d => yScale(d)).attr('stroke', COLORS.grid);
+    g.selectAll('.gridV').data(xScale.ticks(4)).enter().append('line')
+      .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h).attr('stroke', COLORS.grid);
+
+    // Bubbles
+    g.selectAll('.bubble').data(items).enter().append('circle')
+      .attr('cx', d => xScale(d.range)).attr('cy', d => yScale(d.weight))
+      .attr('r', d => rScale(d.damage))
+      .attr('fill', d => typeColor(d.warheadType)).attr('opacity', 0.65)
+      .attr('stroke', d => typeColor(d.warheadType)).attr('stroke-width', 1).attr('stroke-opacity', 0.9)
+      .on('mouseover', (evt, d) => showTooltip(evt,
+        `<b>${esc(d.name)}</b><br>Range: ${d.range.toLocaleString()} km<br>Weight: ${d.weight.toLocaleString()} kg<br>` +
+        `Warhead: ${esc(d.warheadName)}<br>Damage: ${d.damage}<br>Explosive: ${d.explosiveWeight} kg`))
+      .on('mousemove', (evt) => showTooltip(evt, getTooltip().innerHTML))
+      .on('mouseout', hideTooltip);
+
+    // Axes
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+    g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+    svg.append('text').attr('x', M.left + w / 2).attr('y', H - 6).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.text).attr('font-size', 10).text('Max Range (km)');
+    svg.append('text').attr('x', M.left - 45).attr('y', M.top + h / 2).attr('text-anchor', 'middle')
+      .attr('transform', `rotate(-90,${M.left - 45},${M.top + h / 2})`).attr('fill', COLORS.text).attr('font-size', 10)
+      .text('Weight (kg)');
+
+    // Legend (top warhead types)
+    const legend = d3.select(container).append('div').attr('class', 'chart-legend');
+    typeSet.slice(0, 6).forEach(t => {
+      const el = legend.append('span').attr('class', 'chart-legend-item');
+      el.append('span').attr('class', 'chart-legend-dot').style('background', typeColor(t));
+      el.append('span').text(t.length > 25 ? t.slice(0, 23) + '…' : t);
+    });
+  }
+
+  // ── 20. Platform Survivability ──
+  function renderSurvivability(container, indexData, details, cat) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || !['aircraft', 'ships'].includes(cat)) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Survivability chart available for Aircraft and Ships</div>';
+      return;
+    }
+    const armorKeys = cat === 'aircraft'
+      ? [{ key: 'damagePoints', label: 'Damage Pts', color: '#4a9eff' }, { key: 'cockpitArmor', label: 'Cockpit', color: '#f44336' }, { key: 'fuselageArmor', label: 'Fuselage', color: '#ffc107' }, { key: 'engineArmor', label: 'Engine', color: '#4caf50' }]
+      : [{ key: 'damagePoints', label: 'Damage Pts', color: '#4a9eff' }];
+
+    const items = indexData.map(item => {
+      const d = details[item.id];
+      if (!d) return null;
+      const dp = d.damagePoints || 0;
+      if (dp === 0) return null;
+      const vals = {};
+      armorKeys.forEach(ak => { vals[ak.key] = d[ak.key] || 0; });
+      return { name: item.name, dp, vals };
+    }).filter(Boolean);
+    items.sort((a, b) => b.dp - a.dp);
+    const top = items.slice(0, 15);
+    if (top.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No survivability data</div>';
+      return;
+    }
+
+    const W = 520, H = 30 + top.length * 24 + 40, M = { top: 30, right: 20, bottom: 30, left: 170 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text(`Platform Survivability — ${cat === 'aircraft' ? 'Aircraft' : 'Ships'}`);
+
+    const yBand = d3.scaleBand().domain(top.map(d => d.name)).range([0, h]).padding(0.15);
+
+    if (cat === 'aircraft') {
+      // Grouped bars for each armor component
+      const maxVal = d3.max(top, d => d3.max(armorKeys, ak => d.vals[ak.key])) || 100;
+      const xScale = d3.scaleLinear().domain([0, maxVal * 1.1]).range([0, w]);
+      const barH = yBand.bandwidth() / armorKeys.length;
+
+      g.selectAll('.gridV').data(xScale.ticks(5)).enter().append('line')
+        .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h).attr('stroke', COLORS.grid);
+
+      top.forEach(platform => {
+        armorKeys.forEach((ak, i) => {
+          const val = platform.vals[ak.key];
+          if (val <= 0) return;
+          g.append('rect')
+            .attr('x', 0).attr('y', yBand(platform.name) + i * barH)
+            .attr('width', xScale(val)).attr('height', barH - 1)
+            .attr('fill', ak.color).attr('opacity', 0.8).attr('rx', 2)
+            .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(platform.name)}</b><br>${ak.label}: ${val.toLocaleString()}`))
+            .on('mouseout', hideTooltip);
+        });
+      });
+
+      g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5))
+        .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+      // Legend
+      const legend = d3.select(container).append('div').attr('class', 'chart-legend');
+      armorKeys.forEach(ak => {
+        const el = legend.append('span').attr('class', 'chart-legend-item');
+        el.append('span').attr('class', 'chart-legend-dot').style('background', ak.color);
+        el.append('span').text(ak.label);
+      });
+    } else {
+      // Ships: single bar for damage points
+      const maxDP = d3.max(top, d => d.dp) || 100;
+      const xScale = d3.scaleLinear().domain([0, maxDP * 1.1]).range([0, w]);
+      const dpColor = d3.scaleSequential(d3.interpolateBlues).domain([0, maxDP]);
+
+      g.selectAll('.gridV').data(xScale.ticks(5)).enter().append('line')
+        .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h).attr('stroke', COLORS.grid);
+
+      top.forEach(platform => {
+        g.append('rect')
+          .attr('x', 0).attr('y', yBand(platform.name))
+          .attr('width', xScale(platform.dp)).attr('height', yBand.bandwidth())
+          .attr('fill', dpColor(platform.dp)).attr('opacity', 0.85).attr('rx', 2)
+          .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(platform.name)}</b><br>Damage Points: ${platform.dp.toLocaleString()}`))
+          .on('mouseout', hideTooltip);
+        g.append('text').attr('x', xScale(platform.dp) + 4).attr('y', yBand(platform.name) + yBand.bandwidth() / 2 + 3)
+          .attr('fill', COLORS.text).attr('font-size', 8.5).text(platform.dp.toLocaleString());
+      });
+
+      g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5))
+        .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+    }
+
+    // Y axis labels
+    g.append('g').call(d3.axisLeft(yBand).tickSize(0))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 8)
+      .text(function() { const t = d3.select(this).text(); return t.length > 24 ? t.slice(0, 22) + '…' : t; });
+  }
+
+  // ── 21. Magazine Depth Analysis ──
+  function renderMagazineDepth(container, indexData, details) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || Object.keys(details).length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Magazine depth analysis available for Ships</div>';
+      return;
+    }
+    // Aggregate weapon categories from magazines + mounts
+    const weaponCats = ['Missile', 'Gun', 'Torpedo', 'Bomb', 'Rocket', 'Decoy', 'Other'];
+    function classifyWeapon(name, type) {
+      const n = (name + ' ' + (type || '')).toLowerCase();
+      if (n.includes('missile') || n.includes('harpoon') || n.includes('sm-') || n.includes('essm') || n.includes('sam') || n.includes('asroc')) return 'Missile';
+      if (n.includes('gun') || n.includes('mm/') || n.includes('ciws') || n.includes('phalanx')) return 'Gun';
+      if (n.includes('torpedo') || n.includes('torp')) return 'Torpedo';
+      if (n.includes('bomb') || n.includes('mine') || n.includes('depth charge')) return 'Bomb';
+      if (n.includes('rocket')) return 'Rocket';
+      if (n.includes('decoy') || n.includes('chaff') || n.includes('flare') || n.includes('nulka') || n.includes('srboc')) return 'Decoy';
+      return 'Other';
+    }
+    const catColors = { Missile: '#f44336', Gun: '#ffc107', Torpedo: '#00bcd4', Bomb: '#9c27b0', Rocket: '#ff9800', Decoy: '#8bc34a', Other: '#999' };
+
+    const ships = indexData.map(item => {
+      const d = details[item.id];
+      if (!d) return null;
+      const counts = {};
+      weaponCats.forEach(c => { counts[c] = 0; });
+      // Count from magazines
+      if (d.magazines) {
+        d.magazines.forEach(mag => {
+          const qty = mag.capacity || mag.qty || 0;
+          if (mag.weapons && mag.weapons.length > 0) {
+            mag.weapons.forEach(w => { counts[classifyWeapon(w.name, w.type)] += qty; });
+          } else {
+            counts[classifyWeapon(mag.name, '')] += qty;
+          }
+        });
+      }
+      // Count from mounts
+      if (d.mounts) {
+        d.mounts.forEach(mount => {
+          const qty = mount.qty || 1;
+          counts[classifyWeapon(mount.name, '')] += qty;
+        });
+      }
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (total === 0) return null;
+      return { name: item.name, counts, total };
+    }).filter(Boolean);
+    ships.sort((a, b) => b.total - a.total);
+    const top = ships.slice(0, 15);
+    if (top.length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No magazine data</div>';
+      return;
+    }
+
+    const W = 520, H = 30 + top.length * 24 + 40, M = { top: 30, right: 40, bottom: 30, left: 170 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    svg.append('text').attr('x', W / 2).attr('y', 16).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text('Magazine Depth — Weapon Capacity by Ship');
+
+    const maxTotal = d3.max(top, d => d.total) || 100;
+    const xScale = d3.scaleLinear().domain([0, maxTotal * 1.1]).range([0, w]);
+    const yBand = d3.scaleBand().domain(top.map(d => d.name)).range([0, h]).padding(0.15);
+
+    g.selectAll('.gridV').data(xScale.ticks(5)).enter().append('line')
+      .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h).attr('stroke', COLORS.grid);
+
+    // Stacked bars
+    top.forEach(ship => {
+      let cumX = 0;
+      weaponCats.forEach(cat => {
+        const val = ship.counts[cat];
+        if (val <= 0) return;
+        g.append('rect')
+          .attr('x', xScale(cumX)).attr('y', yBand(ship.name))
+          .attr('width', xScale(cumX + val) - xScale(cumX)).attr('height', yBand.bandwidth())
+          .attr('fill', catColors[cat]).attr('opacity', 0.8).attr('rx', 1)
+          .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(ship.name)}</b><br>${cat}: ${val}<br>Total: ${ship.total}`))
+          .on('mouseout', hideTooltip);
+        cumX += val;
+      });
+      // Total label
+      g.append('text').attr('x', xScale(ship.total) + 4).attr('y', yBand(ship.name) + yBand.bandwidth() / 2 + 3)
+        .attr('fill', COLORS.text).attr('font-size', 8.5).text(ship.total);
+    });
+
+    // Axes
+    g.append('g').call(d3.axisLeft(yBand).tickSize(0))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 8)
+      .text(function() { const t = d3.select(this).text(); return t.length > 24 ? t.slice(0, 22) + '…' : t; });
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5))
+      .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
+
+    const legend = d3.select(container).append('div').attr('class', 'chart-legend');
+    weaponCats.forEach(cat => {
+      const el = legend.append('span').attr('class', 'chart-legend-item');
+      el.append('span').attr('class', 'chart-legend-dot').style('background', catColors[cat]);
+      el.append('span').text(cat);
+    });
+  }
+
+  // ── 22. Sensor Capability Matrix ──
+  function renderCapabilityMatrix(container, indexData, details) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    if (!details || Object.keys(details).length === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">Capability matrix available for Sensors</div>';
+      return;
+    }
+    // Collect all capabilities
+    const capSet = new Set();
+    const sensors = indexData.map(s => {
+      const d = details[s.id];
+      if (!d || !d.capabilities || d.capabilities.length === 0) return null;
+      d.capabilities.forEach(c => capSet.add(c));
+      return { name: s.name, caps: new Set(d.capabilities), count: d.capabilities.length };
+    }).filter(Boolean);
+    if (sensors.length === 0 || capSet.size === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:12px">No capability data</div>';
+      return;
+    }
+    // Sort sensors by capability count, take top 20
+    sensors.sort((a, b) => b.count - a.count);
+    const topSensors = sensors.slice(0, 20);
+    // Sort capabilities by frequency
+    const capFreq = {};
+    topSensors.forEach(s => s.caps.forEach(c => { capFreq[c] = (capFreq[c] || 0) + 1; }));
+    const caps = Object.keys(capFreq).sort((a, b) => capFreq[b] - capFreq[a]);
+
+    const cellSize = 14, labelW = 170, capLabelH = 100;
+    const W = labelW + caps.length * cellSize + 20;
+    const H = capLabelH + topSensors.length * cellSize + 20;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .style('width', '100%').style('height', 'auto');
+
+    svg.append('text').attr('x', W / 2).attr('y', 14).attr('text-anchor', 'middle')
+      .attr('fill', COLORS.textBright).attr('font-size', 13).attr('font-weight', 600)
+      .text('Sensor Capability Matrix');
+
+    // Column headers (rotated)
+    caps.forEach((cap, ci) => {
+      svg.append('text')
+        .attr('x', labelW + ci * cellSize + cellSize / 2)
+        .attr('y', capLabelH - 4)
+        .attr('text-anchor', 'start')
+        .attr('transform', `rotate(-55,${labelW + ci * cellSize + cellSize / 2},${capLabelH - 4})`)
+        .attr('fill', COLORS.text).attr('font-size', 7)
+        .text(cap.length > 20 ? cap.slice(0, 18) + '…' : cap);
+    });
+
+    // Row labels + dots
+    topSensors.forEach((sensor, ri) => {
+      const ry = capLabelH + ri * cellSize;
+      const displayName = sensor.name.length > 26 ? sensor.name.slice(0, 24) + '…' : sensor.name;
+      svg.append('text').attr('x', labelW - 4).attr('y', ry + cellSize / 2 + 3)
+        .attr('text-anchor', 'end').attr('fill', COLORS.text).attr('font-size', 7.5)
+        .text(displayName);
+
+      caps.forEach((cap, ci) => {
+        const cx = labelW + ci * cellSize + cellSize / 2;
+        const cy = ry + cellSize / 2;
+        if (sensor.caps.has(cap)) {
+          svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 4)
+            .attr('fill', COLORS.accent).attr('opacity', 0.85)
+            .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(sensor.name)}</b><br>${esc(cap)}`))
+            .on('mouseout', hideTooltip);
+        } else {
+          svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 2)
+            .attr('fill', 'rgba(255,255,255,0.06)');
+        }
+      });
+    });
+  }
+
   return {
     d3Ready,
     renderRadarChart,
@@ -1370,5 +2003,12 @@ const Charts = (() => {
     renderTopTen,
     renderCapabilityRadar,
     renderSensorGenerations,
+    renderEngagementEnvelope,
+    renderPokMatrix,
+    renderSensorCoverage,
+    renderWeaponBubble,
+    renderSurvivability,
+    renderMagazineDepth,
+    renderCapabilityMatrix,
   };
 })();

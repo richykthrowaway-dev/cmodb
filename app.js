@@ -1774,6 +1774,20 @@ const App = (() => {
       Charts.renderTimeline(document.getElementById('analyticsTimeline'), data, cat);
       // Row 5: Sensor generations (full width, sensors only)
       Charts.renderSensorGenerations(document.getElementById('analyticsSensorGen'), data, cat);
+
+      // ── Tactical Analytics (detail-data charts) ──
+      const detailData = await loadDetails(cat);
+      // Row 6: Engagement Envelope + PoK Matrix
+      Charts.renderEngagementEnvelope(document.getElementById('analyticsEnvelope'), data, cat === 'weapons' ? detailData : null);
+      Charts.renderPokMatrix(document.getElementById('analyticsPok'), data, cat === 'weapons' ? detailData : null);
+      // Row 7: Survivability + Sensor Coverage
+      Charts.renderSurvivability(document.getElementById('analyticsSurvivability'), data, ['aircraft', 'ships'].includes(cat) ? detailData : null, cat);
+      Charts.renderSensorCoverage(document.getElementById('analyticsSensorCoverage'), data, ['aircraft', 'ships'].includes(cat) ? detailData : null, cat);
+      // Row 8: Magazine Depth + Weapon Bubble
+      Charts.renderMagazineDepth(document.getElementById('analyticsMagDepth'), data, cat === 'ships' ? detailData : null);
+      Charts.renderWeaponBubble(document.getElementById('analyticsWeaponBubble'), data, cat === 'weapons' ? detailData : null);
+      // Row 9: Sensor Capability Matrix (full width)
+      Charts.renderCapabilityMatrix(document.getElementById('analyticsCapMatrix'), data, cat === 'sensors' ? detailData : null);
     }
   }
 
@@ -1824,6 +1838,13 @@ const App = (() => {
                 <div class="analytics-panel" id="analyticsCapRadar"></div>
                 <div class="analytics-panel analytics-panel-wide" id="analyticsTimeline"></div>
                 <div class="analytics-panel analytics-panel-full" id="analyticsSensorGen"></div>
+                <div class="analytics-panel" id="analyticsEnvelope"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsPok"></div>
+                <div class="analytics-panel" id="analyticsSurvivability"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsSensorCoverage"></div>
+                <div class="analytics-panel" id="analyticsMagDepth"></div>
+                <div class="analytics-panel analytics-panel-wide" id="analyticsWeaponBubble"></div>
+                <div class="analytics-panel analytics-panel-full" id="analyticsCapMatrix"></div>
               </div>
             </div>`;
           renderAnalytics(state.analytics.category);
