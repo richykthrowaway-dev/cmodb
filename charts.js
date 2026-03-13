@@ -52,6 +52,29 @@ const Charts = (() => {
   // ── Escape HTML ──
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+  // ── Log-scale tick helpers ──
+  function logTickValues(domain) {
+    const [lo, hi] = domain;
+    const ticks = [];
+    let p = Math.pow(10, Math.floor(Math.log10(Math.max(1, lo))));
+    while (p <= hi * 1.01) {
+      if (p >= lo * 0.99) ticks.push(p);
+      p *= 10;
+    }
+    if (ticks.length < 3) {
+      // Add half-decade ticks (e.g. 5, 50, 500)
+      p = Math.pow(10, Math.floor(Math.log10(Math.max(1, lo))));
+      while (p <= hi * 1.01) {
+        const mid = p * 3;
+        if (mid >= lo * 0.99 && mid <= hi * 1.01 && !ticks.includes(mid)) ticks.push(mid);
+        p *= 10;
+      }
+      ticks.sort((a, b) => a - b);
+    }
+    return ticks;
+  }
+  function logTickFmt(d) { return d >= 1000 ? (d / 1000) + 'k' : d; }
+
   // ══════════════════════════════════════════
   //  Per-Item Charts
   // ══════════════════════════════════════════
@@ -1574,7 +1597,8 @@ const Charts = (() => {
     const xScale = d3.scaleLog().domain([1, maxRange * 1.2]).range([0, w]).clamp(true);
 
     // Grid
-    g.selectAll('.gridV').data(xScale.ticks(5)).enter().append('line')
+    const xTicks = logTickValues(xScale.domain());
+    g.selectAll('.gridV').data(xTicks).enter().append('line')
       .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h)
       .attr('stroke', COLORS.grid);
 
@@ -1598,11 +1622,11 @@ const Charts = (() => {
     g.append('g').call(d3.axisLeft(yBand).tickSize(0))
       .selectAll('text').attr('fill', COLORS.text).attr('font-size', 8)
       .text(function() { const t = d3.select(this).text(); return t.length > 24 ? t.slice(0, 22) + '…' : t; });
-    // X axis
-    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+    // X axis — clean log ticks
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).tickValues(xTicks).tickFormat(logTickFmt))
       .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
     svg.append('text').attr('x', M.left + w / 2).attr('y', H - 4).attr('text-anchor', 'middle')
-      .attr('fill', COLORS.text).attr('font-size', 10).text('Max Range (km, log scale)');
+      .attr('fill', COLORS.text).attr('font-size', 10).text('Max Range (km)');
 
     // Legend
     const legend = d3.select(container).append('div').attr('class', 'chart-legend');
@@ -1661,10 +1685,12 @@ const Charts = (() => {
     const typeSet = [...new Set(items.map(d => d.warheadType))];
     const typeColor = d3.scaleOrdinal(d3.schemeTableau10).domain(typeSet);
 
-    // Grid
-    g.selectAll('.gridH').data(yScale.ticks(4)).enter().append('line')
+    // Grid — clean log ticks
+    const xTicks = logTickValues(xScale.domain());
+    const yTicks = logTickValues(yScale.domain());
+    g.selectAll('.gridH').data(yTicks).enter().append('line')
       .attr('x1', 0).attr('x2', w).attr('y1', d => yScale(d)).attr('y2', d => yScale(d)).attr('stroke', COLORS.grid);
-    g.selectAll('.gridV').data(xScale.ticks(4)).enter().append('line')
+    g.selectAll('.gridV').data(xTicks).enter().append('line')
       .attr('x1', d => xScale(d)).attr('x2', d => xScale(d)).attr('y1', 0).attr('y2', h).attr('stroke', COLORS.grid);
 
     // Bubbles
@@ -1679,10 +1705,10 @@ const Charts = (() => {
       .on('mousemove', (evt) => showTooltip(evt, getTooltip().innerHTML))
       .on('mouseout', hideTooltip);
 
-    // Axes
-    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+    // Axes — clean log ticks
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(xScale).tickValues(xTicks).tickFormat(logTickFmt))
       .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
-    g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d >= 1000 ? (d / 1000) + 'k' : d))
+    g.append('g').call(d3.axisLeft(yScale).tickValues(yTicks).tickFormat(logTickFmt))
       .selectAll('text').attr('fill', COLORS.text).attr('font-size', 9);
     svg.append('text').attr('x', M.left + w / 2).attr('y', H - 6).attr('text-anchor', 'middle')
       .attr('fill', COLORS.text).attr('font-size', 10).text('Max Range (km)');

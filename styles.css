@@ -1325,8 +1325,16 @@ body {
   min-height: 280px;
 }
 
+.analytics-panel-wide {
+  grid-column: 2;
+}
+
 .analytics-panel-full {
   grid-column: 1 / -1;
+}
+
+.analytics-panel-hidden {
+  display: none;
 }
 
 @media (max-width: 768px) {
