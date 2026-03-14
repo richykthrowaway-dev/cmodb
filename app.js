@@ -1824,13 +1824,14 @@ const App = (() => {
     };
     document.getElementById('tipSendBtn').onclick = () => {
       const name = document.getElementById('tipAuthorName').value.trim() || 'Anonymous';
+      const topic = document.getElementById('tipTopic').value;
       const body = document.getElementById('tipBody').value.trim();
       if (!body) {
         document.getElementById('tipBody').focus();
         return;
       }
-      const subject = encodeURIComponent(`CMO DB Tip Submission from ${name}`);
-      const bodyEnc = encodeURIComponent(`Name: ${name}\n\nTip:\n${body}`);
+      const subject = encodeURIComponent(`CMO DB Tip Submission [${topic}] from ${name}`);
+      const bodyEnc = encodeURIComponent(`Name: ${name}\nTopic: ${topic}\n\nTip:\n${body}`);
       window.location.href = `mailto:${MAIL}?subject=${subject}&body=${bodyEnc}`;
       document.getElementById('tipSubmitModal').classList.add('hidden');
     };
