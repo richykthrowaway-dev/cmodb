@@ -507,6 +507,19 @@ const App = (() => {
     }
   }
 
+  async function loadTips() {
+    if (state._tipsCache) return state._tipsCache;
+    try {
+      const res = await fetch('data/tips.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      state._tipsCache = await res.json();
+      return state._tipsCache;
+    } catch (e) {
+      console.error('Failed to load tips:', e);
+      return [];
+    }
+  }
+
   // ── Image Loading ──────────────────────
   let _imageMapPromise = null;
   async function loadImageMap() {
@@ -1751,6 +1764,114 @@ const App = (() => {
     return str.length > max ? str.slice(0, max) + '...' : str;
   }
 
+  // ── Tips & Tricks Rendering ──────────────
+  async function renderTips() {
+    const tips = await loadTips();
+    const content = document.getElementById('content');
+    const MAIL = 'tips@example.com'; // TODO: replace with real address
+
+    content.className = 'content';
+    content.innerHTML = `
+      <div class="tips-view">
+        <div class="tips-header">
+          <h2>Tips &amp; Tricks</h2>
+          <button class="tips-submit-btn" id="tipsSubmitBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            Submit a Tip
+          </button>
+        </div>
+        ${tips.length === 0
+          ? '<p style="color:var(--text-secondary);padding:40px 0;text-align:center">No tips yet — be the first to submit one!</p>'
+          : `<div class="tips-grid">${tips.map(tip => renderTipCard(tip)).join('')}</div>`
+        }
+      </div>`;
+
+    // Wire tip card clicks → detail modal
+    content.querySelectorAll('.tip-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = parseInt(card.dataset.tipId, 10);
+        const tip = tips.find(t => t.id === id);
+        if (!tip) return;
+        openTipDetail(tip);
+      });
+    });
+
+    // Keyboard: Enter/Space opens tip detail
+    content.querySelectorAll('.tip-card').forEach(card => {
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    // Wire submit button → submit modal
+    document.getElementById('tipsSubmitBtn')?.addEventListener('click', () => {
+      document.getElementById('tipSubmitModal').classList.remove('hidden');
+      document.getElementById('tipAuthorName').focus();
+    });
+
+    // Wire submit modal cancel + send
+    document.getElementById('tipCancelBtn').onclick = () => {
+      document.getElementById('tipSubmitModal').classList.add('hidden');
+    };
+    document.getElementById('tipSubmitModal').querySelector('.modal-overlay').onclick = () => {
+      document.getElementById('tipSubmitModal').classList.add('hidden');
+    };
+    document.getElementById('tipSubmitModal').querySelector('.modal-close').onclick = () => {
+      document.getElementById('tipSubmitModal').classList.add('hidden');
+    };
+    document.getElementById('tipSendBtn').onclick = () => {
+      const name = document.getElementById('tipAuthorName').value.trim() || 'Anonymous';
+      const body = document.getElementById('tipBody').value.trim();
+      if (!body) {
+        document.getElementById('tipBody').focus();
+        return;
+      }
+      const subject = encodeURIComponent(`CMO DB Tip Submission from ${name}`);
+      const bodyEnc = encodeURIComponent(`Name: ${name}\n\nTip:\n${body}`);
+      window.location.href = `mailto:${MAIL}?subject=${subject}&body=${bodyEnc}`;
+      document.getElementById('tipSubmitModal').classList.add('hidden');
+    };
+  }
+
+  function renderTipCard(tip) {
+    const cat = (tip.category || 'General').toLowerCase();
+    const excerpt = tip.body.length > 150 ? tip.body.slice(0, 147) + '…' : tip.body;
+    return `
+      <div class="tip-card" data-tip-id="${tip.id}" tabindex="0" role="button" aria-label="Read tip: ${esc(tip.title)}">
+        <span class="tip-category-badge ${cat}">${esc(tip.category || 'General')}</span>
+        <div class="tip-card-title">${esc(tip.title)}</div>
+        <div class="tip-card-excerpt">${esc(excerpt)}</div>
+        <div class="tip-card-footer"><span class="tip-read-more">Read More →</span></div>
+      </div>`;
+  }
+
+  function openTipDetail(tip) {
+    const cat = (tip.category || 'General').toLowerCase();
+    const linkHtml = tip.link
+      ? `<a class="tip-modal-link" href="${esc(tip.link)}" target="_blank" rel="noopener">
+           <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+           Open Reference Link
+         </a>`
+      : '';
+    const imgHtml = tip.image
+      ? `<img src="${esc(tip.image)}" alt="${esc(tip.title)}" style="width:100%;border-radius:8px;margin-bottom:16px">`
+      : '';
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+      <div class="tip-modal-category">
+        <span class="tip-category-badge ${cat}">${esc(tip.category || 'General')}</span>
+      </div>
+      <h2 class="detail-name" style="margin-bottom:16px">${esc(tip.title)}</h2>
+      ${imgHtml}
+      <div class="tip-modal-body">${esc(tip.body)}</div>
+      ${linkHtml}`;
+    document.getElementById('detailModal').classList.remove('hidden');
+    document.getElementById('detailModal').querySelector('.modal-close').focus();
+  }
+
   // ── Analytics Rendering ────────────────
   async function renderAnalytics(cat) {
     const data = await loadCategory(cat);
@@ -1817,6 +1938,13 @@ const App = (() => {
         btn.setAttribute('aria-current', 'page');
         const cat = btn.dataset.category;
         state.currentCategory = cat;
+
+        // Tips & Tricks tab
+        if (cat === 'tips') {
+          document.querySelector('.toolbar').classList.add('hidden');
+          renderTips();
+          return;
+        }
 
         // Analytics tab: show analytics view instead of card grid
         if (cat === 'analytics') {
