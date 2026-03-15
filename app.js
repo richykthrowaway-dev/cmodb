@@ -88,8 +88,8 @@ const App = (() => {
     'Airborne Command Post (ACP)': { short: 'Command\nPost',
       svg: '<svg viewBox="0 0 64 64" width="46" height="46"><path fill="currentColor" d="M35,1 L29,1 L26,6 L25,16 L12,27 L4,32 L4,36 L25,30 L25,44 L22,50 L22,54 L27,49 L30,56 L26,58 L38,58 L34,56 L37,49 L42,54 L42,50 L39,44 L39,30 L60,36 L60,32 L52,27 L39,16 L38,6Z"/><rect fill="currentColor" x="16" y="28" width="3" height="4.5" rx="0.7"/><rect fill="currentColor" x="45" y="28" width="3" height="4.5" rx="0.7"/></svg>' },
 
-    // ── Helicopter (UH-60): large rotor disc, cross blades, narrow body + tail boom ──
-    'Search And Rescue (SAR)': { short: 'Helicopter',
+    // ── SAR/Special Ops (AC-130J / HC-130J): fixed-wing SAR + special ops transports ──
+    'Search And Rescue (SAR)': { short: 'SAR',
       svg: '<svg viewBox="0 0 64 64" width="46" height="46"><ellipse cx="32" cy="28" rx="26" ry="26" fill="currentColor" opacity="0.1"/><path fill="currentColor" d="M31,6 L29,10 L28,16 L27,20 L23,23 L20,24 L20,27 L27,26 L28,30 L28,46 L26,50 L22,52 L22,56 L27,53 L29,50 L31,56 L32,62 L33,56 L35,50 L37,53 L42,56 L42,52 L38,50 L36,46 L36,30 L37,26 L44,27 L44,24 L41,23 L37,20 L36,16 L35,10 L33,6Z"/><line x1="6" y1="28" x2="58" y2="28" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="32" y1="2" x2="32" y2="54" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><circle cx="32" cy="28" r="3.5" fill="currentColor"/></svg>' },
 
     // ── AEW (E-3 Sentry): airplane body + large thick rotodome ring ──
@@ -125,7 +125,24 @@ const App = (() => {
       svg: '<svg viewBox="0 0 64 64" width="46" height="46"><circle cx="32" cy="5" r="3.5" fill="currentColor"/><path fill="currentColor" d="M31.5,8 L31,18 L7,27 L5,29 L5,33 L31,29 L31,44 L26,52 L26,56 L31,49 L32,60 L33,49 L38,56 L38,52 L33,44 L33,29 L59,33 L59,29 L57,27 L33,18 L32.5,8Z"/></svg>' },
   }
 
-
+  // ── Aircraft Group Definitions (cross-type groups matched by name prefix) ──
+  // Helicopters appear across Attack / Transport / ASW / SAR types — unify by designation
+  const AIRCRAFT_GROUP_DEFS = {
+    'helicopter': {
+      short: 'Helicopter',
+      svg: '<svg viewBox="0 0 64 64" width="46" height="46"><ellipse cx="32" cy="28" rx="26" ry="26" fill="currentColor" opacity="0.1"/><path fill="currentColor" d="M31,6 L29,10 L28,16 L27,20 L23,23 L20,24 L20,27 L27,26 L28,30 L28,46 L26,50 L22,52 L22,56 L27,53 L29,50 L31,56 L32,62 L33,56 L35,50 L37,53 L42,56 L42,52 L38,50 L36,46 L36,30 L37,26 L44,27 L44,24 L41,23 L37,20 L36,16 L35,10 L33,6Z"/><line x1="6" y1="28" x2="58" y2="28" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><line x1="32" y1="2" x2="32" y2="54" stroke="currentColor" stroke-width="2.5" opacity="0.3"/><circle cx="32" cy="28" r="3.5" fill="currentColor"/></svg>',
+      match: name =>
+        /^(AH|CH|HH|MH|OH|SH|TH|UH)-/.test(name) ||
+        /^Mi-\d/.test(name) ||
+        /^Ka-\d/.test(name) ||
+        /^Z-\d/.test(name) ||
+        /^WZ-/.test(name) ||
+        /^AW\./.test(name) ||
+        /^(SA|AS)\.\d/.test(name) ||
+        /^(W-3|PZL W)/.test(name) ||
+        /\b(Lynx|Merlin|Wildcat|Gazelle|Sea.?King|Dauphin|Alouette|NH.?90|Chinook|Apache|Puma|Super.?Puma|Cougar|Fennec)\b/i.test(name),
+    },
+  };
 
   // ── Ship Type Icon Definitions (grouped by hull classification) ──
   const SHIP_TYPE_ICON_DEFS = {
@@ -474,6 +491,7 @@ const App = (() => {
   const compareCount = $('compareCount');
   const detailModal = $('detailModal');
   const compareModal = $('compareModal');
+  const compareHeader = $('compareHeader');
   const modalBody = $('modalBody');
   const compareBody = $('compareBody');
   const viewToggle = $('viewToggle');
@@ -638,6 +656,27 @@ const App = (() => {
     return state.imageCache.get(wikiTitle) || null;
   }
 
+  // Fetch hi-res thumbnail directly from Wikipedia API (bypasses imageCache)
+  // Used by detail hero to upgrade from cached 400px → 800px
+  async function fetchHiResThumb(wikiTitle, width = 800) {
+    try {
+      const params = new URLSearchParams({
+        action: 'query', format: 'json', origin: '*',
+        redirects: '', titles: wikiTitle,
+        prop: 'pageimages', piprop: 'thumbnail', pithumbsize: String(width)
+      });
+      const res = await fetch(`https://en.wikipedia.org/w/api.php?${params}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      const pages = data.query?.pages;
+      if (!pages) return null;
+      for (const page of Object.values(pages)) {
+        if (page.thumbnail?.source) return page.thumbnail.source;
+      }
+    } catch (e) { /* fall back to cached */ }
+    return null;
+  }
+
   // Pre-fetch all images for the current category in one batch
   async function prefetchCategoryImages(cat) {
     await loadImageMap(); // ensure image map loaded
@@ -728,8 +767,8 @@ const App = (() => {
         const typeSet = new Set(groupDef.types.map(t => t.trim()));
         filtered = filtered.filter(item => typeSet.has((item.type || '').trim()));
       } else {
-        // Check name-prefix group defs (infantry, armor, artillery, airdefense, radar)
-        const prefixDefs = { ...INFANTRY_TYPE_ICON_DEFS, ...ARMOR_TYPE_ICON_DEFS, ...ARTILLERY_TYPE_ICON_DEFS, ...AIRDEFENSE_TYPE_ICON_DEFS, ...RADAR_TYPE_ICON_DEFS };
+        // Check name-prefix group defs (aircraft groups, infantry, armor, artillery, airdefense, radar)
+        const prefixDefs = { ...AIRCRAFT_GROUP_DEFS, ...INFANTRY_TYPE_ICON_DEFS, ...ARMOR_TYPE_ICON_DEFS, ...ARTILLERY_TYPE_ICON_DEFS, ...AIRDEFENSE_TYPE_ICON_DEFS, ...RADAR_TYPE_ICON_DEFS };
         const prefixDef = prefixDefs[state.filters.type];
         if (prefixDef && (prefixDef.match || prefixDef.prefixes)) {
           filtered = filtered.filter(item => prefixDef.match ? prefixDef.match(item.name) : prefixDef.prefixes.some(p => item.name.startsWith(p)));
@@ -850,19 +889,28 @@ const App = (() => {
   function renderTypeIconFilters(data, cat) {
     if (!typeIconFiltersEl) return;
 
-    // Aircraft: direct type → icon mapping
+    // Aircraft: group buttons first, then direct type → icon buttons
     if (cat === 'aircraft') {
-      const types = [...new Set(data.map(d => d.type).filter(Boolean))].sort();
-      typeIconFiltersEl.innerHTML = types.map(type => {
-        const def = TYPE_ICON_DEFS[type];
-        if (!def) return '';
-        const active = state.filters.type === type;
-        const iconHtml = def.svg || '';
-        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type="${esc(type)}" title="${esc(type)}">
-          <span class="type-icon-symbol">${iconHtml}</span>
+      const groupBtns = Object.entries(AIRCRAFT_GROUP_DEFS).map(([groupKey, def]) => {
+        const count = data.filter(d => def.match(d.name)).length;
+        if (count === 0) return '';
+        const active = state.filters.type === groupKey;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type-group="${esc(groupKey)}" title="${esc(def.short)} (${count})">
+          <span class="type-icon-symbol">${def.svg}</span>
           <span>${def.short}</span>
         </button>`;
       }).join('');
+      const types = [...new Set(data.map(d => d.type).filter(Boolean))].sort();
+      const typeBtns = types.map(type => {
+        const def = TYPE_ICON_DEFS[type];
+        if (!def) return '';
+        const active = state.filters.type === type;
+        return `<button class="type-icon-btn${active ? ' active' : ''}" data-type="${esc(type)}" title="${esc(type)}">
+          <span class="type-icon-symbol">${def.svg || ''}</span>
+          <span>${def.short}</span>
+        </button>`;
+      }).join('');
+      typeIconFiltersEl.innerHTML = groupBtns + typeBtns;
       return;
     }
 
@@ -1106,12 +1154,44 @@ const App = (() => {
     // Merge index + detail into one object
     const d = { ...item, ...detail };
 
+    // ── Shared peer-rank infrastructure (used by Signatures + Propulsion) ──
+    const _detailsMap   = state.details[cat] || {};
+    const _unitType     = item.type || '';
+    const _sameTypeIds  = new Set(
+      (state.data[cat] || []).filter(i => i.type === _unitType).map(i => String(i.id))
+    );
+    const _typeShort = _unitType
+      .replace('Unmanned Combat Aerial Vehicle', 'UCAV')
+      .replace('Unmanned Aerial Vehicle', 'UAV')
+      .replace('Electronic Intelligence', 'ELINT')
+      .replace('Airborne Early Warning', 'AEW')
+      .replace('Anti-Submarine Warfare', 'ASW')
+      .replace('Maritime Patrol Aircraft', 'MPA')
+      .replace('Airborne Command Post', 'ACP')
+      .replace('Signals Intelligence', 'SIGINT')
+      .replace('Tanker (Air Refueling)', 'Tanker')
+      .replace(' (Fighter/Attack)', '')
+      .replace(/\s*\([^)]*\)/g, '');
+    function _buildRank(arr, val, higherIsBetter) {
+      if (!arr || arr.length < 2) return null;
+      const total = arr.length;
+      const rank  = arr.filter(v => v < val).length + 1;
+      const pct   = rank / total;
+      let color;
+      if (higherIsBetter) color = pct >= 0.67 ? '#4caf50' : pct >= 0.33 ? '#ff9800' : '#f44336';
+      else                 color = pct <= 0.33 ? '#4caf50' : pct <= 0.67 ? '#ff9800' : '#f44336';
+      return { rank, total, color };
+    }
+    const _rankBadge = (r, suffix) => r
+      ? `<span class="sig-rank-badge" style="color:${r.color};border-color:${r.color}"><span class="sig-rank-num">#${r.rank}/${r.total}</span><span class="sig-rank-prefix">${suffix}</span></span>`
+      : '';
+
     let html = '';
 
-    // Hero image
+    // Hero image — show cached 400px immediately, async-upgrade to 800px via API
     if (wikiTitle) {
       if (cachedImg) {
-        html += `<div class="detail-hero"><img src="${cachedImg}" alt="${esc(d.name)}" class="img-loaded"></div>`;
+        html += `<div class="detail-hero"><img id="detailHeroImg" src="${cachedImg}" alt="${esc(d.name)}" class="img-loaded"></div>`;
       } else {
         html += `<div class="detail-hero" id="detailHeroContainer" data-wiki="${esc(wikiTitle)}">
           <div class="card-image-placeholder detail-hero-placeholder">${catIcons[cat] || ''}</div>
@@ -1145,158 +1225,457 @@ const App = (() => {
       </div>
     </div>`;
 
-    // Sensors table (from detail data)
+    // Sensors table (from detail data) — accordion with descriptions
     if (d.sensors && d.sensors.length > 0) {
       const maxRange = Math.max(...d.sensors.map(s => s.rangeMax || s.maxRange || 0));
       html += `<div class="detail-section">
         <div class="detail-section-title">Sensors & EW (${d.sensors.length})</div>
         <div class="detail-section-body">
-          <table class="detail-table">
-            <thead><tr><th>Name</th><th>Role</th><th>Max Range</th><th></th></tr></thead>
-            <tbody>${d.sensors.map(s => {
-              const rng = s.rangeMax || s.maxRange || 0;
-              return `<tr>
-                <td style="color:var(--text-primary)">${esc(s.name)}</td>
-                <td>${esc(s.role || s.type || '')}</td>
-                <td>${rng ? rng + ' km' : '—'}</td>
-                <td><div class="range-bar" title="${rng ? rng + ' km' : ''}"><div class="range-bar-fill" style="width:${maxRange ? (rng / maxRange * 100) : 0}%"></div></div></td>
-              </tr>`;
-            }).join('')}
-            </tbody>
-          </table>
+          <div class="loadout-list">${d.sensors.map((s, idx) => {
+            const rng = s.rangeMax || s.maxRange || 0;
+            const role = s.role || s.type || '';
+            const sensorType = role.toLowerCase();
+            const typeClass = sensorType.includes('radar') ? 'air' : sensorType.includes('sonar') ? 'surf' : sensorType.includes('esm') || sensorType.includes('ecm') ? 'land' : '';
+            const sDesc = describeSensor(s.name, s.role, s.type);
+            return `<div class="loadout-item" data-sensor="${idx}">
+              <div class="loadout-header loadout-header-desc" onclick="this.parentElement.classList.toggle('open')">
+                <div class="loadout-top-row">
+                  <div class="loadout-chevron"></div>
+                  <div class="loadout-name" title="${esc(s.name)}">${esc(s.name)}</div>
+                  <div class="loadout-badges">
+                    ${rng ? `<span class="loadout-badge">${rng} km</span>` : ''}
+                    ${role ? `<span class="loadout-badge sensor-role ${typeClass}">${esc(role)}</span>` : ''}
+                  </div>
+                </div>
+                ${sDesc ? `<div class="loadout-desc">${esc(sDesc)}</div>` : ''}
+              </div>
+              <div class="loadout-body"><div class="loadout-body-inner">
+                <div class="detail-grid">
+                  <div class="detail-field"><span class="detail-field-label">Role</span><span class="detail-field-value">${esc(role) || '—'}</span></div>
+                  <div class="detail-field"><span class="detail-field-label">Max Range</span><span class="detail-field-value">${rng ? rng + ' km' : '—'}</span></div>
+                </div>
+                ${rng ? `<div style="margin-top:8px"><div class="range-bar" style="height:8px" title="${rng} km"><div class="range-bar-fill" style="width:${maxRange ? (rng / maxRange * 100) : 0}%"></div></div></div>` : ''}
+              </div></div>
+            </div>`;
+          }).join('')}
+          </div>
         </div>
       </div>`;
     }
 
-    // Aircraft: Loadouts (from detail)
+    // Aircraft: Loadouts — with sort dropdown, mission role badges, descriptions, and clickable weapons
     if (d.loadouts && d.loadouts.length > 0) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">Loadouts (${d.loadouts.length} configurations)</div>
-        <div class="detail-section-body">`;
-      d.loadouts.forEach(lo => {
-        const allR = lo.weapons.flatMap(w => [w.airRange, w.surfaceRange, w.landRange].filter(r => r != null));
-        const maxR = allR.length ? Math.max(...allR) : 0;
-        html += `<div style="margin-bottom:18px">
-          <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600">${esc(lo.name)}</div>
-          <table class="detail-table">
-            <thead><tr><th>Weapon</th><th>Qty</th><th>Type</th><th>Air</th><th>Surface</th><th>Land</th><th></th></tr></thead>
-            <tbody>${lo.weapons.map(w => {
-              const best = w.airRange || w.surfaceRange || w.landRange || 0;
-              return `<tr>
-                <td style="color:var(--text-primary)">${esc(w.name)}</td>
-                <td>${w.qty}x</td>
-                <td>${esc(w.type)}</td>
-                <td>${w.airRange != null ? w.airRange + ' km' : '—'}</td>
-                <td>${w.surfaceRange != null ? w.surfaceRange + ' km' : '—'}</td>
-                <td>${w.landRange != null ? w.landRange + ' km' : '—'}</td>
-                <td><div class="range-bar"><div class="range-bar-fill" style="width:${maxR ? (best / maxR * 100) : 0}%"></div></div></td>
-              </tr>`;
-            }).join('')}</tbody>
-          </table>
-        </div>`;
-      });
-      html += `</div></div>`;
+        <div class="detail-section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span>Loadouts (${d.loadouts.length} configurations)</span>
+          <select class="loadout-sort-sel" onchange="window._sortLoadouts(this.value)" title="Sort loadouts">
+            <option value="default">Default Order</option>
+            <option value="role">By Role / Mission</option>
+            <option value="range-desc">Max Range ↓</option>
+            <option value="range-asc">Max Range ↑</option>
+            <option value="weight-desc">Heaviest Payload ↓</option>
+            <option value="count-desc">Most Weapons ↓</option>
+            <option value="alpha">A → Z Name</option>
+            <option value="aa-first">Air-to-Air First</option>
+          </select>
+        </div>
+        <div class="detail-section-body">
+          <div id="loadoutListBody" class="loadout-list">${_applyLoadoutSort(d.loadouts, 'default').map(buildLoadoutItemHTML).join('')}</div>
+        </div>
+      </div>`;
     }
 
-    // Ships/Facilities: Mounts
+    // Ships/Facilities: Mounts — accordion with descriptions
     if (d.mounts && d.mounts.length > 0) {
       html += `<div class="detail-section">
         <div class="detail-section-title">Weapons Mounts (${d.mounts.length})</div>
         <div class="detail-section-body">
-          <table class="detail-table">
-            <thead><tr><th>Mount</th><th>Qty</th><th>Weapons</th></tr></thead>
-            <tbody>${d.mounts.map(m => `<tr>
-              <td style="color:var(--text-primary)">${esc(m.name)}</td>
-              <td>${m.qty}x</td>
-              <td>${m.weapons.map(w => esc(w.name)).join(', ') || '—'}</td>
-            </tr>`).join('')}</tbody>
-          </table>
+          <div class="loadout-list">${d.mounts.map((m, idx) => {
+            const wpnNames = m.weapons.map(w => w.name);
+            const wpnCount = m.weapons.length;
+            const mountDesc = describeMount(m.name);
+            return `<div class="loadout-item" data-mount="${idx}">
+              <div class="loadout-header loadout-header-desc" onclick="this.parentElement.classList.toggle('open')">
+                <div class="loadout-top-row">
+                  <div class="loadout-chevron"></div>
+                  <div class="loadout-name" title="${esc(m.name)}">${esc(m.name)}</div>
+                  <div class="loadout-badges">
+                    <span class="loadout-badge">${m.qty}x</span>
+                    ${wpnCount > 0 ? `<span class="loadout-badge air">${wpnCount} wpn${wpnCount > 1 ? 's' : ''}</span>` : '<span class="loadout-badge">no wpns</span>'}
+                  </div>
+                </div>
+                ${mountDesc ? `<div class="loadout-desc">${esc(mountDesc)}</div>` : ''}
+              </div>
+              <div class="loadout-body"><div class="loadout-body-inner">
+                ${wpnCount > 0 ? `<div class="wpn-chips">${m.weapons.map(w =>
+                  `<span class="wpn-chip" data-wpn-name="${esc(w.name)}" title="${esc(w.name)}${w.type ? ' (' + w.type + ')' : ''}">${esc(w.name)}</span>`
+                ).join('')}</div>` : '<div style="color:var(--text-secondary);font-size:12px;padding:4px 0">No weapons loaded</div>'}
+              </div></div>
+            </div>`;
+          }).join('')}
+          </div>
         </div>
       </div>`;
     }
 
-    // Ships: Magazines
+    // Ships: Magazines — accordion
     if (d.magazines && d.magazines.length > 0) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">Magazines</div>
+        <div class="detail-section-title">Magazines (${d.magazines.length})</div>
         <div class="detail-section-body">
-          <table class="detail-table">
-            <thead><tr><th>Magazine</th><th>Qty</th><th>Capacity</th><th>Weapons</th></tr></thead>
-            <tbody>${d.magazines.map(m => `<tr>
-              <td style="color:var(--text-primary)">${esc(m.name)}</td>
-              <td>${m.qty}x</td>
-              <td>${m.capacity ?? '—'}</td>
-              <td>${m.weapons.map(w => esc(w.name)).join(', ') || '—'}</td>
-            </tr>`).join('')}</tbody>
-          </table>
+          <div class="loadout-list">${d.magazines.map((m, idx) => {
+            const wpnCount = m.weapons.length;
+            const magDesc = describeMount(m.name);
+            return `<div class="loadout-item" data-mag="${idx}">
+              <div class="loadout-header loadout-header-desc" onclick="this.parentElement.classList.toggle('open')">
+                <div class="loadout-top-row">
+                  <div class="loadout-chevron"></div>
+                  <div class="loadout-name" title="${esc(m.name)}">${esc(m.name)}</div>
+                  <div class="loadout-badges">
+                    <span class="loadout-badge">${m.qty}x</span>
+                    ${m.capacity != null ? `<span class="loadout-badge surf">${m.capacity} cap</span>` : ''}
+                    ${wpnCount > 0 ? `<span class="loadout-badge air">${wpnCount} type${wpnCount > 1 ? 's' : ''}</span>` : ''}
+                  </div>
+                </div>
+                ${magDesc ? `<div class="loadout-desc">${esc(magDesc)}</div>` : ''}
+              </div>
+              <div class="loadout-body"><div class="loadout-body-inner">
+                <div class="detail-grid">
+                  <div class="detail-field"><span class="detail-field-label">Quantity</span><span class="detail-field-value">${m.qty}x</span></div>
+                  ${m.capacity != null ? `<div class="detail-field"><span class="detail-field-label">Capacity</span><span class="detail-field-value">${m.capacity}</span></div>` : ''}
+                </div>
+                ${wpnCount > 0 ? `<div class="wpn-chips" style="margin-top:8px">${m.weapons.map(w =>
+                  `<span class="wpn-chip" data-wpn-name="${esc(w.name)}" title="${esc(w.name)}${w.type ? ' (' + w.type + ')' : ''}">${esc(w.name)}</span>`
+                ).join('')}</div>` : '<div style="color:var(--text-secondary);font-size:12px;padding:4px 0;margin-top:4px">No weapons loaded</div>'}
+              </div></div>
+            </div>`;
+          }).join('')}
+          </div>
         </div>
       </div>`;
     }
 
-    // Old-style weapons (for backward compat)
+    // Old-style weapons (for backward compat) — accordion
     if (d.weapons && d.weapons.length > 0 && !d.loadouts && !d.mounts) {
-      const hasAir = d.weapons.some(w => w.airRange != null);
-      const hasSurf = d.weapons.some(w => w.surfaceRange != null);
-      const hasLand = d.weapons.some(w => w.landRange != null);
-      const allRanges = d.weapons.flatMap(w => [w.airRange, w.surfaceRange, w.landRange].filter(r => r != null));
+      const allRanges = d.weapons.flatMap(w => [w.airRange, w.surfaceRange, w.landRange, w.maxRange].filter(r => r != null));
       const maxR = allRanges.length ? Math.max(...allRanges) : 0;
       html += `<div class="detail-section">
-        <div class="detail-section-title">Weapons / Loadout</div>
+        <div class="detail-section-title">Weapons (${d.weapons.length})</div>
         <div class="detail-section-body">
-          <table class="detail-table">
-            <thead><tr><th>Name</th><th>Type</th>${hasAir ? '<th>Air</th>' : ''}${hasSurf ? '<th>Surface</th>' : ''}${hasLand ? '<th>Land</th>' : ''}${!hasAir && !hasSurf && !hasLand ? '<th>Max Range</th>' : ''}<th></th></tr></thead>
-            <tbody>${d.weapons.map(w => {
-              const best = w.airRange || w.surfaceRange || w.landRange || w.maxRange || 0;
-              return `<tr>
-                <td style="color:var(--text-primary)">${esc(w.name)}</td>
-                <td>${esc(w.type)}</td>
-                ${hasAir ? `<td>${w.airRange != null ? w.airRange + ' km' : '—'}</td>` : ''}
-                ${hasSurf ? `<td>${w.surfaceRange != null ? w.surfaceRange + ' km' : '—'}</td>` : ''}
-                ${hasLand ? `<td>${w.landRange != null ? w.landRange + ' km' : '—'}</td>` : ''}
-                ${!hasAir && !hasSurf && !hasLand ? `<td>${w.maxRange ? w.maxRange + ' km' : '—'}</td>` : ''}
-                <td><div class="range-bar"><div class="range-bar-fill" style="width:${maxR ? (best / maxR * 100) : 0}%"></div></div></td>
-              </tr>`;
-            }).join('')}</tbody>
-          </table>
+          <div class="loadout-list">${d.weapons.map((w, idx) => {
+            const hasAir = w.airRange != null;
+            const hasSurf = w.surfaceRange != null;
+            const hasLand = w.landRange != null;
+            const best = w.airRange || w.surfaceRange || w.landRange || w.maxRange || 0;
+            return `<div class="loadout-item" data-wpn="${idx}">
+              <div class="loadout-header" onclick="this.parentElement.classList.toggle('open')">
+                <div class="loadout-chevron"></div>
+                <div class="loadout-name wpn-link-name" data-wpn-name="${esc(w.name)}" title="${esc(w.name)}">${esc(w.name)}</div>
+                <div class="loadout-badges">
+                  ${best ? `<span class="loadout-badge">${best} km</span>` : ''}
+                  ${hasAir ? '<span class="loadout-badge air">AIR</span>' : ''}
+                  ${hasSurf ? '<span class="loadout-badge surf">SUR</span>' : ''}
+                  ${hasLand ? '<span class="loadout-badge land">LND</span>' : ''}
+                </div>
+              </div>
+              <div class="loadout-body"><div class="loadout-body-inner">
+                <div class="detail-grid">
+                  <div class="detail-field"><span class="detail-field-label">Type</span><span class="detail-field-value">${esc(w.type)}</span></div>
+                  ${hasAir ? `<div class="detail-field"><span class="detail-field-label">Air Range</span><span class="detail-field-value">${w.airRange} km</span></div>` : ''}
+                  ${hasSurf ? `<div class="detail-field"><span class="detail-field-label">Surface Range</span><span class="detail-field-value">${w.surfaceRange} km</span></div>` : ''}
+                  ${hasLand ? `<div class="detail-field"><span class="detail-field-label">Land Range</span><span class="detail-field-value">${w.landRange} km</span></div>` : ''}
+                  ${!hasAir && !hasSurf && !hasLand && w.maxRange ? `<div class="detail-field"><span class="detail-field-label">Max Range</span><span class="detail-field-value">${w.maxRange} km</span></div>` : ''}
+                </div>
+                ${best ? `<div style="margin-top:8px"><div class="range-bar" style="height:8px"><div class="range-bar-fill" style="width:${maxR ? (best / maxR * 100) : 0}%"></div></div></div>` : ''}
+              </div></div>
+            </div>`;
+          }).join('')}
+          </div>
         </div>
       </div>`;
     }
 
-    // Signatures
+    // Signatures — accordion
     if (d.signatures && d.signatures.length > 0) {
+      // Bucket config
+      const sigBuckets = [
+        { key: 'Visual',   label: 'Visual',   color: '#8bc34a', match: t => t.includes('Visual') },
+        { key: 'Infrared', label: 'Infrared', color: '#ff9800', match: t => t.includes('Infrared') || t.includes('IR') },
+        { key: 'Radar',    label: 'Radar',    color: '#4a9eff', match: t => t.includes('Radar') },
+        { key: 'Sonar',    label: 'Sonar',    color: '#00bcd4', match: t => t.includes('Sonar') },
+        { key: 'Other',    label: 'Other',    color: '#9e9e9e', match: () => true },
+      ];
+      function getSigBucket(type) {
+        return sigBuckets.find(b => b.match(type)) || sigBuckets[sigBuckets.length - 1];
+      }
+      // Build per-sigType rank lookup using shared peer maps
+      const rankMap = {}, typeRankMap = {};
+      Object.entries(_detailsMap).forEach(([id, peer]) => {
+        (peer.signatures || []).forEach(ps => {
+          const t = ps.type || '';
+          const v = Math.max(ps.front || 0, ps.side || 0, ps.rear || 0, ps.top || 0);
+          if (!rankMap[t]) rankMap[t] = [];
+          rankMap[t].push(v);
+          if (_sameTypeIds.has(id)) {
+            if (!typeRankMap[t]) typeRankMap[t] = [];
+            typeRankMap[t].push(v);
+          }
+        });
+      });
+      [rankMap, typeRankMap].forEach(m => Object.keys(m).forEach(t => m[t].sort((a, b) => a - b)));
+      function getSigRank(type, maxVal)     { return _buildRank(rankMap[type]     || null, maxVal, false); }
+      function getSigTypeRank(type, maxVal) { return _buildRank(typeRankMap[type] || null, maxVal, false); }
+      // Group by bucket
+      const bucketMap = new Map();
+      d.signatures.forEach((s, idx) => {
+        const bk = getSigBucket(s.type || '').key;
+        if (!bucketMap.has(bk)) bucketMap.set(bk, []);
+        bucketMap.get(bk).push({ s, idx });
+      });
+      const sigGroupsHtml = sigBuckets
+        .filter(b => bucketMap.has(b.key))
+        .map(b => {
+          const entries = bucketMap.get(b.key);
+          const unit = b.key === 'Sonar' ? ' dB' : ' km';
+          const rows = entries.map(({ s, idx }) => {
+            const maxVal = Math.max(s.front || 0, s.side || 0, s.rear || 0, s.top || 0);
+            const shortType = (s.type || '').replace(/\s*\([^)]*\)/g, '');
+            const allRank  = getSigRank(s.type || '', maxVal);
+            const typeRank = getSigTypeRank(s.type || '', maxVal);
+            return `<div class="loadout-item perf-band-item" data-sig="${idx}">
+              <div class="loadout-header" onclick="this.parentElement.classList.toggle('open')">
+                <div class="loadout-chevron"></div>
+                <div class="loadout-name" title="${esc(s.type)}">${esc(shortType)}</div>
+                <div class="loadout-badges">
+                  <span class="sig-rank-group">
+                    ${_rankBadge(allRank, ' ALL')}
+                    ${typeRank && typeRank.total !== allRank?.total ? _rankBadge(typeRank, ' ' + esc(_typeShort)) : ''}
+                  </span>
+                  <span class="loadout-badge" style="color:${b.color}">max ${maxVal}${unit}</span>
+                </div>
+              </div>
+              <div class="loadout-body"><div class="loadout-body-inner">
+                <div class="detail-grid">
+                  <div class="detail-field"><span class="detail-field-label">Front</span><span class="detail-field-value">${s.front}${unit}</span></div>
+                  <div class="detail-field"><span class="detail-field-label">Side</span><span class="detail-field-value">${s.side}${unit}</span></div>
+                  <div class="detail-field"><span class="detail-field-label">Rear</span><span class="detail-field-value">${s.rear}${unit}</span></div>
+                  <div class="detail-field"><span class="detail-field-label">Top</span><span class="detail-field-value">${s.top}${unit}</span></div>
+                </div>
+              </div></div>
+            </div>`;
+          }).join('');
+          return `<div class="perf-band-group" style="--band-color:${b.color}">
+            <div class="perf-band-header">
+              <span class="perf-band-bucket">${b.label}</span>
+            </div>
+            <div class="perf-band-rows">${rows}</div>
+          </div>`;
+        }).join('');
       html += `<div class="detail-section">
-        <div class="detail-section-title">Signatures</div>
+        <div class="detail-section-title">Signatures (${d.signatures.length} types)</div>
         <div class="detail-section-body">
-          <table class="detail-table">
-            <thead><tr><th>Type</th><th>Front</th><th>Side</th><th>Rear</th><th>Top</th></tr></thead>
-            <tbody>${d.signatures.map(s => `<tr>
-              <td style="color:var(--text-primary);font-size:11px">${esc(s.type)}</td>
-              <td>${s.front}</td><td>${s.side}</td><td>${s.rear}</td><td>${s.top}</td>
-            </tr>`).join('')}</tbody>
-          </table>
+          <div class="loadout-list">${sigGroupsHtml}</div>
         </div>
       </div>`;
     }
 
-    // Propulsion Performance
+    // Propulsion Performance — accordion
     if (d.propulsion && typeof d.propulsion === 'object' && d.propulsion.performances && d.propulsion.performances.length > 0) {
       const throttleMap = { 1: 'Cruise', 2: 'Military', 3: 'Afterburner' };
       const hasAlt = d.propulsion.performances[0].altBand != null;
       const thrustInfo = d.propulsion.thrustMil ? ` (${d.propulsion.engines || ''}x, ${d.propulsion.thrustMil} kgf mil${d.propulsion.thrustAB ? ', ' + d.propulsion.thrustAB + ' kgf AB' : ''})` : '';
+      const maxSpd = Math.max(...d.propulsion.performances.map(p => p.speed || 0));
+      // Rank max speed vs all peers and same-type peers
+      const _propAllSpeeds = [], _propTypeSpeeds = [];
+      Object.entries(_detailsMap).forEach(([id, peer]) => {
+        if (!peer.propulsion?.performances?.length) return;
+        const spd = Math.max(...peer.propulsion.performances.map(p => p.speed || 0));
+        _propAllSpeeds.push(spd);
+        if (_sameTypeIds.has(id)) _propTypeSpeeds.push(spd);
+      });
+      const _propAllRank  = _buildRank(_propAllSpeeds,  maxSpd, true);
+      const _propTypeRank = _buildRank(_propTypeSpeeds, maxSpd, true);
+      const _propRankHtml = `<span class="sig-rank-group" style="margin-left:8px">
+        ${_rankBadge(_propAllRank, ' ALL')}
+        ${_propTypeRank && _propTypeRank.total !== _propAllRank?.total ? _rankBadge(_propTypeRank, ' ' + esc(_typeShort)) : ''}
+      </span>`;
       html += `<div class="detail-section">
-        <div class="detail-section-title">Propulsion Performance</div>
+        <div class="detail-section-title" style="display:flex;align-items:center">Propulsion Performance${_propRankHtml}</div>
         <div class="detail-section-body">
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">${esc(d.propulsion.name || '')}${thrustInfo}</div>
-          <table class="detail-table">
-            <thead><tr>${hasAlt ? '<th>Alt Band</th>' : ''}<th>Throttle</th><th>Speed (kt)</th>${hasAlt ? '<th>Alt Range (m)</th>' : ''}<th>Consumption</th></tr></thead>
-            <tbody>${d.propulsion.performances.map(p => `<tr>
-              ${hasAlt ? `<td>${p.altBand}</td>` : ''}
-              <td>${throttleMap[p.throttle] || p.throttle}</td>
-              <td style="color:var(--text-primary)">${p.speed}</td>
-              ${hasAlt ? `<td>${Math.round(p.altMin)} – ${Math.round(p.altMax)}</td>` : ''}
-              <td>${p.consumption}</td>
-            </tr>`).join('')}</tbody>
-          </table>
+          ${(() => {
+            const bandBuckets = { 1: 'Low', 2: 'Med-Low', 3: 'Med-High', 4: 'High' };
+            const bandColors  = { 1: '#4a9eff', 2: '#4caf50', 3: '#ffb74d', 4: '#ef5350' };
+            const fmtM  = v => v >= 1000 ? (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v);
+            const fmtFt = v => Math.round(v / 1000) + 'k';
+            // Group performances by altBand
+            const groups = d.propulsion.performances.reduce((acc, p, idx) => {
+              const key = p.altBand ?? 0;
+              if (!acc.has(key)) acc.set(key, []);
+              acc.get(key).push({ ...p, idx });
+              return acc;
+            }, new Map());
+            // --- Band accordion rows ---
+            const bandGroupsHtml = `<div class="loadout-list">${[...groups.entries()].map(([bandNum, perfs]) => {
+              const first  = perfs[0];
+              const mStr   = hasAlt ? `${fmtM(first.altMin)}–${fmtM(first.altMax)} m` : '';
+              const ftStr  = hasAlt ? `${fmtFt(first.altMin * 3.28084)}–${fmtFt(first.altMax * 3.28084)} ft` : '';
+              const bucket = bandBuckets[bandNum] || '';
+              const color  = bandColors[bandNum]  || 'var(--accent)';
+              const rows = perfs.map(p => {
+                const throttleName  = throttleMap[p.throttle] || p.throttle;
+                const throttleClass = p.throttle === 3 ? 'land' : p.throttle === 2 ? 'air' : 'surf';
+                return `<div class="loadout-item perf-band-item" data-perf="${p.idx}">
+                  <div class="loadout-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="loadout-chevron"></div>
+                    <div class="loadout-name">${throttleName}</div>
+                    <div class="loadout-badges">
+                      <span class="loadout-badge ${throttleClass}">${p.speed} kt</span>
+                      <span class="loadout-badge">${p.consumption} kg/hr</span>
+                    </div>
+                  </div>
+                  <div class="loadout-body"><div class="loadout-body-inner">
+                    <div class="detail-grid">
+                      <div class="detail-field"><span class="detail-field-label">Throttle</span><span class="detail-field-value">${throttleName}</span></div>
+                      <div class="detail-field"><span class="detail-field-label">Speed</span><span class="detail-field-value">${p.speed} kt</span></div>
+                      ${hasAlt ? `<div class="detail-field"><span class="detail-field-label">Alt Range</span><span class="detail-field-value">${Math.round(p.altMin)} – ${Math.round(p.altMax)} m</span></div>` : ''}
+                      <div class="detail-field"><span class="detail-field-label">Consumption</span><span class="detail-field-value">${p.consumption} kg/hr</span></div>
+                    </div>
+                    <div style="margin-top:8px"><div class="range-bar" style="height:8px"><div class="range-bar-fill" style="width:${maxSpd ? (p.speed / maxSpd * 100) : 0}%"></div></div></div>
+                  </div></div>
+                </div>`;
+              }).join('');
+              return `<div class="perf-band-group">
+                <div class="perf-band-header" style="--band-color:${color}">
+                  <span class="perf-band-num">Band ${bandNum}</span>
+                  <span class="perf-band-bucket">${bucket}</span>
+                  ${hasAlt ? `<span class="band-alt-range">${mStr}</span><span class="band-alt-ft">${ftStr}</span>` : ''}
+                </div>
+                <div class="perf-band-rows">${rows}</div>
+              </div>`;
+            }).join('')}</div>`;
+            // --- Altitude visualization SVG ---
+            const vizHtml = (() => {
+              if (!hasAlt) return '';
+              const W = 540, H = 310;
+              const lPadM = 50, lPadFt = 84;       // dual axis: m | ft | chart
+              const tPad = 18, bPad = 28;
+              const chartBot = H - bPad, chartTop = tPad;
+              const chartH = chartBot - chartTop;
+              const barX = lPadFt + 4;
+              const barW = W - barX - 10;
+              // Split scale: bottom 78% = 0–15km (detail), top 22% = 15–100km (context)
+              const splitY = chartBot - chartH * 0.78;       // Y pixel where 15km sits
+              const yAlt = alt => {
+                if (alt <= 15000) return chartBot - (alt / 15000) * (chartBot - splitY);
+                return splitY - ((alt - 15000) / 85000) * (splitY - chartTop);
+              };
+              const bandData = [...groups.entries()].map(([bn, ps]) => ({
+                num: bn, altMin: ps[0].altMin, altMax: ps[0].altMax,
+                cruise: ps.find(p => p.throttle === 1)?.speed,
+                mil:    ps.find(p => p.throttle === 2)?.speed,
+                ab:     ps.find(p => p.throttle === 3)?.speed,
+                color:  bandColors[bn] || '#888',
+                bucket: bandBuckets[bn] || '',
+              }));
+              const absMaxSpd = Math.max(...bandData.map(b => b.ab || b.mil || b.cruise || 1));
+              const spdBarW = spd => spd ? (spd / absMaxSpd) * barW * 0.68 : 0;
+              const mToFt = m => Math.round(m * 3.28084);
+              const fmtM  = v => v >= 1000 ? (v / 1000).toFixed(1).replace(/\.0$/, '') + ' km' : Math.round(v) + ' m';
+              const fmtFt = v => { const ft = mToFt(v); return ft >= 1000 ? Math.round(ft / 1000) + 'k ft' : ft + ' ft'; };
+              const F = 'system-ui,sans-serif';
+              let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" class="perf-alt-viz">`;
+              // Defs
+              s += `<defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#020408"/>
+                  <stop offset="20%" stop-color="#06101e"/>
+                  <stop offset="60%" stop-color="#0b1a30"/>
+                  <stop offset="85%" stop-color="#0f2240"/>
+                  <stop offset="100%" stop-color="#122848"/>
+                </linearGradient>
+              </defs>`;
+              s += `<rect width="${W}" height="${H}" fill="url(#skyGrad)" rx="6"/>`;
+              // Atmosphere layers (subtle fills)
+              // Troposphere: 0–11km
+              const tropoY = yAlt(11000);
+              s += `<rect x="${barX}" y="${tropoY}" width="${barW}" height="${chartBot - tropoY}" fill="rgba(80,140,220,0.04)" rx="0"/>`;
+              // Stratosphere: 11–50km
+              const stratoY = yAlt(50000);
+              s += `<rect x="${barX}" y="${stratoY}" width="${barW}" height="${tropoY - stratoY}" fill="rgba(60,80,160,0.03)"/>`;
+              // Tropopause line
+              s += `<line x1="${barX}" y1="${tropoY}" x2="${barX + barW}" y2="${tropoY}" stroke="rgba(130,190,255,0.2)" stroke-width="0.75" stroke-dasharray="6,4"/>`;
+              s += `<text x="${barX + barW - 2}" y="${tropoY - 3}" text-anchor="end" font-size="7.5" fill="rgba(130,190,255,0.3)" font-family="${F}">Tropopause · 11 km</text>`;
+              // Kármán line (space) at 100km — right at chartTop
+              s += `<line x1="${barX}" y1="${chartTop}" x2="${barX + barW}" y2="${chartTop}" stroke="rgba(160,200,255,0.25)" stroke-width="0.75"/>`;
+              s += `<text x="${barX + barW - 2}" y="${chartTop - 3}" text-anchor="end" font-size="7.5" fill="rgba(160,200,255,0.3)" font-family="${F}">Kármán Line · 100 km / 328k ft — Space</text>`;
+              // Scale break indicator
+              s += `<line x1="${lPadFt - 3}" y1="${splitY}" x2="${barX + barW}" y2="${splitY}" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" stroke-dasharray="2,4"/>`;
+              // Axis lines
+              s += `<line x1="${lPadFt}" y1="${chartTop}" x2="${lPadFt}" y2="${chartBot}" stroke="rgba(255,255,255,0.1)" stroke-width="0.75"/>`;
+              // Ground
+              s += `<rect x="${barX}" y="${chartBot}" width="${barW}" height="2" fill="rgba(90,80,50,0.5)" rx="1"/>`;
+              // Altitude ticks: 0m + each band boundary + 50km + 100km
+              const tickAlts = [0];
+              bandData.forEach(b => { tickAlts.push(b.altMin); tickAlts.push(b.altMax); });
+              tickAlts.push(50000, 100000);
+              const uniqueTicks = [...new Set(tickAlts)].sort((a, b) => a - b);
+              uniqueTicks.forEach(alt => {
+                const y = yAlt(alt);
+                // Tick mark
+                s += `<line x1="${lPadFt - 3}" y1="${y}" x2="${lPadFt}" y2="${y}" stroke="rgba(255,255,255,0.2)" stroke-width="0.75"/>`;
+                // Metre label
+                s += `<text x="${lPadM}" y="${y + 3}" text-anchor="end" font-size="8.5" fill="rgba(255,255,255,0.5)" font-family="${F}">${fmtM(alt)}</text>`;
+                // Feet label
+                s += `<text x="${lPadFt - 6}" y="${y + 3}" text-anchor="end" font-size="7.5" fill="rgba(255,255,255,0.25)" font-family="${F}">${fmtFt(alt)}</text>`;
+              });
+              // Band zones + speed bars
+              bandData.forEach(b => {
+                const y1 = yAlt(b.altMax), y2 = yAlt(b.altMin);
+                const bh = y2 - y1;
+                const midY = (y1 + y2) / 2;
+                // Band zone — full-width subtle fill
+                s += `<rect x="${barX}" y="${y1}" width="${barW}" height="${bh}" fill="${b.color}" opacity="0.06" rx="2"/>`;
+                // Left color strip on axis
+                s += `<rect x="${lPadFt}" y="${y1}" width="3" height="${bh}" fill="${b.color}" opacity="0.6" rx="1"/>`;
+                // Bucket label
+                s += `<text x="${barX + 4}" y="${midY + 3}" font-size="8" fill="${b.color}" opacity="0.5" font-family="${F}" font-weight="700" letter-spacing="0.04em">${b.bucket.toUpperCase()}</text>`;
+                // Speed bars — 3 per band
+                const barH = Math.max(5, Math.min(8, (bh - 8) / 3.5));
+                const totalH = barH * 3 + 3 * 2;
+                const startY = midY - totalH / 2;
+                const bStartX = barX + 50;
+                const bMaxW = barW - 50 - 50;
+                const bSpdW = spd => spd ? (spd / absMaxSpd) * bMaxW : 0;
+                [
+                  { spd: b.cruise, col: '#4caf50', lbl: 'Cruise' },
+                  { spd: b.mil,    col: '#4a9eff', lbl: 'Military' },
+                  { spd: b.ab,     col: '#ef5350', lbl: 'AB' },
+                ].forEach((bar, j) => {
+                  if (!bar.spd) return;
+                  const by = startY + j * (barH + 3);
+                  const bw = bSpdW(bar.spd);
+                  // Track
+                  s += `<rect x="${bStartX}" y="${by}" width="${bMaxW}" height="${barH}" fill="rgba(255,255,255,0.035)" rx="${barH / 2}"/>`;
+                  // Fill
+                  s += `<rect x="${bStartX}" y="${by}" width="${bw}" height="${barH}" fill="${bar.col}" opacity="0.6" rx="${barH / 2}"/>`;
+                  // Speed label
+                  s += `<text x="${bStartX + bw + 5}" y="${by + barH - 1}" font-size="8.5" fill="${bar.col}" opacity="0.85" font-family="${F}" font-weight="500">${bar.spd} kt</text>`;
+                });
+              });
+              // Legend
+              const legY = H - 9;
+              const legX = barX + 50;
+              [['Cruise', '#4caf50'], ['Military', '#4a9eff'], ['Afterburner', '#ef5350']].forEach(([lbl, col], i) => {
+                const lx = legX + i * 120;
+                s += `<rect x="${lx}" y="${legY - 7}" width="12" height="6" fill="${col}" opacity="0.6" rx="2"/>`;
+                s += `<text x="${lx + 16}" y="${legY}" font-size="8.5" fill="rgba(255,255,255,0.35)" font-family="${F}">${lbl}</text>`;
+              });
+              s += `</svg>`;
+              return `<div class="perf-alt-viz-wrap">${s}</div>`;
+            })();
+            return bandGroupsHtml + vizHtml;
+          })()}
         </div>
       </div>`;
     }
@@ -1381,9 +1760,76 @@ const App = (() => {
       </div>`;
     }
 
+    // Weapon "Used By" placeholder (populated async)
+    if (cat === 'weapons') {
+      html += `<div class="detail-section" id="weaponUsedBySection" style="display:none">
+        <div class="detail-section-title">Used By</div>
+        <div class="detail-section-body" id="weaponUsedByBody">
+          <div style="color:var(--text-secondary);font-size:12px">Scanning platforms…</div>
+        </div>
+      </div>`;
+    }
+
+    state.currentDetail = d;
     modalBody.innerHTML = html;
     detailModal.classList.remove('hidden');
     detailModal.querySelector('.modal-close')?.focus();
+
+    // ── Clickable weapon chips → navigate to weapon detail card (event delegation) ──
+    modalBody.addEventListener('click', async (e) => {
+      const el = e.target.closest('.wpn-chip, .wpn-link-name');
+      if (!el) return;
+      e.stopPropagation();
+      const wpnName = el.dataset.wpnName;
+      if (!wpnName) return;
+      if (!state.data.weapons || !state.data.weapons.length) {
+        await loadCategory('weapons');
+      }
+      const weapon = findWeaponByName(wpnName);
+      if (weapon) {
+        showDetail(weapon, 'weapons');
+      }
+    });
+
+    // ── Weapon: populate "Used By" async ──
+    if (cat === 'weapons') {
+      buildWeaponUsedBy(d.name).then(users => {
+        const section = document.getElementById('weaponUsedBySection');
+        const body = document.getElementById('weaponUsedByBody');
+        if (!section || !body || !section.isConnected) return;
+        if (users.length === 0) {
+          section.style.display = 'none';
+          return;
+        }
+        section.style.display = '';
+        // Group by category
+        const grouped = {};
+        for (const u of users) {
+          (grouped[u.cat] = grouped[u.cat] || []).push(u);
+        }
+        let usedHtml = '';
+        for (const [uCat, units] of Object.entries(grouped)) {
+          const catTitle = categories[uCat]?.title || { facilities: 'Facilities' }[uCat] || uCat.charAt(0).toUpperCase() + uCat.slice(1);
+          const icon = catIcons[uCat] || '';
+          usedHtml += `<div class="used-by-group">
+            <div class="used-by-cat">${icon} ${esc(catTitle)}</div>
+            <div class="used-by-units">${units.map(u =>
+              `<span class="used-by-unit" data-cat="${esc(uCat)}" data-id="${u.id}" title="${esc(u.name)}">${esc(u.name)}</span>`
+            ).join('')}</div>
+          </div>`;
+        }
+        body.innerHTML = usedHtml;
+        // Click handler — open that unit's detail card
+        body.querySelectorAll('.used-by-unit').forEach(el => {
+          el.addEventListener('click', () => {
+            const uCat = el.dataset.cat;
+            const uId = parseInt(el.dataset.id);
+            const uItem = (state.data[uCat] || []).find(i => i.id === uId);
+            if (uItem) showDetail(uItem, uCat);
+          });
+        });
+      });
+    }
 
     // ── Render per-item D3 charts ──
     if (typeof Charts !== 'undefined' && Charts.d3Ready()) {
@@ -1441,12 +1887,48 @@ const App = (() => {
         modalBody.appendChild(loDiv);
         Charts.renderLoadoutAnalysis(document.getElementById('detailLoadout'), d);
       }
+
+      // Weapon Domain Reach: aircraft + ships
+      if ((cat === 'aircraft' || cat === 'ships') && Charts.renderDomainReach) {
+        const drDiv = document.createElement('div');
+        drDiv.className = 'detail-section';
+        drDiv.innerHTML = '<div class="detail-section-title">Weapon Domain Reach</div><div class="detail-section-body"><div class="chart-container" id="detailDomainReach"></div></div>';
+        modalBody.appendChild(drDiv);
+        Charts.renderDomainReach(document.getElementById('detailDomainReach'), d, cat);
+      }
+
+      // Flight Envelope: aircraft only
+      if (cat === 'aircraft' && d.propulsion?.performances?.length && Charts.renderFlightEnvelope) {
+        const feDiv = document.createElement('div');
+        feDiv.className = 'detail-section';
+        feDiv.innerHTML = '<div class="detail-section-title">Flight Envelope</div><div class="detail-section-body"><div class="chart-container" id="detailFlightEnv"></div></div>';
+        modalBody.appendChild(feDiv);
+        Charts.renderFlightEnvelope(document.getElementById('detailFlightEnv'), d);
+      }
+
+      // Depth–Speed Profile: submarines only (ships with maxDepth)
+      if (cat === 'ships' && d.maxDepth && d.propulsion?.performances?.length && Charts.renderDepthSpeedProfile) {
+        const dsDiv = document.createElement('div');
+        dsDiv.className = 'detail-section';
+        dsDiv.innerHTML = '<div class="detail-section-title">Depth–Speed Profile</div><div class="detail-section-body"><div class="chart-container" id="detailDepthSpeed"></div></div>';
+        modalBody.appendChild(dsDiv);
+        Charts.renderDepthSpeedProfile(document.getElementById('detailDepthSpeed'), d);
+      }
+
+      // Magazine Capacity: ships only
+      if (cat === 'ships' && d.magazines?.length && Charts.renderMagazineCapacity) {
+        const mcDiv = document.createElement('div');
+        mcDiv.className = 'detail-section';
+        mcDiv.innerHTML = '<div class="detail-section-title">Magazine Capacity</div><div class="detail-section-body"><div class="chart-container" id="detailMagCap"></div></div>';
+        modalBody.appendChild(mcDiv);
+        Charts.renderMagazineCapacity(document.getElementById('detailMagCap'), d);
+      }
     }
 
     // Lazy-fetch hero image if not cached
     const heroContainer = document.getElementById('detailHeroContainer');
     if (heroContainer) {
-      fetchWikiThumbnail(heroContainer.dataset.wiki).then(imgUrl => {
+      fetchHiResThumb(heroContainer.dataset.wiki, 800).then(imgUrl => {
         if (imgUrl && heroContainer.isConnected) {
           const img = document.createElement('img');
           img.src = imgUrl;
@@ -1460,6 +1942,132 @@ const App = (() => {
         }
       });
     }
+
+    // Async-upgrade cached hero image to higher resolution via API
+    const heroImg = document.getElementById('detailHeroImg');
+    if (heroImg && wikiTitle) {
+      fetchHiResThumb(wikiTitle, 800).then(hiResUrl => {
+        if (hiResUrl && heroImg.isConnected && hiResUrl !== heroImg.src) {
+          const upgraded = new Image();
+          upgraded.onload = () => { heroImg.src = hiResUrl; };
+          upgraded.src = hiResUrl;
+        }
+      });
+    }
+  }
+
+  // ── Find a weapon in the weapons index by name (fuzzy match) ──
+  function findWeaponByName(name) {
+    const weapons = state.data.weapons || [];
+    if (!weapons.length || !name) return null;
+    const nLower = name.toLowerCase();
+    // 1. Exact match on name or dbName
+    let match = weapons.find(w => w.name.toLowerCase() === nLower || (w.dbName && w.dbName.toLowerCase() === nLower));
+    if (match) return match;
+    // 2. Substring: weapon index name contained in detail name (detail names are longer with brackets)
+    match = weapons.find(w => nLower.includes(w.name.toLowerCase()));
+    if (match) return match;
+    // 3. Reverse substring: detail name contained in weapon index name
+    match = weapons.find(w => w.name.toLowerCase().includes(nLower));
+    if (match) return match;
+    // 4. Prefix/family match: strip trailing version/variant info and match the base designation
+    //    e.g. "RIM-66L 2 SM-2MR Blk IIIA" should match "RIM-66L-1 SM-2MR Blk III"
+    const baseDesig = nLower.replace(/\s*\[.*$/, '').split(/\s+/).slice(0, 2).join(' ');
+    if (baseDesig.length >= 5) {
+      // Score by longest common prefix
+      let bestScore = 0;
+      let bestMatch = null;
+      for (const w of weapons) {
+        const wBase = w.name.toLowerCase().replace(/\s*\[.*$/, '');
+        // Both must start with same weapon family (first token)
+        const nFamily = nLower.split(/[\s-]/)[0];
+        const wFamily = wBase.split(/[\s-]/)[0];
+        if (nFamily !== wFamily && nFamily.length > 2) continue;
+        // Find common prefix length
+        let i = 0;
+        while (i < nLower.length && i < wBase.length && nLower[i] === wBase[i]) i++;
+        if (i > bestScore && i >= 5) {
+          bestScore = i;
+          bestMatch = w;
+        }
+      }
+      if (bestMatch) return bestMatch;
+    }
+    return null;
+  }
+
+  // ── Build "Used By" cross-reference for a weapon name ──
+  // Scans all platform categories for units that carry this weapon
+  async function buildWeaponUsedBy(weaponName) {
+    const users = [];
+    const wLower = weaponName.toLowerCase();
+    const platformCats = ['aircraft', 'ships', 'armor', 'artillery', 'airdefense', 'infantry', 'facilities', 'radar'];
+
+    // Load all index + detail files in parallel
+    const detailEntries = await Promise.all(platformCats.map(async c => {
+      try {
+        const index = await loadCategory(c);
+        const details = await loadDetails(c);
+        return { cat: c, details, index };
+      } catch (e) {
+        return { cat: c, details: {}, index: [] };
+      }
+    }));
+
+    for (const { cat: c, details, index } of detailEntries) {
+      for (const unit of index) {
+        const det = details[String(unit.id)] || {};
+        let found = false;
+
+        // Check loadouts (aircraft) — check both loadout name and individual weapons
+        if (det.loadouts) {
+          for (const lo of det.loadouts) {
+            if (lo.name && lo.name.toLowerCase().includes(wLower)) { found = true; break; }
+            if (lo.weapons) {
+              for (const w of lo.weapons) {
+                if (w.name && w.name.toLowerCase().includes(wLower)) { found = true; break; }
+              }
+            }
+            if (found) break;
+          }
+        }
+
+        // Check mounts (ships, armor, airdefense, facilities, etc.)
+        if (!found && det.mounts) {
+          for (const mt of det.mounts) {
+            if (mt.weapons) {
+              for (const w of mt.weapons) {
+                if (w.name && w.name.toLowerCase().includes(wLower)) { found = true; break; }
+              }
+            }
+            if (found) break;
+            // Also check mount name itself
+            if (mt.name && mt.name.toLowerCase().includes(wLower)) { found = true; break; }
+          }
+        }
+
+        // Check magazines (ships)
+        if (!found && det.magazines) {
+          for (const mg of det.magazines) {
+            if (mg.weapons) {
+              for (const w of mg.weapons) {
+                if (w.name && w.name.toLowerCase().includes(wLower)) { found = true; break; }
+              }
+            }
+            if (found) break;
+          }
+        }
+
+        if (found) {
+          users.push({ cat: c, id: unit.id, name: unit.name });
+        }
+      }
+    }
+
+    // Sort by category priority then by name
+    const catOrder = { aircraft: 0, ships: 1, armor: 2, airdefense: 3, artillery: 4, infantry: 5, facilities: 6, radar: 7 };
+    users.sort((a, b) => (catOrder[a.cat] ?? 99) - (catOrder[b.cat] ?? 99) || a.name.localeCompare(b.name));
+    return users;
   }
 
   function getDetailFields(item, cat) {
@@ -1586,9 +2194,16 @@ const App = (() => {
     }
   }
 
-  // ── Compare View ───────────────────────
-  function showCompare() {
+  // ── Compare View (Advanced Full-Screen) ───────────────────────
+  const COMPARE_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#ef5350', '#ab47bc'];
+
+  async function showCompare() {
     if (state.compareList.length < 2) return;
+
+    // Show modal immediately with loading
+    compareHeader.innerHTML = '';
+    compareBody.innerHTML = '<div class="compare-loading">Loading detailed data…</div>';
+    compareModal.classList.remove('hidden');
 
     // Group by category
     const byCat = {};
@@ -1597,95 +2212,407 @@ const App = (() => {
       byCat[c.category].push(c);
     });
 
-    let html = '';
+    // Lazy-load detail data for all relevant categories
+    const catKeys = Object.keys(byCat);
+    await Promise.all(catKeys.map(cat => loadDetails(cat)));
 
-    for (const [cat, items] of Object.entries(byCat)) {
+    // Build merged items (index + detail)
+    const allMerged = {};
+    for (const cat of catKeys) {
       const data = state.data[cat] || [];
-      const fullItems = items.map(c => data.find(d => d.id === c.id)).filter(Boolean);
-      if (fullItems.length < 2) continue;
-
-      const fields = getCompareFields(cat);
-      const cols = fullItems.length + 1;
-
-      html += `<h3 style="color:var(--accent);margin:16px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title}</h3>`;
-      html += `<div class="compare-grid" style="margin-bottom:24px">`;
-
-      // Header row
-      html += `<div class="compare-row header-row" style="grid-template-columns: 180px repeat(${fullItems.length}, 1fr)">
-        <div class="compare-cell label-cell"></div>
-        ${fullItems.map(item => `<div class="compare-cell header-cell">${esc(item.name)}</div>`).join('')}
-      </div>`;
-
-      // Data rows
-      fields.forEach(f => {
-        const values = fullItems.map(item => f.getValue(item));
-        const numericValues = values.map(v => typeof v === 'number' ? v : parseFloat(v)).filter(v => !isNaN(v));
-        const best = f.higherIsBetter !== undefined && numericValues.length > 0
-          ? (f.higherIsBetter ? Math.max(...numericValues) : Math.min(...numericValues))
-          : null;
-
-        html += `<div class="compare-row" style="grid-template-columns: 180px repeat(${fullItems.length}, 1fr)">
-          <div class="compare-cell label-cell">${f.label}</div>
-          ${values.map(v => {
-            const num = typeof v === 'number' ? v : parseFloat(v);
-            const isBest = best !== null && !isNaN(num) && num === best && numericValues.filter(n => n === best).length === 1;
-            return `<div class="compare-cell value-cell ${isBest ? 'compare-best' : ''}">${typeof v === 'number' ? v.toLocaleString() : v}</div>`;
-          }).join('')}
-        </div>`;
-      });
-
-      html += `</div>`;
+      const details = state.details[cat] || {};
+      allMerged[cat] = byCat[cat]
+        .map(c => {
+          const idx = data.find(d => d.id === c.id);
+          if (!idx) return null;
+          return { ...idx, ...(details[String(c.id)] || {}) };
+        })
+        .filter(Boolean);
     }
 
-    compareBody.innerHTML = html || '<p style="color:var(--text-muted)">Select at least 2 items from the same category to compare.</p>';
-    compareModal.classList.remove('hidden');
+    // Find the primary category (most items, or first)
+    const primaryCat = catKeys.reduce((a, b) =>
+      (allMerged[b] || []).length > (allMerged[a] || []).length ? b : a
+    , catKeys[0]);
+    const primaryItems = allMerged[primaryCat] || [];
+    if (primaryItems.length < 2) {
+      compareBody.innerHTML = '<p style="color:var(--text-muted);padding:40px;text-align:center">Select at least 2 items from the same category to compare.</p>';
+      return;
+    }
+
+    // ── Sticky Header ──
+    const yearField = categories[primaryCat].yearField;
+    let headerHtml = '';
+    primaryItems.forEach((item, i) => {
+      const col = COMPARE_COLORS[i];
+      const year = item[yearField] || '';
+      const wikiTitle = getWikiTitle(primaryCat, item.id);
+      const imgUrl = wikiTitle ? state.imageCache.get(wikiTitle) : null;
+      const thumbHtml = imgUrl
+        ? `<img class="compare-header-thumb" src="${imgUrl}" alt="${esc(item.name)}" style="border-color:${col}">`
+        : `<div class="compare-header-thumb-placeholder" style="border-color:${col}">${catIcons[primaryCat] || '?'}</div>`;
+      headerHtml += `<div class="compare-header-item">
+        <button class="compare-header-remove" data-idx="${i}" title="Remove">&times;</button>
+        ${thumbHtml}
+        <div class="compare-header-name" title="${esc(item.name)}">${esc(item.name)}</div>
+        <div class="compare-header-meta">${esc(item.type || '')}${year ? ' · ' + year : ''}</div>
+        <div class="compare-header-color" style="background:${col}"></div>
+      </div>`;
+    });
+    compareHeader.innerHTML = headerHtml;
+
+    // Remove button handlers
+    compareHeader.querySelectorAll('.compare-header-remove').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.idx);
+        const item = primaryItems[idx];
+        if (item) {
+          toggleCompare(item.id, primaryCat);
+          if (state.compareList.length >= 2) showCompare();
+          else compareModal.classList.add('hidden');
+        }
+      };
+    });
+
+    // ── Build Sections ──
+    let bodyHtml = '';
+
+    for (const [cat, items] of Object.entries(allMerged)) {
+      if (items.length < 2) continue;
+
+      bodyHtml += `<h2 style="color:var(--accent);font-size:16px;margin:0 0 20px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title} Comparison</h2>`;
+
+      // §1 General Specifications table
+      const specFields = getCompareFieldsFull(cat);
+      if (specFields.length) {
+        bodyHtml += renderCompareTable('General Specifications', specFields, items, `cmpSpecs-${cat}`);
+      }
+
+      // §2 Propulsion Performance
+      if (items.some(it => it.propulsion && typeof it.propulsion === 'object' && it.propulsion.performances?.length)) {
+        const propFields = [
+          { label: 'Propulsion', getValue: i => (typeof i.propulsion === 'object' ? i.propulsion.name : i.propulsion) || '—' },
+          { label: 'Max Speed (kt)', getValue: i => {
+            const perfs = i.propulsion?.performances || [];
+            return perfs.length ? Math.max(...perfs.map(p => p.speed || 0)) : (i.maxSpeed || 0);
+          }, higherIsBetter: true },
+          { label: 'Engine Count', getValue: i => i.propulsion?.engines ?? '—' },
+          { label: 'Thrust (Mil)', getValue: i => i.propulsion?.thrustMil ? i.propulsion.thrustMil + ' kgf' : '—', higherIsBetter: true },
+          { label: 'Thrust (AB)', getValue: i => i.propulsion?.thrustAB ? i.propulsion.thrustAB + ' kgf' : '—', higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Propulsion Performance', propFields, items);
+        bodyHtml += `<div class="compare-chart" id="cmpSpeedChart-${cat}"><div class="compare-chart-title">Speed Comparison by Throttle</div></div>`;
+      }
+
+      // §3 Signatures
+      if (items.some(it => it.signatures?.length)) {
+        const sigTypes = ['Visual', 'Infrared', 'Radar', 'Sonar'];
+        const sigFields = sigTypes.map(st => ({
+          label: `${st} (max)`,
+          getValue: i => {
+            let max = 0;
+            (i.signatures || []).forEach(s => {
+              if ((s.type || '').includes(st)) {
+                const v = Math.max(s.front || 0, s.side || 0, s.rear || 0, s.top || 0);
+                if (v > max) max = v;
+              }
+            });
+            return max || '—';
+          },
+          higherIsBetter: false,
+        }));
+        bodyHtml += renderCompareTable('Signatures', sigFields, items);
+        bodyHtml += `<div class="compare-chart" id="cmpSigChart-${cat}"><div class="compare-chart-title">Signature Profile Overlay</div></div>`;
+      }
+
+      // §4 Sensors
+      if (items.some(it => it.sensors?.length)) {
+        const sensorSummaryFields = [
+          { label: 'Total Sensors', getValue: i => (i.sensors || []).length, higherIsBetter: true },
+          { label: 'Max Sensor Range (km)', getValue: i => {
+            const ranges = (i.sensors || []).map(s => s.rangeMax || s.maxRange || 0);
+            return ranges.length ? Math.max(...ranges) : 0;
+          }, higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Sensors', sensorSummaryFields, items);
+
+        // Sensor list per item
+        bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
+        items.forEach((item, i) => {
+          const col = COMPARE_COLORS[i];
+          const sensors = (item.sensors || []).sort((a, b) => (b.rangeMax || b.maxRange || 0) - (a.rangeMax || a.maxRange || 0));
+          bodyHtml += `<div class="compare-list-column">
+            <div class="compare-list-column-title"><span style="color:${col}">${esc(item.name)}</span> <span class="compare-list-badge">${sensors.length}</span></div>
+            ${sensors.map(s => {
+              const rng = s.rangeMax || s.maxRange || 0;
+              const role = s.role || s.type || '';
+              return `<div class="compare-list-item"><span>${esc(s.name)}</span><span class="compare-list-badge">${rng ? rng + ' km' : role}</span></div>`;
+            }).join('')}
+          </div>`;
+        });
+        bodyHtml += `</div>`;
+        bodyHtml += `<div class="compare-chart" id="cmpSensorChart-${cat}"><div class="compare-chart-title">Sensor Range Comparison</div></div>`;
+      }
+
+      // §5 Weapons/Mounts (ships/facilities/ground)
+      if (items.some(it => it.mounts?.length)) {
+        const mountFields = [
+          { label: 'Total Mounts', getValue: i => (i.mounts || []).length, higherIsBetter: true },
+          { label: 'Total Weapons', getValue: i => (i.mounts || []).reduce((s, m) => s + m.weapons.length, 0), higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Weapons Mounts', mountFields, items);
+
+        bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
+        items.forEach((item, i) => {
+          const col = COMPARE_COLORS[i];
+          bodyHtml += `<div class="compare-list-column">
+            <div class="compare-list-column-title"><span style="color:${col}">${esc(item.name)}</span> <span class="compare-list-badge">${(item.mounts || []).length} mounts</span></div>
+            ${(item.mounts || []).map(m => `<div class="compare-list-item"><span>${esc(m.name)}</span><span class="compare-list-badge">${m.qty}x · ${m.weapons.length} wpns</span></div>`).join('')}
+          </div>`;
+        });
+        bodyHtml += `</div>`;
+      }
+
+      // §6 Loadouts (aircraft)
+      if (items.some(it => it.loadouts?.length)) {
+        const loadoutFields = [
+          { label: 'Total Loadouts', getValue: i => (i.loadouts || []).length, higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Loadouts', loadoutFields, items);
+
+        bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
+        items.forEach((item, i) => {
+          const col = COMPARE_COLORS[i];
+          const loadouts = (item.loadouts || []).slice(0, 8);
+          bodyHtml += `<div class="compare-list-column">
+            <div class="compare-list-column-title"><span style="color:${col}">${esc(item.name)}</span> <span class="compare-list-badge">${(item.loadouts || []).length}</span></div>
+            ${loadouts.map(l => {
+              const wpnCount = (l.weapons || l.loads || []).length;
+              return `<div class="compare-list-item"><span>${esc(l.name || 'Unnamed')}</span><span class="compare-list-badge">${wpnCount} wpns</span></div>`;
+            }).join('')}
+            ${(item.loadouts || []).length > 8 ? `<div class="compare-list-item" style="color:var(--text-muted);font-style:italic">+${(item.loadouts || []).length - 8} more…</div>` : ''}
+          </div>`;
+        });
+        bodyHtml += `</div>`;
+      }
+
+      // §7 Magazines (ships)
+      if (items.some(it => it.magazines?.length)) {
+        const magFields = [
+          { label: 'Magazine Count', getValue: i => (i.magazines || []).length, higherIsBetter: true },
+          { label: 'Total Capacity', getValue: i => (i.magazines || []).reduce((s, m) => s + ((m.capacity || 0) * (m.qty || 1)), 0), higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Magazines', magFields, items);
+        bodyHtml += `<div class="compare-chart" id="cmpMagChart-${cat}"><div class="compare-chart-title">Total Magazine Capacity</div></div>`;
+
+        bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
+        items.forEach((item, i) => {
+          const col = COMPARE_COLORS[i];
+          bodyHtml += `<div class="compare-list-column">
+            <div class="compare-list-column-title"><span style="color:${col}">${esc(item.name)}</span></div>
+            ${(item.magazines || []).map(m => `<div class="compare-list-item"><span>${esc(m.name)}</span><span class="compare-list-badge">${m.qty}x · cap ${m.capacity || '?'}</span></div>`).join('')}
+          </div>`;
+        });
+        bodyHtml += `</div>`;
+      }
+
+      // §8 Weapons Detail (weapons category)
+      if (cat === 'weapons') {
+        const wpnFields = [
+          { label: 'Weight (kg)', getValue: i => i.weight ? i.weight.toLocaleString() : '—', higherIsBetter: false },
+          { label: 'Length (m)', getValue: i => i.length || '—' },
+          { label: 'Diameter (m)', getValue: i => i.diameter || '—' },
+          { label: 'Span (m)', getValue: i => i.span || '—' },
+          { label: 'Air Range (km)', getValue: i => i.airRange ?? '—', higherIsBetter: true },
+          { label: 'Surface Range (km)', getValue: i => i.surfaceRange ?? '—', higherIsBetter: true },
+          { label: 'Land Range (km)', getValue: i => i.landRange ?? '—', higherIsBetter: true },
+          { label: 'Sub Range (km)', getValue: i => i.subRange ?? '—', higherIsBetter: true },
+          { label: 'CEP Air (m)', getValue: i => i.cep ?? '—', higherIsBetter: false },
+          { label: 'CEP Surface (m)', getValue: i => i.cepSurface ?? '—', higherIsBetter: false },
+          { label: 'Cruise Alt. (m)', getValue: i => i.cruiseAltitude ? Math.round(i.cruiseAltitude).toLocaleString() : '—' },
+          { label: 'Climb Rate (m/s)', getValue: i => i.climbRate ?? '—', higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Weapons Detail', wpnFields, items);
+        bodyHtml += `<div class="compare-chart" id="cmpWpnRangeChart-${cat}"><div class="compare-chart-title">Range Comparison by Domain</div></div>`;
+      }
+
+      // §9 Sensor Detail (sensors category)
+      if (cat === 'sensors') {
+        const sensorFields = [
+          { label: 'Role', getValue: i => i.role || '—' },
+          { label: 'Max Range (km)', getValue: i => i.rangeMax || 0, higherIsBetter: true },
+          { label: 'Min Range (km)', getValue: i => i.rangeMin || 0, higherIsBetter: false },
+          { label: 'Alt. Max (m)', getValue: i => i.altitudeMax ? i.altitudeMax.toLocaleString() : '—', higherIsBetter: true },
+          { label: 'Alt. Min (m)', getValue: i => i.altitudeMin ? i.altitudeMin.toLocaleString() : '—' },
+          { label: 'Generation', getValue: i => i.generation || '—' },
+          { label: 'Scan Interval (s)', getValue: i => i.scanInterval ?? '—', higherIsBetter: false },
+          { label: 'Peak Power (kW)', getValue: i => i.radarPeakPower ?? '—', higherIsBetter: true },
+          { label: 'H Beamwidth (°)', getValue: i => i.radarHBeamwidth ?? '—', higherIsBetter: false },
+          { label: 'V Beamwidth (°)', getValue: i => i.radarVBeamwidth ?? '—', higherIsBetter: false },
+          { label: 'Max Contacts (Air)', getValue: i => i.maxContactsAir ?? '—', higherIsBetter: true },
+          { label: 'Max Contacts (Surface)', getValue: i => i.maxContactsSurface ?? '—', higherIsBetter: true },
+        ];
+        bodyHtml += renderCompareTable('Sensor Technical Detail', sensorFields, items);
+      }
+    }
+
+    compareBody.innerHTML = bodyHtml || '<p style="color:var(--text-muted);padding:40px;text-align:center">Select at least 2 items from the same category to compare.</p>';
+
+    // ── Wire up D3 charts after DOM insertion ──
+    requestAnimationFrame(() => {
+      for (const [cat, citems] of Object.entries(allMerged)) {
+        if (citems.length < 2) continue;
+        try {
+          // Specs bar chart
+          const specsChartEl = document.getElementById(`cmpSpecs-${cat}Chart`);
+          if (specsChartEl && Charts.renderCompareSpecs) {
+            const chartFields = getCompareChartFields(cat);
+            Charts.renderCompareSpecs(specsChartEl, citems, chartFields);
+          }
+
+          // Speed comparison chart
+          const speedEl = document.getElementById(`cmpSpeedChart-${cat}`);
+          if (speedEl && Charts.renderCompareSpeeds) {
+            Charts.renderCompareSpeeds(speedEl, citems);
+          }
+
+          // Signatures polar chart
+          const sigEl = document.getElementById(`cmpSigChart-${cat}`);
+          if (sigEl && Charts.renderCompareSignatures) {
+            Charts.renderCompareSignatures(sigEl, citems);
+          }
+
+          // Sensor range chart
+          const sensorEl = document.getElementById(`cmpSensorChart-${cat}`);
+          if (sensorEl && Charts.renderCompareSensorRanges) {
+            Charts.renderCompareSensorRanges(sensorEl, citems);
+          }
+
+          // Magazine capacity chart
+          const magEl = document.getElementById(`cmpMagChart-${cat}`);
+          if (magEl && Charts.renderCompareMagazines) {
+            Charts.renderCompareMagazines(magEl, citems);
+          }
+
+          // Weapon range chart
+          const wpnRangeEl = document.getElementById(`cmpWpnRangeChart-${cat}`);
+          if (wpnRangeEl && Charts.renderCompareWeaponRanges) {
+            Charts.renderCompareWeaponRanges(wpnRangeEl, citems);
+          }
+        } catch (e) {
+          console.error('Compare chart error for', cat, e);
+        }
+      }
+    });
   }
 
-  function getCompareFields(cat) {
+  // Helper: render a comparison table section
+  function renderCompareTable(title, fields, items, chartId) {
+    let html = `<div class="compare-section">
+      <div class="compare-section-title">${title}</div>
+      <div class="compare-table-wrap"><table class="compare-table">
+        <thead><tr><th></th>${items.map((it, i) =>
+          `<th style="border-bottom:3px solid ${COMPARE_COLORS[i]}">${esc(it.name)}</th>`
+        ).join('')}</tr></thead><tbody>`;
+
+    fields.forEach(f => {
+      const values = items.map(item => f.getValue(item));
+      const parseNum = v => typeof v === 'number' ? v : parseFloat(String(v).replace(/,/g, ''));
+      const numericVals = values.map(parseNum).filter(v => !isNaN(v));
+      const best = f.higherIsBetter !== undefined && numericVals.length > 1
+        ? (f.higherIsBetter ? Math.max(...numericVals) : Math.min(...numericVals))
+        : null;
+
+      html += `<tr><td>${f.label}</td>`;
+      values.forEach(v => {
+        const num = parseNum(v);
+        const isBest = best !== null && !isNaN(num) && num === best && numericVals.filter(n => n === best).length === 1;
+        const display = typeof v === 'number' ? v.toLocaleString() : (v === 0 ? '0' : v);
+
+        // Delta annotation: show difference from best value
+        let deltaHtml = '';
+        if (best !== null && !isNaN(num) && !isBest && numericVals.length > 1) {
+          const diff = num - best;
+          if (Math.abs(diff) > 0.001) {
+            const absDiff = Math.abs(Math.round(diff * 100) / 100);
+            const sign = diff > 0 ? '+' : '−';
+            const isGood = f.higherIsBetter ? diff > 0 : diff < 0;
+            const cls = isGood ? 'compare-delta-good' : 'compare-delta-bad';
+            deltaHtml = ` <span class="compare-delta ${cls}">${sign}${absDiff.toLocaleString()}</span>`;
+          }
+        }
+
+        html += `<td class="${isBest ? 'compare-best' : ''}">${display}${deltaHtml}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += `</tbody></table></div>`;
+    if (chartId) html += `<div class="compare-chart" id="${chartId}Chart"><div class="compare-chart-title">Key Metrics</div></div>`;
+    html += `</div>`;
+    return html;
+  }
+
+  // Full compare fields (all detail fields per category)
+  function getCompareFieldsFull(cat) {
     switch (cat) {
       case 'aircraft':
         return [
           { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Operator', getValue: i => i.operator || '—' },
           { label: 'Crew', getValue: i => i.crew ?? '—' },
           { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0, higherIsBetter: true },
           { label: 'Wingspan (m)', getValue: i => i.span || 0 },
           { label: 'Length (m)', getValue: i => i.length || 0 },
-          { label: 'Empty Weight (kg)', getValue: i => i.emptyWeight || 0, higherIsBetter: false },
-          { label: 'Max Weight (kg)', getValue: i => i.maxWeight || 0, higherIsBetter: true },
-          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Height (m)', getValue: i => i.height || 0 },
+          { label: 'Empty Weight (kg)', getValue: i => i.emptyWeight ? i.emptyWeight.toLocaleString() : '—', higherIsBetter: false },
+          { label: 'Max Weight (kg)', getValue: i => i.maxWeight ? i.maxWeight.toLocaleString() : '—', higherIsBetter: true },
+          { label: 'Max Payload (kg)', getValue: i => i.maxPayload ? i.maxPayload.toLocaleString() : '—', higherIsBetter: true },
+          { label: 'Agility', getValue: i => i.agility ?? '—', higherIsBetter: true },
+          { label: 'Climb Rate (m/s)', getValue: i => i.climbRate ?? '—', higherIsBetter: true },
+          { label: 'Endurance (hrs)', getValue: i => i.totalEndurance ?? '—', higherIsBetter: true },
+          { label: 'Damage Points', getValue: i => i.damagePoints ?? '—', higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || (i.sensors || []).length || 0, higherIsBetter: true },
           { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
-          { label: 'Propulsion', getValue: i => i.propulsion || '—' },
         ];
       case 'ships':
         return [
           { label: 'Type', getValue: i => i.type || '—' },
-          { label: 'Crew', getValue: i => i.crew || 0 },
+          { label: 'Operator', getValue: i => i.operator || '—' },
+          { label: 'Crew', getValue: i => i.crew ? i.crew.toLocaleString() : '—' },
           { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0, higherIsBetter: true },
           { label: 'Length (m)', getValue: i => i.length || 0, higherIsBetter: true },
-          { label: 'Displacement (t)', getValue: i => i.displacementFull || 0, higherIsBetter: true },
+          { label: 'Beam (m)', getValue: i => i.beam || 0 },
+          { label: 'Draft (m)', getValue: i => i.draft || 0 },
+          { label: 'Height (m)', getValue: i => i.height || 0 },
+          { label: 'Empty Disp. (t)', getValue: i => i.displacementEmpty ? i.displacementEmpty.toLocaleString() : '—' },
+          { label: 'Standard Disp. (t)', getValue: i => i.displacementStandard ? i.displacementStandard.toLocaleString() : '—' },
+          { label: 'Full Disp. (t)', getValue: i => i.displacementFull ? i.displacementFull.toLocaleString() : '—', higherIsBetter: true },
           { label: 'Max Depth (m)', getValue: i => i.maxDepth ?? '—', higherIsBetter: true },
-          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Damage Points', getValue: i => i.damagePoints ? i.damagePoints.toLocaleString() : '—', higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || (i.sensors || []).length || 0, higherIsBetter: true },
           { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
         ];
       case 'weapons':
         return [
           { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Weight (kg)', getValue: i => i.weight ? i.weight.toLocaleString() : '—', higherIsBetter: false },
+          { label: 'Length (m)', getValue: i => i.length || '—' },
+          { label: 'Diameter (m)', getValue: i => i.diameter || '—' },
+          { label: 'Span (m)', getValue: i => i.span || '—' },
           { label: 'Air Range (km)', getValue: i => i.airRange ?? '—', higherIsBetter: true },
           { label: 'Surface Range (km)', getValue: i => i.surfaceRange ?? '—', higherIsBetter: true },
           { label: 'Land Range (km)', getValue: i => i.landRange ?? '—', higherIsBetter: true },
           { label: 'Sub Range (km)', getValue: i => i.subRange ?? '—', higherIsBetter: true },
-          { label: 'Weight (kg)', getValue: i => i.weight || 0, higherIsBetter: false },
-          { label: 'Length (m)', getValue: i => i.length || 0 },
-          { label: 'Diameter (m)', getValue: i => i.diameter || 0 },
         ];
       case 'sensors':
         return [
           { label: 'Type', getValue: i => i.type || '—' },
+          { label: 'Role', getValue: i => i.role || '—' },
           { label: 'Max Range (km)', getValue: i => i.rangeMax || 0, higherIsBetter: true },
           { label: 'Min Range (km)', getValue: i => i.rangeMin || 0, higherIsBetter: false },
-          { label: 'Alt. Max (m)', getValue: i => i.altitudeMax ?? '—', higherIsBetter: true },
+          { label: 'Alt. Max (m)', getValue: i => i.altitudeMax ? i.altitudeMax.toLocaleString() : '—', higherIsBetter: true },
           { label: 'Generation', getValue: i => i.generation || '—' },
-          { label: 'Role', getValue: i => i.role || '—' },
         ];
       case 'infantry':
       case 'armor':
@@ -1695,13 +2622,55 @@ const App = (() => {
       case 'facilities':
         return [
           { label: 'Type', getValue: i => i.type || '—' },
-          { label: 'Crew', getValue: i => i.crew || 0 },
-          { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
-          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Crew', getValue: i => i.crew ?? '—' },
+          { label: 'Length (m)', getValue: i => i.length || '—' },
+          { label: 'Width (m)', getValue: i => i.width || '—' },
           { label: 'Damage Points', getValue: i => i.damagePoints || 0, higherIsBetter: true },
+          { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
+          { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
         ];
       default:
         return [];
+    }
+  }
+
+  // Numeric fields for the bar chart visualization
+  function getCompareChartFields(cat) {
+    switch (cat) {
+      case 'aircraft':
+        return [
+          { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0 },
+          { label: 'Max Weight (kg)', getValue: i => i.maxWeight || 0 },
+          { label: 'Payload (kg)', getValue: i => i.maxPayload || 0 },
+          { label: 'Wingspan (m)', getValue: i => i.span || 0 },
+          { label: 'Sensors', getValue: i => i.sensorCount || (i.sensors || []).length || 0 },
+        ];
+      case 'ships':
+        return [
+          { label: 'Max Speed (kt)', getValue: i => i.maxSpeed || 0 },
+          { label: 'Displacement (t)', getValue: i => i.displacementFull || 0 },
+          { label: 'Length (m)', getValue: i => i.length || 0 },
+          { label: 'Damage Points', getValue: i => i.damagePoints || 0 },
+          { label: 'Sensors', getValue: i => i.sensorCount || (i.sensors || []).length || 0 },
+        ];
+      case 'weapons':
+        return [
+          { label: 'Air Range (km)', getValue: i => i.airRange || 0 },
+          { label: 'Surface Range (km)', getValue: i => i.surfaceRange || 0 },
+          { label: 'Land Range (km)', getValue: i => i.landRange || 0 },
+          { label: 'Weight (kg)', getValue: i => i.weight || 0 },
+        ];
+      case 'sensors':
+        return [
+          { label: 'Max Range (km)', getValue: i => i.rangeMax || 0 },
+          { label: 'Alt. Max (m)', getValue: i => i.altitudeMax || 0 },
+        ];
+      default:
+        return [
+          { label: 'Damage Points', getValue: i => i.damagePoints || 0 },
+          { label: 'Sensors', getValue: i => i.sensorCount || 0 },
+          { label: 'Weapons', getValue: i => i.weaponCount || 0 },
+        ];
     }
   }
 
@@ -1763,6 +2732,581 @@ const App = (() => {
   function truncate(str, max) {
     return str.length > max ? str.slice(0, max) + '...' : str;
   }
+
+  // Map loadout role to a CSS color class
+  function roleClass(role) {
+    const map = {
+      'Air-to-Air': 'role-aa',
+      'Anti-Ship': 'role-asuw',
+      'Anti-Submarine': 'role-asw', 'ASW Patrol': 'role-asw', 'Maritime Patrol': 'role-asw',
+      'Precision Strike': 'role-strike', 'Standoff Strike': 'role-strike', 'Cruise Missile': 'role-strike',
+      'CAS / Anti-Armor': 'role-cas', 'Rocket Attack': 'role-cas', 'Gunship': 'role-cas', 'Forward Observer': 'role-cas',
+      'General Purpose Bombing': 'role-bomb', 'Area Attack': 'role-bomb',
+      'Nuclear Strike': 'role-nuke',
+      'SEAD / DEAD': 'role-sead',
+      'Transport / Airdrop': 'role-transport', 'Logistics': 'role-transport', 'Aerial Refueling': 'role-transport', 'Ferry / Extended Range': 'role-transport',
+      'Reconnaissance': 'role-isr', 'ISR / Targeting': 'role-isr', 'Surveillance': 'role-isr', 'Early Warning': 'role-isr',
+      'Electronic Warfare': 'role-ew', 'Decoy / EW': 'role-ew',
+      'Special Operations': 'role-sof',
+      'Search & Rescue': 'role-sar',
+      'Naval Mining': 'role-mine',
+      'Command & Control': 'role-c2',
+      'Drone / Target': 'role-drone', 'Missile Defense': 'role-drone',
+      'Training': 'role-train',
+    };
+    return map[role] || '';
+  }
+
+  // ── Loadout Description Generator ───────────────────────
+  const weaponDB = [
+    [/AIM-120[^\s,]* AMRAAM/i, 'BVR active radar-homing air-to-air missile'],
+    [/AIM-54[^\s,]* Phoenix/i, 'long-range air-to-air missile for fleet defense'],
+    [/AIM-7[^\s,]* Sparrow/i, 'medium-range semi-active radar-guided AAM'],
+    [/AIM-9[^\s,]* Sidewinder/i, 'short-range infrared-homing AAM'],
+    [/AIM-4[^\s,]* Falcon/i, 'early semi-active radar/IR-guided AAM'],
+    [/AIM-92[^\s,]* Stinger/i, 'shoulder-fired IR air defense missile adapted for air use'],
+    [/AIR-2A Genie/i, 'unguided nuclear air-to-air rocket'],
+    [/AGM-88[^\s,]* HARM/i, 'high-speed anti-radiation missile for SEAD'],
+    [/AGM-88[^\s,]* AARGM/i, 'advanced anti-radiation missile with GPS/MMW seeker'],
+    [/AGM-45[^\s,]* Shrike/i, 'early anti-radiation missile targeting enemy radar'],
+    [/AGM-78[^\s,]* Standard ARM/i, 'long-range anti-radiation missile'],
+    [/AGM-65[^\s,]* Maverick EO/i, 'electro-optical guided air-to-ground missile for precision CAS'],
+    [/AGM-65[^\s,]* Maverick IR/i, 'imaging infrared air-to-ground missile for all-weather CAS'],
+    [/AGM-65[^\s,]* Maverick Laser/i, 'laser-guided Maverick for cooperative target designation'],
+    [/AGM-114[^\s,]* Hellfire/i, 'laser/radar-guided anti-armor missile'],
+    [/AGM-176[^\s,]* Griffin/i, 'lightweight precision-guided munition for low-collateral strikes'],
+    [/AGM-69[^\s,]* SRAM/i, 'short-range nuclear attack missile for penetrating air defenses'],
+    [/AGM-158[^\s,]* JASSM/i, 'stealthy long-range cruise missile with autonomous targeting'],
+    [/AGM-158[^\s,]* LRASM/i, 'long-range anti-ship missile with autonomous targeting'],
+    [/AGM-84[^\s,]* Harpoon/i, 'sea-skimming anti-ship cruise missile'],
+    [/AGM-84[^\s,]* SLAM(?!-?ER)/i, 'standoff land-attack missile with man-in-the-loop guidance'],
+    [/SLAM-?ER/i, 'extended-range standoff land-attack missile'],
+    [/AGM-86[^\s,]* ALCM/i, 'air-launched cruise missile for strategic strike'],
+    [/CALCM/i, 'conventional air-launched cruise missile with GPS guidance'],
+    [/Tomahawk|TLAM/i, 'long-range sea/air-launched cruise missile'],
+    [/GBU-10[^\s,]* LGB/i, '2,000 lb Paveway II laser-guided bomb'],
+    [/GBU-12[^\s,]* (?:LGB|Paveway)/i, '500 lb Paveway II laser-guided bomb'],
+    [/GBU-16[^\s,]* LGB/i, '1,000 lb Paveway II laser-guided bomb'],
+    [/GBU-24[^\s,]*/i, '2,000 lb Paveway III low-level laser-guided bomb'],
+    [/GBU-27[^\s,]*/i, '2,000 lb penetrating laser-guided bomb (stealth internal)'],
+    [/GBU-28/i, '5,000 lb deep-penetration bunker-buster bomb'],
+    [/GBU-43[^\s,]* MOAB/i, '21,600 lb Massive Ordnance Air Blast bomb'],
+    [/GBU-57[^\s,]* MOP/i, '30,000 lb Massive Ordnance Penetrator for deep bunkers'],
+    [/GBU-31[^\s,]*/i, '2,000 lb GPS/INS-guided JDAM'], [/GBU-32[^\s,]*/i, '1,000 lb GPS/INS-guided JDAM'],
+    [/GBU-38[^\s,]*/i, '500 lb GPS/INS-guided JDAM'], [/GBU-54[^\s,]*/i, '500 lb laser-aided GPS-guided JDAM'],
+    [/GBU-56[^\s,]*/i, '2,000 lb laser-aided GPS-guided JDAM'],
+    [/GBU-39[^\s,]* SDB/i, '250 lb Small Diameter Bomb with GPS/INS guidance'],
+    [/GBU-53[^\s,]* SDB/i, '250 lb Small Diameter Bomb II with tri-mode seeker'],
+    [/GBU-44\/B Viper Strike/i, 'precision glide munition for gunship use'],
+    [/AGM-154[^\s,]* JSOW/i, 'GPS-guided glide weapon with standoff range'],
+    [/Walleye/i, 'TV-guided glide bomb for precision strike'],
+    [/Mk82 LDGP/i, '500 lb low-drag general purpose bomb'], [/Mk83 LDGP/i, '1,000 lb low-drag GP bomb'],
+    [/Mk84 LDGP/i, '2,000 lb low-drag GP bomb'], [/Mk84 AIR/i, '2,000 lb air-inflatable retard bomb'],
+    [/Mk82 Snakeeye/i, '500 lb retarded bomb for low-altitude delivery'],
+    [/Mk82 AIR/i, '500 lb air-inflatable retard bomb'], [/Mk77 Incendiary/i, 'incendiary bomb for area denial'],
+    [/Mk18.*RET/i, '1,000 lb retarded bomb'], [/M117/i, '750 lb general purpose bomb'],
+    [/CBU-87[^\s,]* CEM/i, 'combined-effects cluster munition (anti-armor/personnel/materiel)'],
+    [/CBU-97[^\s,]* SFW/i, 'sensor-fuzed cluster weapon with anti-armor skeets'],
+    [/CBU-78[^\s,]* GATOR/i, 'area-denial cluster munition dispensing AT/AP mines'],
+    [/CBU-89[^\s,]* GATOR/i, 'area-denial cluster munition dispensing AT/AP mines'],
+    [/CBU-103[^\s,]* WCMD/i, 'wind-corrected cluster munition'], [/CBU-105[^\s,]* WCMD/i, 'wind-corrected sensor-fuzed anti-armor weapon'],
+    [/CBU-59[^\s,]* APAM/i, 'anti-personnel/anti-materiel cluster bomb'],
+    [/CBU-52[^\s,]*/i, 'fragmentation cluster bomb'], [/CBU-71[^\s,]*/i, 'incendiary cluster bomb'],
+    [/Mk20 Rockeye/i, 'anti-armor cluster bomb with shaped-charge submunitions'],
+    [/HYDRA APKWS.* 70mm/i, '70mm laser-guided precision rockets'],
+    [/HYDRA 70mm/i, '70mm unguided folding-fin rockets'], [/Zuni/i, '5-inch unguided air-to-ground rocket'],
+    [/Mk46/i, 'lightweight ASW torpedo'], [/Mk50/i, 'advanced lightweight torpedo'], [/Mk54/i, 'lightweight hybrid torpedo'],
+    [/AN\/SSQ-53[^\s,]* DIFAR/i, 'directional passive sonobuoy'], [/AN\/SSQ-62[^\s,]* DICASS/i, 'active command sonobuoy'],
+    [/AN\/SSQ-77[^\s,]* VLAD/i, 'vertical line array sonobuoy'], [/Sonobuoy/i, 'acoustic sonobuoy pattern'],
+    [/Quickstrike/i, 'shallow-water naval mine'], [/Mk52.*Naval Mine/i, 'bottom-influence naval mine'],
+    [/Mk55/i, 'bottom-influence naval mine'], [/Mk56/i, 'moored naval mine'],
+    [/Mk62/i, 'Quickstrike mine (500 lb)'], [/Mk63/i, 'Quickstrike mine (1,000 lb)'],
+    [/Mk64/i, 'Quickstrike mine (2,000 lb)'], [/Mk65/i, 'Quickstrike mine (2,000 lb)'],
+    [/DST/i, 'Destructor mine conversion kit'], [/CAPTOR/i, 'encapsulated torpedo mine'],
+    [/Mk10[3-6][^\s,]* .*Mine Sweep/i, 'helicopter-towed mine sweep'],
+    [/AN\/ALQ-21[89].*Mine Sweep/i, 'multi-influence mine countermeasures sweep'],
+    [/AN\/ALQ-220.*Mine Sweep/i, 'multi-influence mine countermeasures sweep'],
+    [/A\/N37U.*Mine Sweep/i, 'mechanical cable-cutter mine sweep'],
+    [/AN\/AQS-232.*AMNS/i, 'airborne mine neutralization system with ROV'],
+    [/AN\/AQS-\d+[^\s,]*/i, 'helicopter-towed minehunting sonar'], [/Seafox/i, 'mine neutralization torpedo'],
+    [/B61/i, 'tactical/strategic variable-yield nuclear bomb'], [/B83/i, '1.2 megaton strategic nuclear bomb'],
+    [/B57/i, 'tactical nuclear depth bomb'], [/B28/i, 'thermonuclear bomb (1.45 megaton yield)'],
+    [/Litening\s*(II|AT|SE|ER)?\s*Pod/i, 'targeting pod with FLIR/CCD/laser designator'],
+    [/Litening\s*(AT|ER)\s*\[/i, 'targeting pod with FLIR/CCD/laser designator'],
+    [/Sniper XR Pod/i, 'advanced targeting pod with FLIR and laser designator'],
+    [/LANTIRN\s*Pod/i, 'navigation/targeting pod for low-altitude night ops'],
+    [/ATFLIR/i, 'advanced targeting FLIR pod'], [/EOTS/i, 'electro-optical targeting system (internal)'],
+    [/Internal FLIR/i, 'internal FLIR targeting system'], [/Pave Tack Pod/i, 'FLIR/laser designator pod'],
+    [/TRAM/i, 'target recognition attack multisensor'],
+    [/AN\/ALQ-184/i, 'ECM pod'], [/AN\/ALQ-119/i, 'deceptive ECM jammer pod'],
+    [/AN\/ALQ-131/i, 'self-protection ECM pod'], [/AN\/ALQ-167/i, 'threat simulation ECM pod'],
+    [/AN\/ALQ-99/i, 'high-power standoff jamming pod'], [/AN\/ALQ-76/i, 'noise/deception jamming pod'],
+    [/AN\/AXQ-14/i, 'weapon datalink pod'], [/SUU-23\/A/i, '20mm gun pod'],
+    [/TARPS/i, 'tactical aerial reconnaissance pod'], [/SLAR/i, 'side-looking airborne radar'],
+    [/ADM-141\w* TALD/i, 'tactical air-launched decoy'], [/ADM-160\w* MALD/i, 'miniature air-launched decoy'],
+    [/ITALD/i, 'improved tactical air-launched decoy'],
+    [/Paratrooper|Paras/i, 'airborne infantry airdrop'], [/Ranger/i, 'Army Ranger airdrop'],
+    [/Delta Force/i, 'Delta Force airdrop'], [/Green Beret/i, 'Special Forces ODA airdrop'],
+    [/SEAL/i, 'Navy SEAL team insertion'], [/Troop/i, 'troop transport'], [/Passenger/i, 'passenger transport'],
+    [/Marines?,\s*\d+/i, 'Marine infantry transport'], [/Litter|Patient/i, 'medical evacuation'],
+    [/Cargo/i, 'cargo transport'], [/Slung Load/i, 'external slung-load cargo'],
+    [/Gunship/i, 'ground-attack gunship configuration'], [/M134.*Minigun/i, '7.62mm rotary minigun'],
+    [/Standard FAC/i, 'forward air controller configuration'],
+    [/Airborne Early Warning|AEW/i, 'airborne early warning radar patrol'],
+    [/Airborne Command Post|ACP/i, 'airborne command post for nuclear C3'],
+    [/TACAMO/i, 'communications relay to ballistic missile submarines'],
+    [/National Airborne/i, 'national emergency airborne command center'],
+    [/Joint STARS/i, 'ground surveillance and battle management'],
+    [/Maritime Patrol/i, 'maritime surface search and patrol'],
+    [/Maritime Surveillance/i, 'wide-area maritime surveillance'], [/Area Surveillance/i, 'persistent area surveillance'],
+    [/Forward Observer/i, 'artillery forward observer and fire coordination'],
+    [/Gorgon Stare/i, 'wide-area persistent surveillance sensor'],
+    [/Offensive ECM/i, 'standoff electronic attack jamming'],
+    [/\bELINT\b/i, 'electronic intelligence collection'], [/\bSIGINT\b/i, 'signals intelligence collection'],
+    [/\bTELINT\b/i, 'telemetry intelligence collection'],
+    [/Recon/i, 'photographic/electronic reconnaissance'], [/Search And Rescue|SAR\b/i, 'search and rescue mission'],
+    [/Tanker|Refuel|Buddy/i, 'aerial refueling configuration'],
+    [/Drone.*Target|Aerial Target/i, 'unmanned aerial target drone'], [/Aerostat/i, 'tethered surveillance aerostat'],
+    [/Airborne Laser/i, 'airborne laser for ballistic missile defense'],
+    [/Training|Trainer/i, 'training configuration'], [/BAT\b/i, 'brilliant anti-tank submunition'],
+  ];
+  // Naval mount & weapon descriptions (checked by describeMountOrWeapon)
+  const navalDB = [
+    // CIWS / Close-In
+    [/Phalanx/i, 'radar-guided close-in weapon system for anti-missile and anti-aircraft defense'],
+    [/Goalkeeper/i, '30mm close-in weapon system providing last-ditch defense against missiles'],
+    [/SeaRAM/i, 'rolling-airframe missile launcher for close-in anti-missile defense'],
+    [/RAM.*Mk\s?49|Mk\s?49.*RAM|RIM-116/i, 'rolling-airframe missile launcher for point defense'],
+    // Guns
+    [/127mm\/54\s*Mk45/i, '5-inch naval gun for surface fire support and anti-surface warfare'],
+    [/127mm\/62\s*Mk45/i, '5-inch extended-range naval gun for precision fire support'],
+    [/127mm\/38/i, '5-inch dual-purpose naval gun (WWII-era, anti-surface and anti-air)'],
+    [/76mm\/62\s*OTO/i, 'medium-caliber rapid-fire naval gun for anti-surface and anti-air'],
+    [/57mm.*Mk\s*110|Mk\s*110.*57mm/i, '57mm rapid-fire deck gun for littoral combat'],
+    [/40mm.*Bofors|Bofors.*40mm/i, '40mm auto-cannon for anti-surface and close-range defense'],
+    [/30mm.*Bushmaster|Bushmaster.*30mm/i, '30mm chain gun for anti-surface and anti-helicopter fire'],
+    [/25mm.*Bushmaster|Bushmaster.*25mm/i, '25mm chain gun for small boat and low-air threat defense'],
+    [/25mm.*Typhoon|Typhoon.*25mm/i, '25mm stabilized remote weapon station'],
+    [/20mm\/70\s*Oerlikon|Oerlikon/i, '20mm anti-aircraft autocannon'],
+    [/12\.7mm.*MG|\.50\s*cal/i, 'heavy machine gun for close-range surface defense'],
+    [/M240|7\.62mm.*MG/i, 'medium machine gun for close-range defense'],
+    [/Mk38.*25mm|25mm.*Mk38/i, '25mm machine gun system for surface defense'],
+    [/GAU-8|30mm.*GAU/i, '30mm rotary cannon'],
+    [/Mk\s?15/i, '20mm Phalanx close-in weapon system'],
+    [/Mk\s?110/i, '57mm naval gun system'],
+    // Missile launchers
+    [/Mk41\s*VLS|Mk\s?41.*VLS|VLS.*Mk\s?41/i, 'vertical launch system for SM-2, Tomahawk, ESSM, and ASROC'],
+    [/Mk57\s*VLS|Mk\s?57/i, 'peripheral vertical launch system for Zumwalt-class'],
+    [/Mk\s?29.*Sea Sparrow|Sea Sparrow.*Mk\s?29/i, 'NATO Sea Sparrow missile launcher for area defense'],
+    [/Mk\s?13.*Launcher|Mk\s?13.*GMLS/i, 'single-arm guided missile launcher (SM-1/Harpoon)'],
+    [/Mk\s?26.*Launcher|Mk\s?26.*GMLS/i, 'twin-arm guided missile launcher (SM-2/ASROC)'],
+    [/Mk\s?10.*Launcher|Mk\s?10.*GMLS/i, 'twin-arm guided missile launcher for Terrier/SM-1ER'],
+    [/Harpoon.*Mk\s?141|Mk\s?141.*Harpoon/i, 'quad Harpoon anti-ship missile launcher'],
+    [/Mk\s?141/i, 'quad canister launcher for Harpoon anti-ship missiles'],
+    // Torpedo systems
+    [/324mm\s*Mk32.*TT|Mk32.*Triple/i, 'triple torpedo tube for lightweight ASW torpedoes'],
+    [/533mm.*TT|21in.*TT/i, '21-inch heavyweight torpedo tube'],
+    [/Torpedo\s*Magazine.*Internal/i, 'internal torpedo storage and launch tubes'],
+    // Decoys & EW
+    [/SRBOC|Mk36/i, 'Super Rapid Bloom Offboard Chaff system for radar decoy'],
+    [/Nulka/i, 'active radar decoy rocket for anti-ship missile defense'],
+    [/AN\/SLQ-25.*Nixie/i, 'towed torpedo decoy system'],
+    [/AN\/SLQ-32/i, 'shipboard electronic warfare suite'],
+    [/AN\/SLQ-49/i, 'inflatable radar decoy (chaff buoy)'],
+    [/Mk53.*DLS|NULKA/i, 'decoy launching system for active/passive decoys'],
+    // Misc naval
+    [/ASROC|RUM-139/i, 'anti-submarine rocket-launched torpedo'],
+    [/ESSM|RIM-162/i, 'evolved Sea Sparrow missile for anti-air/missile defense'],
+    [/SM-2|RIM-66[A-Z]|RIM-67/i, 'Standard Missile for area air defense'],
+    [/SM-3|RIM-161/i, 'Standard Missile 3 for ballistic missile defense'],
+    [/SM-6|RIM-174/i, 'Standard Missile 6 for extended-range air and missile defense'],
+    [/RGM-84.*Harpoon/i, 'ship-launched anti-ship cruise missile'],
+    [/BGM-109.*Tomahawk/i, 'ship-launched land-attack cruise missile'],
+    [/Mk\s?46.*Torpedo/i, 'lightweight anti-submarine torpedo'],
+    [/Mk\s?54.*Torpedo/i, 'lightweight hybrid anti-submarine torpedo'],
+    [/Mk\s?48.*Torpedo/i, 'heavyweight wire-guided torpedo for submarines'],
+    [/RIM-7.*Sea Sparrow/i, 'semi-active radar-guided SAM for ship defense'],
+    [/Grenade\s*Launcher|40mm.*Grenade/i, 'grenade launcher for close-range defense'],
+    [/Mine\s*Rail|Mine\s*Track/i, 'mine-laying rail system'],
+    [/Helicopter\s*Magazine/i, 'rotary-wing aircraft hangar and magazine'],
+    [/RHIB|Launch/i, 'rigid-hull inflatable boat launch'],
+    [/Mk\s?75/i, '76mm OTO Melara rapid-fire naval gun'],
+    // Twin/Single Rail launchers
+    [/Mk26.*Twin Rail/i, 'twin-arm guided missile launcher for SM-2 and ASROC'],
+    [/Mk10.*Twin Rail/i, 'twin-arm guided missile launcher for Terrier/SM-1ER'],
+    [/Mk11.*Twin Rail/i, 'twin-arm guided missile launcher for Tartar/SM-1MR'],
+    [/Mk12.*Twin Rail/i, 'twin-arm missile launcher'],
+    [/Mk13.*Single Rail/i, 'single-arm guided missile launcher for SM-1/Harpoon'],
+    [/Mk22.*Single Rail/i, 'single-arm launcher for Sea Sparrow'],
+    [/Mk25 BPDMS/i, 'Basic Point Defense Missile System for Sea Sparrow'],
+    // Additional VLS
+    [/Mk45\s*VLS|NSSN\s*VLS/i, 'submarine vertical launch system for Tomahawk cruise missiles'],
+    [/NSSN VPM/i, 'Virginia Payload Module for expanded Tomahawk loadout'],
+    [/Tomahawk VLS/i, 'dedicated Tomahawk cruise missile vertical launch cells'],
+    // Strategic missiles
+    [/Trident D5/i, 'Trident II D5 submarine-launched ballistic missile'],
+    [/Trident C4/i, 'Trident I C4 submarine-launched ballistic missile'],
+    [/Poseidon C3/i, 'Poseidon C3 submarine-launched ballistic missile'],
+    // Laser / advanced
+    [/LaWS|Laser Weapon/i, 'directed-energy laser weapon system for anti-drone and small boat defense'],
+    // Stinger / MANPADS
+    [/Stinger.*MANPADS|Sea Stinger/i, 'shoulder-fired infrared SAM for point defense'],
+    [/TOW/i, 'tube-launched optically-tracked wire-guided anti-tank missile'],
+    // Other decoys
+    [/Nulka/i, 'active hovering radar decoy for anti-ship missile defense'],
+    [/CSA.*Mk[123]/i, 'countermeasures signal/decoy ammunition launcher'],
+    [/SKWS/i, 'Super RBOC decoy launching system'],
+    [/Fanfare/i, 'acoustic torpedo countermeasure noisemaker'],
+    [/Floating Decoy|Rubber Duck/i, 'floating radar/acoustic decoy'],
+    [/RBOC|Mk34|Mk52.*SRBOC/i, 'Rapid Bloom Offboard Chaff launcher for radar decoy'],
+    // Mine-related
+    [/Seafox.*ROV/i, 'mine neutralization remotely-operated vehicle'],
+    // AGS
+    [/155mm.*AGS/i, '155mm Advanced Gun System for long-range precision fire support'],
+    [/406mm.*Triple.*Turret/i, '16-inch battleship main battery turret for shore bombardment'],
+    // Misc caliber guns
+    [/76mm\/50/i, '3-inch dual-purpose naval gun'],
+    [/57mm\/70.*Mk110|Mk110.*CIGS/i, '57mm close-in gun system for littoral combat'],
+    [/20mm.*Single|20mm\/80/i, '20mm cannon for close-range anti-air defense'],
+    [/3-inch Signal Ejector/i, 'signal and decoy ejector'],
+    [/7\.62mm|762mm/i, 'light machine gun or small torpedo tube'],
+    [/40mm.*Grenade/i, 'automatic grenade launcher for close-range defense'],
+    [/LCS Mission Module/i, 'littoral combat ship modular weapons package'],
+    [/Passengers/i, 'passenger/troop transport capacity'],
+    [/Mini-Typhoon/i, 'stabilized remote weapon station with heavy machine gun'],
+    [/Mk44 ABL/i, 'Armored Box Launcher for Tomahawk missiles'],
+    [/Mk60.*PCGMS/i, 'patrol combatant guided missile quad launcher'],
+    [/533mm.*TT/i, '21-inch heavyweight torpedo tube for anti-ship/submarine torpedoes'],
+    [/171mm.*CAT.*TT/i, 'countermeasures anti-torpedo launcher'],
+    [/324mm.*Mk68.*TT/i, 'lightweight torpedo tubes for ASW torpedoes'],
+    [/762mm.*Mk69.*TT/i, 'small-caliber torpedo tube'],
+  ];
+
+  const loadoutModifiers = [
+    [/Long-Range/i, 'extended range'], [/Short-Range/i, 'short-range ops'],
+    [/Hi-Lo-Hi/i, 'high-low-high profile'], [/Lo-Lo-Hi/i, 'low-low-high profile'], [/Hi-Hi-Hi/i, 'high-altitude profile'],
+    [/Internal Only/i, 'internal bay only (stealth)'], [/MiGCAP/i, 'MiG combat air patrol'], [/BarCAP/i, 'barrier CAP'],
+    [/HDB Bomb Bay/i, 'internal bomb bay'],
+  ];
+
+  function describeLoadout(name) {
+    const parts = [], mods = [];
+    for (const [rx, desc] of weaponDB) if (rx.test(name)) parts.push(desc);
+    for (const [rx, desc] of loadoutModifiers) if (rx.test(name)) mods.push(desc);
+    if (parts.length === 0 && mods.length === 0) return '';
+    let r = '';
+    if (parts.length > 0) {
+      r = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      if (parts.length > 1) r += '. ' + parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('. ');
+    }
+    if (mods.length > 0) {
+      const m = mods.join(', ');
+      r += (r ? '. ' : '') + m.charAt(0).toUpperCase() + m.slice(1);
+    }
+    return r + '.';
+  }
+
+  // Describe a naval mount/weapon name using navalDB + weaponDB patterns
+  function describeMount(name) {
+    if (!name) return '';
+    // Try naval-specific patterns first, then general weaponDB
+    for (const [rx, desc] of navalDB) {
+      if (rx.test(name)) return desc.charAt(0).toUpperCase() + desc.slice(1) + '.';
+    }
+    for (const [rx, desc] of weaponDB) {
+      if (rx.test(name)) return desc.charAt(0).toUpperCase() + desc.slice(1) + '.';
+    }
+    // Fallback: try to infer from caliber pattern (e.g. "127mm/54")
+    const calMatch = name.match(/(\d+)mm\/(\d+)/);
+    if (calMatch) return `${calMatch[1]}mm naval gun mount.`;
+    return '';
+  }
+
+  // ── Sensor description database ──
+  const sensorDB = [
+    // Major radar systems (ships)
+    [/AN\/SPY-1[A-Z]?/i, 'phased-array multi-function radar forming the core of the AEGIS combat system'],
+    [/AN\/SPY-6/i, 'Air and Missile Defense Radar (AMDR) with advanced digital beamforming'],
+    [/AN\/SPY-3/i, 'multi-function radar for horizon search and missile illumination'],
+    [/AN\/SPS-49/i, 'long-range 2D air search radar for early warning'],
+    [/AN\/SPS-48/i, '3D air search radar providing range, bearing, and altitude'],
+    [/AN\/SPS-40/i, 'long-range 2D air search radar'],
+    [/AN\/SPS-52/i, '3D air search radar'],
+    [/AN\/SPS-55/i, 'surface search and navigation radar'],
+    [/AN\/SPS-64/i, 'navigation and surface search radar'],
+    [/AN\/SPS-67/i, 'surface search and target acquisition radar'],
+    [/AN\/SPS-73/i, 'navigation and surface search radar'],
+    [/AN\/SPG-62/i, 'continuous-wave illumination radar for SM-2 terminal guidance'],
+    [/AN\/SPG-51/i, 'missile fire control illumination radar for Tartar/SM-1'],
+    [/AN\/SPG-55/i, 'missile fire control illumination radar for Terrier/SM-1ER'],
+    [/AN\/SPG-60/i, 'pulse-doppler target tracking radar'],
+    [/AN\/SPQ-9/i, 'horizon search and fire control radar for gun and missile targeting'],
+    [/AN\/SQQ-89/i, 'integrated anti-submarine warfare combat system'],
+    [/AN\/SQS-53/i, 'hull-mounted active/passive sonar for anti-submarine search and attack'],
+    [/AN\/SQS-56/i, 'hull-mounted active sonar for ASW in littoral waters'],
+    [/AN\/SQS-26/i, 'bow-mounted sonar for long-range submarine detection'],
+    [/AN\/SQR-19/i, 'tactical towed array sonar for passive submarine detection'],
+    [/AN\/SQR-20/i, 'multi-function towed array sonar system'],
+    [/AN\/SLQ-32/i, 'shipboard electronic warfare system for threat detection and jamming'],
+    [/AN\/SLQ-25/i, 'towed torpedo countermeasure decoy system'],
+    [/AN\/SQQ-28/i, 'LAMPS III helicopter datalink for ASW coordination'],
+    [/AN\/SQQ-32/i, 'mine hunting sonar for mine countermeasures'],
+    [/AN\/SQQ-34/i, 'helicopter-based minehunting sonar'],
+    // Major radar systems (aircraft)
+    [/AN\/APG-63/i, 'pulse-doppler radar for long-range air-to-air detection and tracking'],
+    [/AN\/APG-70/i, 'multi-mode radar with synthetic aperture for air-to-air and ground mapping'],
+    [/AN\/APG-71/i, 'multi-mode radar for F-14D with digital scan converter'],
+    [/AN\/APG-73/i, 'multi-mode radar with improved air-to-ground capability'],
+    [/AN\/APG-65/i, 'pulse-doppler multi-mode radar for air combat and ground attack'],
+    [/AN\/APG-68/i, 'fire control radar with multiple air-to-air and air-to-ground modes'],
+    [/AN\/APG-77/i, 'active electronically scanned array (AESA) radar for F-22'],
+    [/AN\/APG-79/i, 'AESA multi-mode radar for F/A-18E/F with simultaneous air/ground tracking'],
+    [/AN\/APG-80/i, 'AESA radar for F-16 Block 60'],
+    [/AN\/APG-81/i, 'AESA radar for F-35 with electronic attack capability'],
+    [/AN\/APG-82/i, 'AESA upgrade for F-15E with improved range and resolution'],
+    [/AN\/APG-83\s*SABR/i, 'scalable agile beam radar (AESA) for F-16V'],
+    [/AN\/APG-83/i, 'AESA radar for F-16'],
+    [/AN\/APY-1/i, 'E-3 Sentry surveillance radar for airborne warning and control'],
+    [/AN\/APY-2/i, 'improved E-3 Sentry look-down radar with maritime mode'],
+    [/AN\/APY-9/i, 'E-2D Advanced Hawkeye UHF radar with 360-degree electronic scan'],
+    [/AN\/APS-145/i, 'E-2C surveillance radar for carrier-based AEW'],
+    [/AN\/APS-137/i, 'maritime search radar for P-3C patrol aircraft'],
+    [/AN\/APS-149/i, 'inverse synthetic aperture radar for maritime surveillance'],
+    [/AN\/APS-153/i, 'multi-mode search radar for MH-60R helicopter'],
+    [/AN\/APS-143/i, 'lightweight surveillance radar for special operations aircraft'],
+    [/AN\/APS-80/i, 'maritime patrol radar'],
+    [/AN\/APY-10/i, 'multi-mission surface search radar for P-8A Poseidon'],
+    // EW systems (aircraft)
+    [/AN\/ALQ-99/i, 'high-power tactical jamming system for electronic attack'],
+    [/AN\/ALQ-131/i, 'self-protection electronic countermeasures pod'],
+    [/AN\/ALQ-135/i, 'internal electronic countermeasures system'],
+    [/AN\/ALQ-161/i, 'integrated defensive electronic countermeasures system for B-1B'],
+    [/AN\/ALQ-165/i, 'airborne self-protection jammer (ASPJ)'],
+    [/AN\/ALQ-184/i, 'self-protection ECM pod with improved power management'],
+    [/AN\/ALQ-214/i, 'integrated defensive electronic countermeasures (IDECM) suite'],
+    [/AN\/ALQ-218/i, 'tactical ESM/ELINT receiver for threat warning and targeting'],
+    [/AN\/ALQ-227/i, 'communications countermeasures set for EA-18G'],
+    [/AN\/ALQ-239/i, 'digital electronic warfare suite for F-15EX'],
+    [/AN\/ALQ-250/i, 'Eagle Passive Active Warning Survivability System (EPAWSS)'],
+    [/AN\/ALR-56/i, 'radar warning receiver with precision direction finding'],
+    [/AN\/ALR-67/i, 'radar warning receiver for threat detection and identification'],
+    [/AN\/ALR-69/i, 'radar warning receiver for tactical aircraft'],
+    [/AN\/ALR-94/i, 'passive radar warning and geolocation system for F-22'],
+    [/AN\/APR-39/i, 'radar warning receiver for rotary-wing aircraft'],
+    [/AN\/AAR-47/i, 'missile approach warning system using UV sensors'],
+    [/AN\/AAR-54/i, 'common missile warning system with IR detection'],
+    [/AN\/AAR-56/i, 'passive missile approach warning system'],
+    [/AN\/AAR-57\s*CMWS/i, 'common missile warning system for helicopters'],
+    [/AN\/AAQ-24.*DIRCM|LAIRCM/i, 'laser-based infrared countermeasures against heat-seeking missiles'],
+    [/AN\/AAQ-37.*EO-?DAS/i, 'distributed aperture system providing 360° spherical IR coverage for F-35'],
+    [/AN\/AAQ-40.*EOTS/i, 'electro-optical targeting system with FLIR and laser designator for F-35'],
+    // FLIR / EO systems
+    [/AN\/AAQ-28.*LITENING/i, 'targeting pod with FLIR, CCD camera, and laser designator'],
+    [/AN\/AAQ-33\s*Sniper/i, 'advanced targeting pod with high-resolution FLIR and laser'],
+    [/AN\/AAQ-30.*Hawkeye/i, 'target sight system with FLIR for helicopter weapons delivery'],
+    [/AN\/AAQ-16/i, 'airborne electro-optical/IR surveillance system'],
+    [/AN\/AAQ-11.*PNVS/i, 'pilot night vision sensor providing thermal imagery for nap-of-earth flight'],
+    [/AN\/AAQ-13.*LANTIRN.*Nav/i, 'LANTIRN navigation pod with terrain-following radar and FLIR'],
+    [/AN\/AAQ-14.*LANTIRN.*Tgt/i, 'LANTIRN targeting pod with FLIR and laser designator'],
+    [/AN\/AAS-42/i, 'infrared search and track system for passive air target detection'],
+    [/AN\/AAS-44/i, 'infrared camera for target search, tracking, and identification'],
+    [/AN\/AAS-52.*MTS/i, 'multi-spectral targeting system with IR/EO and laser'],
+    [/AN\/AAS-53.*CSP/i, 'common sensor payload with multi-spectral targeting'],
+    [/AN\/AAS-33.*TRAM/i, 'target recognition attack multisensor for A-6 precision strike'],
+    [/AN\/AAS-35.*Pave Penny/i, 'laser spot tracker for acquiring laser-designated targets'],
+    // Sonar (aircraft)
+    [/AN\/AQS-13/i, 'dipping sonar for helicopter ASW search and localization'],
+    [/AN\/AQS-18/i, 'dipping sonar with passive and active modes'],
+    [/AN\/AQS-20/i, 'airborne mine detection sonar'],
+    [/AN\/AQS-22/i, 'airborne low-frequency sonar for submarine detection and tracking'],
+    // Submarine systems
+    [/AN\/BQQ-5/i, 'integrated bow sonar suite for submarine search, detection, and fire control'],
+    [/AN\/BQQ-6/i, 'advanced submarine sonar suite with spherical array'],
+    [/AN\/BQQ-10/i, 'acoustic rapid COTS insertion sonar processor for submarines'],
+    [/AN\/BQR-15/i, 'towed array sonar for long-range passive submarine detection'],
+    [/AN\/BQR-25/i, 'submarine towed array sonar for surveillance'],
+    [/AN\/BQS-14/i, 'active sonar for under-ice navigation and mine avoidance'],
+    [/AN\/BQS-15/i, 'under-ice and mine-avoidance sonar for submarines'],
+    [/AN\/BLQ-10/i, 'submarine SIGINT system for electronic and communications intelligence'],
+    [/AN\/BPS-1[2-6]/i, 'submarine surface search and navigation radar'],
+    [/AN\/BRD-[67]/i, 'high-frequency direction finder for submarine ESM'],
+    // Generic pattern matchers (must come after specific ones)
+    [/MAWS|Missile Approach Warning/i, 'missile approach warning system for incoming threat detection'],
+    [/IRCM|DIRCM/i, 'directed infrared countermeasures against heat-seeking missiles'],
+    [/IRST/i, 'infrared search and track for passive air target detection'],
+    [/RWR|Radar Warning/i, 'radar warning receiver for detecting hostile radar emissions'],
+    [/ESM.*ELINT|ELINT/i, 'electronic intelligence receiver for intercepting radar signals'],
+    [/SIGINT|COMINT/i, 'signals intelligence system for electronic and communications intercept'],
+    [/HF\/DF/i, 'high-frequency direction finder for radio signal geolocation'],
+    [/DECM|Defensive ECM/i, 'defensive electronic countermeasures system'],
+    [/OECM|Offensive ECM/i, 'offensive electronic countermeasures jammer'],
+    [/Laser Designator|LTD/i, 'laser target designator and ranger for precision weapon guidance'],
+    [/Laser Rangefinder/i, 'laser rangefinder for precise distance measurement'],
+    [/Laser Spot Tracker|LST\b/i, 'laser spot tracker for acquiring designated targets'],
+    [/SeaFLIR/i, 'shipboard infrared surveillance camera'],
+    [/FLIR.*Nav|Nav.*FLIR/i, 'forward-looking infrared for navigation'],
+    [/FLIR/i, 'forward-looking infrared sensor for target detection and tracking'],
+    [/IR.*Camera|Surveillance Camera/i, 'infrared surveillance camera'],
+    [/LLTV/i, 'low-light television sensor for night targeting'],
+    [/Sensor Group/i, 'integrated multi-sensor suite'],
+    [/Sensor Turret/i, 'stabilized sensor turret with electro-optical/infrared cameras'],
+  ];
+
+  // Describe a sensor using name-based patterns, then role/type fallback
+  function describeSensor(name, role, type) {
+    if (!name) return '';
+    // 1. Try specific sensor patterns
+    for (const [rx, desc] of sensorDB) {
+      if (rx.test(name)) return desc.charAt(0).toUpperCase() + desc.slice(1) + '.';
+    }
+    // 2. Try matching the role field against sensorDB
+    if (role) {
+      for (const [rx, desc] of sensorDB) {
+        if (rx.test(role)) return desc.charAt(0).toUpperCase() + desc.slice(1) + '.';
+      }
+    }
+    // 3. Generate from role string (already quite descriptive in the data)
+    if (role && role.length > 5) {
+      // Clean up the role into a readable sentence
+      let r = role.replace(/^Radar,\s*/i, 'Radar providing ').replace(/^Hull Sonar,\s*/i, 'Hull-mounted sonar for ').replace(/^TASS,\s*/i, 'Towed array sonar for ').replace(/^VDS,\s*/i, 'Variable depth sonar for ').replace(/^Infrared,\s*/i, 'Infrared sensor for ');
+      r = r.charAt(0).toUpperCase() + r.slice(1);
+      if (!r.endsWith('.')) r += '.';
+      return r;
+    }
+    return '';
+  }
+
+  // Classify a loadout name into a mission role description
+  function classifyLoadout(n) {
+    if (/^A\/A/i.test(n)) return 'Air-to-Air';
+    if (/AGM-84|Harpoon|SLAM(?!R)|Penguin|NSM/i.test(n)) return 'Anti-Ship';
+    if (/SLAM-?ER/i.test(n)) return 'Standoff Strike';
+    if (/AGM-88|HARM|AARGM|AGM-45|Shrike|AGM-78|Standard ARM/i.test(n)) return 'SEAD / DEAD';
+    if (/JASSM|LRASM|AGM-158/i.test(n)) return 'Standoff Strike';
+    if (/Tomahawk|TLAM|CALCM|AGM-86/i.test(n)) return 'Cruise Missile';
+    if (/GBU|LGB|JDAM|Paveway|SDB|JSOW|WCMD|Walleye/i.test(n)) return 'Precision Strike';
+    if (/AGM-6[5-9]|AGM-114|Maverick|Hellfire|AGM-176|Griffin/i.test(n)) return 'CAS / Anti-Armor';
+    if (/CBU|Cluster|Rockeye|GATOR|APAM/i.test(n)) return 'Area Attack';
+    if (/Mk8[0-9]|Mk7[0-9]|LDGP|Incendiary|Snakeye/i.test(n)) return 'General Purpose Bombing';
+    if (/HYDRA|rocket|Zuni/i.test(n)) return 'Rocket Attack';
+    if (/torpedo|Mk46|Mk50|Mk54|Mk44/i.test(n)) return 'Anti-Submarine';
+    if (/[Mm]ine|Quickstrike|DST|CAPTOR/i.test(n)) return 'Naval Mining';
+    if (/Nuclear|B61|B83|B57|nuke|kT\b/i.test(n)) return 'Nuclear Strike';
+    if (/Decoy|MALD|ADM-160|ITALD|TALD/i.test(n)) return 'Decoy / EW';
+    if (/Recon|Camera|TARPS|Photo|SLAR/i.test(n)) return 'Reconnaissance';
+    if (/Tanker|Refuel|[Bb]uddy|D-704/i.test(n)) return 'Aerial Refueling';
+    if (/Sonobuoy/i.test(n)) return 'ASW Patrol';
+    if (/Cargo|Supply|Paradrop|Paratrooper|Paras/i.test(n)) return 'Transport / Airdrop';
+    if (/SAR|Rescue|CSAR/i.test(n)) return 'Search & Rescue';
+    if (/Gunship|Minigun|GAU-|M134|M102|Howitzer|105mm/i.test(n)) return 'Gunship';
+    if (/Troop|Passenger|Pax|Marine[s,]|Litter|Patient|Evacuee|Medevac/i.test(n)) return 'Transport / Airdrop';
+    if (/Drone|Target|Aerostat/i.test(n)) return 'Drone / Target';
+    if (/AEW|Early Warning|AWACS|E-2|E-3/i.test(n)) return 'Early Warning';
+    if (/Command Post|TACAMO|NAOC|National Airborne|Communications Relay/i.test(n)) return 'Command & Control';
+    if (/Maritime Patrol/i.test(n)) return 'Maritime Patrol';
+    if (/Forward Observer/i.test(n)) return 'Forward Observer';
+    if (/Gorgon Stare|BAT\b/i.test(n)) return 'ISR / Targeting';
+    if (/STARS|Surveillance/i.test(n)) return 'Surveillance';
+    if (/Offensive ECM|ALQ-|ECM/i.test(n)) return 'Electronic Warfare';
+    if (/COD|Carrier Onboard|Mail|Logistics/i.test(n)) return 'Logistics';
+    if (/EW|Jamm|EA-|ELINT|SIGINT|Prowler/i.test(n)) return 'Electronic Warfare';
+    if (/ASW|Anti.?Sub|Depth Charge/i.test(n)) return 'Anti-Submarine';
+    if (/Training|Trainer/i.test(n)) return 'Training';
+    if (/Ranger|Delta|Green Beret|SEAL|Special/i.test(n)) return 'Special Operations';
+    if (/Fuel|[Tt]ank|Ferry|Long.?Range/i.test(n)) return 'Ferry / Extended Range';
+    if (/FLIR|Pod|Litening|Sniper|LANTIRN/i.test(n)) return 'ISR / Targeting';
+    if (/Laser.*ABM|ABL/i.test(n)) return 'Missile Defense';
+    if (/RET\b|Retarded|HSAB/i.test(n)) return 'General Purpose Bombing';
+    return '';
+  }
+
+  // ── Loadout sorting helpers ──────────────
+  const LOADOUT_ROLE_PRIORITY = {
+    'Nuclear Strike': 1, 'Cruise Missile': 2, 'Standoff Strike': 3,
+    'SEAD / DEAD': 4, 'Anti-Ship': 5, 'Precision Strike': 6,
+    'CAS / Anti-Armor': 7, 'Area Attack': 8, 'General Purpose Bombing': 9,
+    'Rocket Attack': 10, 'Anti-Submarine': 11, 'Naval Mining': 12,
+    'Air-to-Air': 13, 'Electronic Warfare': 14, 'Decoy / EW': 15,
+    'Reconnaissance': 16, 'ISR / Targeting': 17, 'Missile Defense': 18,
+    'Gunship': 19, 'Early Warning': 20, 'Surveillance': 21,
+    'Command & Control': 22, 'ASW Patrol': 23, 'Maritime Patrol': 24,
+    'Aerial Refueling': 25, 'Special Operations': 26, 'Transport / Airdrop': 27,
+    'Logistics': 28, 'Search & Rescue': 29, 'Training': 30,
+    'Ferry / Extended Range': 31, 'Drone / Target': 32, 'Forward Observer': 33,
+  };
+  function _loMaxRange(lo) {
+    if (!lo.weapons?.length) return 0;
+    return Math.max(0, ...lo.weapons.map(w => Math.max(w.airRange||0, w.surfaceRange||0, w.landRange||0, w.subRange||0)));
+  }
+  function _loTotalWeight(lo) {
+    if (!lo.weapons?.length) return 0;
+    return lo.weapons.reduce((s, w) => s + (w.weight||0) * (w.qty||1), 0);
+  }
+  function _loTotalCount(lo) {
+    if (!lo.weapons?.length) return 0;
+    return lo.weapons.reduce((s, w) => s + (w.qty||1), 0);
+  }
+  function _applyLoadoutSort(loadouts, key) {
+    const arr = [...loadouts];
+    switch (key) {
+      case 'role': return arr.sort((a, b) => {
+        const ra = LOADOUT_ROLE_PRIORITY[classifyLoadout(a.name)] || 99;
+        const rb = LOADOUT_ROLE_PRIORITY[classifyLoadout(b.name)] || 99;
+        return ra - rb || _loMaxRange(b) - _loMaxRange(a);
+      });
+      case 'range-desc': return arr.sort((a, b) => _loMaxRange(b) - _loMaxRange(a));
+      case 'range-asc':  return arr.sort((a, b) => _loMaxRange(a) - _loMaxRange(b) || a.name.localeCompare(b.name));
+      case 'weight-desc': return arr.sort((a, b) => _loTotalWeight(b) - _loTotalWeight(a));
+      case 'count-desc':  return arr.sort((a, b) => _loTotalCount(b) - _loTotalCount(a));
+      case 'alpha':       return arr.sort((a, b) => a.name.localeCompare(b.name));
+      case 'aa-first': return arr.sort((a, b) => {
+        const aAA = classifyLoadout(a.name) === 'Air-to-Air' ? 0 : 1;
+        const bAA = classifyLoadout(b.name) === 'Air-to-Air' ? 0 : 1;
+        if (aAA !== bAA) return aAA - bAA;
+        return (LOADOUT_ROLE_PRIORITY[classifyLoadout(a.name)]||99) - (LOADOUT_ROLE_PRIORITY[classifyLoadout(b.name)]||99);
+      });
+      case 'offensive': return arr.sort((a, b) => {
+        // Offensive: any role with priority <= 12 first, then by range
+        const aOff = (LOADOUT_ROLE_PRIORITY[classifyLoadout(a.name)]||99) <= 12 ? 0 : 1;
+        const bOff = (LOADOUT_ROLE_PRIORITY[classifyLoadout(b.name)]||99) <= 12 ? 0 : 1;
+        if (aOff !== bOff) return aOff - bOff;
+        return _loMaxRange(b) - _loMaxRange(a);
+      });
+      default: return arr; // 'default' — original DB order
+    }
+  }
+  function buildLoadoutItemHTML(lo, idx) {
+    const role = classifyLoadout(lo.name);
+    const desc = describeLoadout(lo.name);
+    const maxR = _loMaxRange(lo);
+    const uniqueWpns = lo.weapons ? [...new Map(lo.weapons.map(w => [w.name, w])).values()] : [];
+    return `<div class="loadout-item" data-loadout="${idx}">
+      <div class="loadout-header loadout-header-desc" onclick="this.parentElement.classList.toggle('open')">
+        <div class="loadout-top-row">
+          <div class="loadout-chevron"></div>
+          <div class="loadout-name" title="${esc(lo.name)}" style="white-space:normal">${esc(lo.name)}</div>
+          <div class="loadout-badges">
+            ${maxR > 0 ? `<span class="loadout-badge" title="Max weapon range">${maxR} km</span>` : ''}
+            ${role ? `<span class="loadout-badge loadout-role ${roleClass(role)}">${esc(role)}</span>` : ''}
+          </div>
+        </div>
+        ${desc ? `<div class="loadout-desc">${esc(desc)}</div>` : ''}
+      </div>
+      <div class="loadout-body"><div class="loadout-body-inner">
+        ${uniqueWpns.length > 0 ? `<div class="wpn-chips">${uniqueWpns.map(w => {
+          const qty = lo.weapons.filter(x => x.name === w.name).length;
+          return `<span class="wpn-chip" data-wpn-name="${esc(w.name)}" title="${esc(w.name)}${w.type ? ' (' + w.type + ')' : ''}">${qty > 1 ? qty + 'x ' : ''}${esc(w.name)}</span>`;
+        }).join('')}</div>` : '<div style="color:var(--text-secondary);font-size:12px;padding:4px 0">No weapon details available</div>'}
+      </div></div>
+    </div>`;
+  }
+  // Exposed to sort dropdown onchange
+  window._sortLoadouts = function(key) {
+    const body = document.getElementById('loadoutListBody');
+    if (!body || !state.currentDetail?.loadouts) return;
+    body.innerHTML = _applyLoadoutSort(state.currentDetail.loadouts, key)
+      .map(buildLoadoutItemHTML).join('');
+  };
 
   // ── Tips & Tricks Rendering ──────────────
   async function renderTips() {
@@ -2098,6 +3642,7 @@ const App = (() => {
 
     // Section collapse toggle
     modalBody.addEventListener('click', (e) => {
+      if (e.target.closest('select, button, a, input')) return;
       const title = e.target.closest('.detail-section-title');
       if (!title) return;
       title.parentElement.classList.toggle('collapsed');

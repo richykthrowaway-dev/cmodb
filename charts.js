@@ -328,88 +328,192 @@ const Charts = (() => {
     if (!d3Ready() || !item.signatures || item.signatures.length === 0) return;
     container.innerHTML = '';
 
-    // Group signatures by detection method
-    const groups = {
-      'Visual': { det: null, cls: null, color: COLORS.visual },
-      'Infrared': { det: null, cls: null, color: COLORS.ir },
-      'Radar E-M': { det: null, cls: null, color: COLORS.radar },
+    // ── Classify all 11 signature types into EM and Acoustic groups ──
+    const emGroups = {
+      'Visual Det':    { sig: null, color: COLORS.visual,  dash: false, label: 'Visual' },
+      'Visual Cls':    { sig: null, color: COLORS.visual,  dash: true,  label: 'Visual' },
+      'IR Det':        { sig: null, color: COLORS.ir,      dash: false, label: 'Infrared' },
+      'IR Cls':        { sig: null, color: COLORS.ir,      dash: true,  label: 'Infrared' },
+      'Radar A-D':     { sig: null, color: '#ffc107',      dash: false, label: 'Radar A-D' },
+      'Radar E-M':     { sig: null, color: COLORS.radar,   dash: false, label: 'Radar E-M' },
+    };
+    const sonarGroups = {
+      'Passive VLF':   { sig: null, color: '#26c6da',      dash: false, label: 'Passive VLF' },
+      'Passive LF':    { sig: null, color: '#00acc1',      dash: false, label: 'Passive LF' },
+      'Passive MF':    { sig: null, color: '#00838f',      dash: false, label: 'Passive MF' },
+      'Passive HF':    { sig: null, color: '#006064',      dash: false, label: 'Passive HF' },
+      'Active Sonar':  { sig: null, color: '#e040fb',      dash: false, label: 'Active Sonar' },
     };
 
     item.signatures.forEach(s => {
       const t = s.type || '';
-      if (t.includes('Visual') && t.includes('Detection')) groups['Visual'].det = s;
-      else if (t.includes('Visual') && t.includes('Classification')) groups['Visual'].cls = s;
-      else if (t.includes('Infrared') && t.includes('Detection')) groups['Infrared'].det = s;
-      else if (t.includes('Infrared') && t.includes('Classification')) groups['Infrared'].cls = s;
-      else if (t.includes('E-M') || (t.includes('Radar') && !t.includes('A-D'))) groups['Radar E-M'].det = s;
+      if (t.includes('Visual') && t.includes('Detection'))          emGroups['Visual Det'].sig = s;
+      else if (t.includes('Visual') && t.includes('Classification')) emGroups['Visual Cls'].sig = s;
+      else if (t.includes('Infrared') && t.includes('Detection'))    emGroups['IR Det'].sig = s;
+      else if (t.includes('Infrared') && t.includes('Classification')) emGroups['IR Cls'].sig = s;
+      else if (t.includes('A-D'))                                     emGroups['Radar A-D'].sig = s;
+      else if (t.includes('E-M'))                                     emGroups['Radar E-M'].sig = s;
+      else if (t.includes('Passive') && t.includes('VLF'))            sonarGroups['Passive VLF'].sig = s;
+      else if (t.includes('Passive') && t.includes('LF') && !t.includes('VLF')) sonarGroups['Passive LF'].sig = s;
+      else if (t.includes('Passive') && t.includes('MF'))             sonarGroups['Passive MF'].sig = s;
+      else if (t.includes('Passive') && t.includes('HF') && !t.includes('VLF')) sonarGroups['Passive HF'].sig = s;
+      else if (t.includes('Active'))                                  sonarGroups['Active Sonar'].sig = s;
     });
 
     const dirs = ['front', 'side', 'rear', 'top'];
     const dirAngles = [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2];
     const dirLabels = ['Front', 'Side', 'Rear', 'Top'];
 
-    // Find global max for scale
-    let globalMax = 0;
-    Object.values(groups).forEach(grp => {
-      if (grp.det) dirs.forEach(d => { globalMax = Math.max(globalMax, grp.det[d] || 0); });
-    });
-    if (globalMax === 0) return;
+    const hasSonar = Object.values(sonarGroups).some(g => g.sig);
+    const hasEM = Object.values(emGroups).some(g => g.sig);
 
-    const W = 320, H = 320, cx = W / 2, cy = H / 2, R = 110;
+    if (!hasEM && !hasSonar) return;
 
-    const svg = d3.select(container).append('svg')
-      .attr('viewBox', `0 0 ${W} ${H}`)
-      .attr('preserveAspectRatio', 'xMidYMid meet');
+    // Wrapper for side-by-side layout when sonar exists
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;justify-content:center;';
+    container.appendChild(wrapper);
 
-    const g = svg.append('g').attr('transform', `translate(${cx},${cy})`);
+    function buildPolarChart(parentEl, groups, title, unit) {
+      const chartWrap = document.createElement('div');
+      chartWrap.style.cssText = 'flex:1;min-width:200px;max-width:400px;';
+      parentEl.appendChild(chartWrap);
 
-    // Grid circles
-    [0.25, 0.5, 0.75, 1].forEach(level => {
-      g.append('circle')
-        .attr('r', R * level)
-        .attr('fill', 'none').attr('stroke', COLORS.grid).attr('stroke-width', 1);
-    });
+      // Title
+      const titleEl = document.createElement('div');
+      titleEl.style.cssText = 'text-align:center;font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:4px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;';
+      titleEl.textContent = title;
+      chartWrap.appendChild(titleEl);
 
-    // Direction labels
-    dirLabels.forEach((label, i) => {
-      const angle = dirAngles[i] - Math.PI / 2;
-      g.append('text')
-        .attr('x', (R + 16) * Math.cos(angle))
-        .attr('y', (R + 16) * Math.sin(angle))
-        .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
-        .attr('fill', COLORS.text).attr('font-size', '10px')
-        .text(label);
-    });
+      // Find max value for this chart's scale
+      let globalMax = 0;
+      Object.values(groups).forEach(grp => {
+        if (grp.sig) dirs.forEach(d => { globalMax = Math.max(globalMax, grp.sig[d] || 0); });
+      });
+      if (globalMax === 0) return;
 
-    // Signature polygons (detection only — cleaner)
-    Object.entries(groups).forEach(([name, grp]) => {
-      if (!grp.det) return;
-      const pts = dirs.map((d, i) => {
-        const val = (grp.det[d] || 0) / globalMax;
-        const angle = dirAngles[i] - Math.PI / 2;
-        return [R * val * Math.cos(angle), R * val * Math.sin(angle)];
+      const W = 380, H = 380, cx = W / 2, cy = H / 2, R = 130;
+
+      const svg = d3.select(chartWrap).append('svg')
+        .attr('viewBox', `0 0 ${W} ${H}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+      const g = svg.append('g').attr('transform', `translate(${cx},${cy})`);
+
+      // Grid circles with value labels
+      const levels = [0.25, 0.5, 0.75, 1];
+      levels.forEach(level => {
+        g.append('circle')
+          .attr('r', R * level)
+          .attr('fill', 'none').attr('stroke', COLORS.grid).attr('stroke-width', 1);
+        // Value label on right axis
+        const val = (globalMax * level);
+        g.append('text')
+          .attr('x', R * level + 3)
+          .attr('y', -4)
+          .attr('fill', 'rgba(255,255,255,0.35)')
+          .attr('font-size', '8px')
+          .text(val >= 100 ? Math.round(val) : val.toFixed(1));
       });
 
-      g.append('polygon')
-        .attr('points', pts.map(p => p.join(',')).join(' '))
-        .attr('fill', grp.color).attr('fill-opacity', 0.15)
-        .attr('stroke', grp.color).attr('stroke-width', 2)
-        .style('cursor', 'pointer')
-        .on('mouseover', (evt) => {
-          const vals = dirs.map(d => `${d}: ${grp.det[d]} km`).join('<br>');
-          showTooltip(evt, `<b>${esc(name)} Detection</b><br>${vals}`);
-        })
-        .on('mouseout', hideTooltip);
-    });
+      // Axis lines
+      dirAngles.forEach((a) => {
+        const angle = a - Math.PI / 2;
+        g.append('line')
+          .attr('x1', 0).attr('y1', 0)
+          .attr('x2', R * Math.cos(angle)).attr('y2', R * Math.sin(angle))
+          .attr('stroke', COLORS.grid).attr('stroke-width', 1);
+      });
 
-    // Legend
-    const legend = d3.select(container).append('div').attr('class', 'chart-legend');
-    Object.entries(groups).forEach(([name, grp]) => {
-      if (!grp.det) return;
-      const el = legend.append('span').attr('class', 'chart-legend-item');
-      el.append('span').attr('class', 'chart-legend-dot').style('background', grp.color);
-      el.append('span').text(name);
-    });
+      // Direction labels
+      dirLabels.forEach((label, i) => {
+        const angle = dirAngles[i] - Math.PI / 2;
+        g.append('text')
+          .attr('x', (R + 18) * Math.cos(angle))
+          .attr('y', (R + 18) * Math.sin(angle))
+          .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+          .attr('fill', COLORS.text).attr('font-size', '11px').attr('font-weight', '500')
+          .text(label);
+      });
+
+      // Draw polygons — detection as solid fill, classification as dashed outline
+      Object.entries(groups).forEach(([key, grp]) => {
+        if (!grp.sig) return;
+        const pts = dirs.map((d, i) => {
+          const val = (grp.sig[d] || 0) / globalMax;
+          const angle = dirAngles[i] - Math.PI / 2;
+          return [R * val * Math.cos(angle), R * val * Math.sin(angle)];
+        });
+
+        const polygon = g.append('polygon')
+          .attr('points', pts.map(p => p.join(',')).join(' '))
+          .attr('fill', grp.dash ? 'none' : grp.color)
+          .attr('fill-opacity', grp.dash ? 0 : 0.12)
+          .attr('stroke', grp.color)
+          .attr('stroke-width', grp.dash ? 1.5 : 2)
+          .style('cursor', 'pointer');
+
+        if (grp.dash) {
+          polygon.attr('stroke-dasharray', '5,3');
+        }
+
+        const typeSuffix = grp.dash ? 'Classification' : 'Detection';
+        polygon
+          .on('mouseover', (evt) => {
+            polygon.attr('fill-opacity', grp.dash ? 0.08 : 0.3);
+            const vals = dirs.map(d =>
+              `<span style="color:rgba(255,255,255,0.5)">${d}:</span> <b>${grp.sig[d]}</b> ${unit}`
+            ).join('<br>');
+            showTooltip(evt, `<b style="color:${grp.color}">${esc(grp.label)} ${typeSuffix}</b><br>${vals}`);
+          })
+          .on('mousemove', (evt) => {
+            const tip = getTooltip();
+            tip.style.left = (evt.pageX + 12) + 'px';
+            tip.style.top = (evt.pageY - 12) + 'px';
+          })
+          .on('mouseout', () => {
+            polygon.attr('fill-opacity', grp.dash ? 0 : 0.12);
+            hideTooltip();
+          });
+      });
+
+      // Legend — group by label (detection + classification share same label)
+      const legendEl = d3.select(chartWrap).append('div')
+        .attr('class', 'chart-legend')
+        .style('flex-wrap', 'wrap').style('justify-content', 'center').style('gap', '6px 12px');
+
+      const seen = new Set();
+      Object.entries(groups).forEach(([key, grp]) => {
+        if (!grp.sig) return;
+        const legendKey = grp.label;
+        if (seen.has(legendKey)) return;
+        seen.add(legendKey);
+
+        const el = legendEl.append('span').attr('class', 'chart-legend-item');
+        el.append('span').attr('class', 'chart-legend-dot').style('background', grp.color);
+        el.append('span').text(legendKey);
+
+        // If both det + cls exist, note it
+        const hasBoth = Object.values(groups).filter(g => g.label === legendKey && g.sig).length > 1;
+        if (hasBoth) {
+          el.append('span')
+            .style('font-size', '9px')
+            .style('color', 'rgba(255,255,255,0.4)')
+            .style('margin-left', '2px')
+            .text('(solid=det, dash=cls)');
+        }
+      });
+    }
+
+    // Render EM/Visual polar chart
+    if (hasEM) {
+      buildPolarChart(wrapper, emGroups, 'EM / Visual Signatures' + (hasSonar ? '' : ''), 'km');
+    }
+
+    // Render Acoustic polar chart (ships/submarines only)
+    if (hasSonar) {
+      buildPolarChart(wrapper, sonarGroups, 'Acoustic Signatures', 'dB');
+    }
   }
 
   function renderPerfCurves(container, item) {
@@ -2012,6 +2116,959 @@ const Charts = (() => {
     });
   }
 
+  // ══════════════════════════════════════════
+  //  23. Weapon Domain Reach (per-item, aircraft + ships)
+  // ══════════════════════════════════════════
+  function renderDomainReach(container, item, cat) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    // Gather max range per domain from loadouts (aircraft) or mounts (ships)
+    const domains = { air: 0, surface: 0, land: 0, sub: 0 };
+    const sources = cat === 'aircraft' ? (item.loadouts || []).flatMap(lo => lo.weapons || [])
+      : [...(item.mounts || []).flatMap(m => m.weapons || []), ...(item.magazines || []).flatMap(m => m.weapons || [])];
+    sources.forEach(w => {
+      if (w.airRange > domains.air)         domains.air = w.airRange;
+      if (w.surfaceRange > domains.surface) domains.surface = w.surfaceRange;
+      if (w.landRange > domains.land)       domains.land = w.landRange;
+      if (w.subRange > domains.sub)         domains.sub = w.subRange;
+    });
+    const maxRange = Math.max(domains.air, domains.surface, domains.land, domains.sub, 1);
+    if (maxRange <= 0) {
+      container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-secondary);font-size:12px">No weapon range data available</div>';
+      return;
+    }
+    const W = 400, H = 400, cx = W / 2, cy = H / 2, R = 150;
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+    // Background
+    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
+    // Range circles
+    const rings = [0.25, 0.5, 0.75, 1.0];
+    rings.forEach(frac => {
+      const r = R * frac;
+      svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r)
+        .attr('fill', 'none').attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 0.75);
+      svg.append('text').attr('x', cx + 3).attr('y', cy - r - 2)
+        .attr('font-size', '8').attr('fill', 'rgba(255,255,255,0.25)')
+        .text(Math.round(maxRange * frac) + ' km');
+    });
+    // Axis lines
+    svg.append('line').attr('x1', cx).attr('y1', cy - R - 10).attr('x2', cx).attr('y2', cy + R + 10)
+      .attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 0.75);
+    svg.append('line').attr('x1', cx - R - 10).attr('y1', cy).attr('x2', cx + R + 10).attr('y2', cy)
+      .attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 0.75);
+    // Domain definitions: direction as angle (0=up=air, 90=right=surface, 180=down=sub, 270=left=land)
+    const domainDefs = [
+      { key: 'air',     label: 'AIR',     angle: -Math.PI / 2, color: COLORS.air },
+      { key: 'surface', label: 'SURFACE', angle: 0,            color: COLORS.surface },
+      { key: 'sub',     label: 'SUB',     angle: Math.PI / 2,  color: COLORS.sub },
+      { key: 'land',    label: 'LAND',    angle: Math.PI,      color: COLORS.land },
+    ];
+    // Draw filled wedges
+    const wedgeAngle = Math.PI / 4; // 45° per wedge
+    domainDefs.forEach(dom => {
+      const range = domains[dom.key];
+      if (range <= 0) return;
+      const r = (range / maxRange) * R;
+      const a1 = dom.angle - wedgeAngle / 2;
+      const a2 = dom.angle + wedgeAngle / 2;
+      const x1 = cx + Math.cos(a1) * r;
+      const y1 = cy + Math.sin(a1) * r;
+      const x2 = cx + Math.cos(a2) * r;
+      const y2 = cy + Math.sin(a2) * r;
+      // Filled wedge
+      svg.append('path')
+        .attr('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`)
+        .attr('fill', dom.color).attr('fill-opacity', 0.2)
+        .attr('stroke', dom.color).attr('stroke-opacity', 0.6).attr('stroke-width', 1.5)
+        .style('cursor', 'pointer')
+        .on('mouseover', (evt) => showTooltip(evt, `<b>${dom.label}</b><br>Max Range: ${range} km`))
+        .on('mouseout', hideTooltip);
+      // Range line (center to tip)
+      const tipX = cx + Math.cos(dom.angle) * r;
+      const tipY = cy + Math.sin(dom.angle) * r;
+      svg.append('line')
+        .attr('x1', cx).attr('y1', cy).attr('x2', tipX).attr('y2', tipY)
+        .attr('stroke', dom.color).attr('stroke-opacity', 0.5).attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+      // Range value at tip
+      const lblX = cx + Math.cos(dom.angle) * (r + 14);
+      const lblY = cy + Math.sin(dom.angle) * (r + 14);
+      svg.append('text').attr('x', lblX).attr('y', lblY)
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+        .attr('font-size', '10').attr('fill', dom.color).attr('font-weight', '600')
+        .text(range + ' km');
+    });
+    // Domain labels at edges
+    domainDefs.forEach(dom => {
+      const lblDist = R + 30;
+      const lx = cx + Math.cos(dom.angle) * lblDist;
+      const ly = cy + Math.sin(dom.angle) * lblDist;
+      svg.append('text').attr('x', lx).attr('y', ly)
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+        .attr('font-size', '9').attr('fill', domains[dom.key] > 0 ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)')
+        .attr('letter-spacing', '0.08em').attr('font-weight', '600')
+        .text(dom.label);
+    });
+    // Center dot (platform)
+    svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 3)
+      .attr('fill', 'rgba(255,255,255,0.6)');
+    svg.append('text').attr('x', cx).attr('y', cy + 14)
+      .attr('text-anchor', 'middle').attr('font-size', '7.5').attr('fill', 'rgba(255,255,255,0.3)')
+      .text('PLATFORM');
+  }
+
+  // ══════════════════════════════════════════
+  //  24. Flight Envelope (per-item, aircraft only)
+  // ══════════════════════════════════════════
+  function renderFlightEnvelope(container, item) {
+    if (!d3Ready() || !item.propulsion?.performances?.length) return;
+    container.innerHTML = '';
+    const perfs = item.propulsion.performances;
+    const hasAlt = perfs[0].altBand != null;
+    if (!hasAlt) return; // ships have no altitude bands
+    // Group by altBand
+    const bands = new Map();
+    perfs.forEach(p => {
+      if (!bands.has(p.altBand)) bands.set(p.altBand, {});
+      const b = bands.get(p.altBand);
+      b.altMin = p.altMin; b.altMax = p.altMax;
+      if (p.throttle === 1) b.cruise = p.speed;
+      if (p.throttle === 2) b.mil = p.speed;
+      if (p.throttle === 3) b.ab = p.speed;
+    });
+    const bandArr = [...bands.entries()].sort((a, b) => a[0] - b[0]).map(([bn, d]) => ({
+      num: bn, ...d,
+      minSpd: d.cruise || d.mil || 0,
+      maxSpd: d.ab || d.mil || d.cruise || 0,
+    }));
+    if (bandArr.length === 0) return;
+    const W = 460, H = 300;
+    const M = { top: 24, right: 20, bottom: 42, left: 72 };
+    const w = W - M.left - M.right, h = H - M.top - M.bottom;
+    const allSpeeds = bandArr.flatMap(b => [b.minSpd, b.maxSpd, b.mil || 0].filter(v => v > 0));
+    const maxSpd = Math.max(...allSpeeds) * 1.1;
+    const minSpd = Math.min(...allSpeeds) * 0.85;
+    const maxAlt = Math.max(...bandArr.map(b => b.altMax));
+    const xScale = d3.scaleLinear().domain([Math.max(0, minSpd - 20), maxSpd]).range([0, w]);
+    const yScale = d3.scaleLinear().domain([0, maxAlt]).range([h, 0]);
+    const bandColors = { 1: '#4a9eff', 2: '#4caf50', 3: '#ffb74d', 4: '#ef5350' };
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+    // Grid lines
+    const xTicks = xScale.ticks(6);
+    xTicks.forEach(v => {
+      g.append('line').attr('x1', xScale(v)).attr('x2', xScale(v)).attr('y1', 0).attr('y2', h)
+        .attr('stroke', COLORS.grid).attr('stroke-width', 0.75);
+    });
+    const yTicks = yScale.ticks(5);
+    yTicks.forEach(v => {
+      g.append('line').attr('x1', 0).attr('x2', w).attr('y1', yScale(v)).attr('y2', yScale(v))
+        .attr('stroke', COLORS.grid).attr('stroke-width', 0.75);
+    });
+    // Build envelope polygon — cruise speeds on left, AB speeds on right
+    const leftPoints = bandArr.map(b => ({ x: xScale(b.minSpd), y: yScale((b.altMin + b.altMax) / 2) }));
+    const rightPoints = bandArr.map(b => ({ x: xScale(b.maxSpd), y: yScale((b.altMin + b.altMax) / 2) }));
+    // Add bottom/top caps
+    const polyPoints = [
+      { x: xScale(bandArr[0].minSpd), y: yScale(bandArr[0].altMin) },
+      ...leftPoints,
+      { x: xScale(bandArr[bandArr.length - 1].minSpd), y: yScale(bandArr[bandArr.length - 1].altMax) },
+      { x: xScale(bandArr[bandArr.length - 1].maxSpd), y: yScale(bandArr[bandArr.length - 1].altMax) },
+      ...rightPoints.slice().reverse(),
+      { x: xScale(bandArr[0].maxSpd), y: yScale(bandArr[0].altMin) },
+    ];
+    const pathD = 'M' + polyPoints.map(p => `${p.x},${p.y}`).join('L') + 'Z';
+    // Gradient fill
+    const gradId = 'flightEnvGrad' + Math.random().toString(36).slice(2, 6);
+    const defs = svg.append('defs');
+    const grad = defs.append('linearGradient').attr('id', gradId).attr('x1', '0').attr('y1', '0').attr('x2', '1').attr('y2', '0');
+    grad.append('stop').attr('offset', '0%').attr('stop-color', '#4caf50').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '50%').attr('stop-color', '#4a9eff').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', '#ef5350').attr('stop-opacity', 0.15);
+    g.append('path').attr('d', pathD)
+      .attr('fill', `url(#${gradId})`).attr('stroke', COLORS.accent).attr('stroke-opacity', 0.3).attr('stroke-width', 1);
+    // Data points for each throttle at each band
+    bandArr.forEach(b => {
+      const midAlt = (b.altMin + b.altMax) / 2;
+      const col = bandColors[b.num] || '#fff';
+      // Band zone background
+      g.append('rect')
+        .attr('x', 0).attr('y', yScale(b.altMax))
+        .attr('width', w).attr('height', yScale(b.altMin) - yScale(b.altMax))
+        .attr('fill', col).attr('fill-opacity', 0.04);
+      // Cruise dot
+      if (b.cruise) {
+        g.append('circle').attr('cx', xScale(b.cruise)).attr('cy', yScale(midAlt)).attr('r', 4)
+          .attr('fill', '#4caf50').attr('stroke', '#4caf50').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .style('cursor', 'pointer')
+          .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Cruise</b><br>${b.cruise} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
+          .on('mouseout', hideTooltip);
+      }
+      // Military dot
+      if (b.mil) {
+        g.append('circle').attr('cx', xScale(b.mil)).attr('cy', yScale(midAlt)).attr('r', 4)
+          .attr('fill', '#4a9eff').attr('stroke', '#4a9eff').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .style('cursor', 'pointer')
+          .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Military</b><br>${b.mil} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
+          .on('mouseout', hideTooltip);
+      }
+      // Afterburner dot
+      if (b.ab) {
+        g.append('circle').attr('cx', xScale(b.ab)).attr('cy', yScale(midAlt)).attr('r', 4)
+          .attr('fill', '#ef5350').attr('stroke', '#ef5350').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .style('cursor', 'pointer')
+          .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Afterburner</b><br>${b.ab} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
+          .on('mouseout', hideTooltip);
+      }
+      // Horizontal bar connecting cruise to AB
+      g.append('line')
+        .attr('x1', xScale(b.minSpd)).attr('x2', xScale(b.maxSpd))
+        .attr('y1', yScale(midAlt)).attr('y2', yScale(midAlt))
+        .attr('stroke', col).attr('stroke-opacity', 0.35).attr('stroke-width', 1.5);
+    });
+    // X axis
+    xTicks.forEach(v => {
+      g.append('text').attr('x', xScale(v)).attr('y', h + 14)
+        .attr('text-anchor', 'middle').attr('font-size', '9').attr('fill', COLORS.text).text(v + ' kt');
+    });
+    g.append('text').attr('x', w / 2).attr('y', h + 30)
+      .attr('text-anchor', 'middle').attr('font-size', '9').attr('fill', 'rgba(255,255,255,0.3)')
+      .attr('letter-spacing', '0.05em').text('SPEED (KT)');
+    // Y axis (dual units)
+    yTicks.forEach(v => {
+      const ft = Math.round(v * 3.28084);
+      const mLabel = v >= 1000 ? (v / 1000).toFixed(1).replace(/\.0$/, '') + 'km' : v + 'm';
+      const ftLabel = ft >= 1000 ? Math.round(ft / 1000) + 'k ft' : ft + 'ft';
+      g.append('text').attr('x', -6).attr('y', yScale(v) + 3)
+        .attr('text-anchor', 'end').attr('font-size', '8.5').attr('fill', 'rgba(255,255,255,0.5)').text(mLabel);
+      g.append('text').attr('x', -6).attr('y', yScale(v) + 12)
+        .attr('text-anchor', 'end').attr('font-size', '7').attr('fill', 'rgba(255,255,255,0.25)').text(ftLabel);
+    });
+    g.append('text').attr('x', -M.left + 10).attr('y', h / 2)
+      .attr('text-anchor', 'middle').attr('font-size', '9').attr('fill', 'rgba(255,255,255,0.3)')
+      .attr('letter-spacing', '0.05em').attr('transform', `rotate(-90, ${-M.left + 10}, ${h / 2})`).text('ALTITUDE');
+    // Legend
+    const legY = H - 10;
+    [['Cruise', '#4caf50'], ['Military', '#4a9eff'], ['Afterburner', '#ef5350']].forEach(([lbl, col], i) => {
+      const lx = M.left + 10 + i * 110;
+      svg.append('circle').attr('cx', lx).attr('cy', legY - 3).attr('r', 3.5).attr('fill', col).attr('fill-opacity', 0.7);
+      svg.append('text').attr('x', lx + 7).attr('y', legY).attr('font-size', '8.5').attr('fill', 'rgba(255,255,255,0.35)').text(lbl);
+    });
+  }
+
+  // ══════════════════════════════════════════
+  //  25b. Depth–Speed Profile (submarines)
+  // ══════════════════════════════════════════
+  function renderDepthSpeedProfile(container, item) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const perf = item.propulsion?.performances;
+    const maxDepth = item.maxDepth;
+    if (!perf || !perf.length || !maxDepth) return;
+
+    // Group performances by throttle, then reconstruct depth-zone groups
+    // (performances may arrive sorted by throttle rather than in original zone order)
+    const byThrottle = new Map();
+    perf.forEach(p => {
+      if (!byThrottle.has(p.throttle)) byThrottle.set(p.throttle, []);
+      byThrottle.get(p.throttle).push(p);
+    });
+    // Sort each throttle's entries by speed ascending
+    byThrottle.forEach(arr => arr.sort((a, b) => a.speed - b.speed));
+    // Number of depth zones = count of entries for lowest throttle (T1)
+    const t1Entries = byThrottle.get(1) || byThrottle.get(Math.min(...byThrottle.keys()));
+    const numZones = t1Entries ? t1Entries.length : 1;
+    if (numZones < 2) return;
+
+    // Build zone groups: zone[i] gets the i-th speed from each throttle
+    // Lowest speeds = snorkeling, mid = surfaced, highest = submerged (for nuclear)
+    // When a throttle has fewer entries than zones (e.g. T4 only exists submerged),
+    // assign to the highest zones so T4 maps to submerged, not snorkeling
+    const zoneGroups = [];
+    for (let i = 0; i < numZones; i++) {
+      const speeds = [];
+      byThrottle.forEach(arr => {
+        const offset = numZones - arr.length;
+        const idx = i - offset;
+        if (idx >= 0 && idx < arr.length) speeds.push(arr[idx]);
+      });
+      zoneGroups.push(speeds);
+    }
+
+    const absDepth = Math.abs(maxDepth);
+    const isNuclear = numZones >= 3;
+    const periscopeDepth = Math.min(20, absDepth * 0.05);
+
+    // Assign zones: last group = highest speeds
+    let zones;
+    if (isNuclear) {
+      zones = [
+        { label: 'Surfaced',   depth: 0,              speeds: zoneGroups[1], color: '#4caf50' },
+        { label: 'Snorkeling',  depth: periscopeDepth,  speeds: zoneGroups[0], color: '#4a9eff' },
+        { label: 'Submerged',  depth: absDepth,        speeds: zoneGroups[2], color: '#7c4dff' },
+      ];
+    } else {
+      zones = [
+        { label: 'Surfaced',  depth: 0,        speeds: zoneGroups[1], color: '#4caf50' },
+        { label: 'Submerged', depth: absDepth,  speeds: zoneGroups[0], color: '#7c4dff' },
+      ];
+    }
+
+    // Throttle labels & colors
+    const throttleLabel = { 1: 'Creep', 2: 'Cruise', 3: 'Flank', 4: 'Full' };
+    const throttleColor = { 1: '#4caf50', 2: '#4a9eff', 3: '#ffb74d', 4: '#ef5350' };
+
+    // Dimensions — generous spacing to avoid text overlap
+    const maxThrottleCount = Math.max(...zones.map(z => z.speeds.length));
+    const barThick = 10;                                   // px per bar
+    const barH = maxThrottleCount * barThick;              // total bar cluster height
+    const zoneGap = 30;                                    // space between zones
+    const chartContentH = zones.length * barH + (zones.length - 1) * zoneGap;
+
+    const W = 500, legH = 28;
+    const M = { top: 20, right: 30, bottom: 18 + legH, left: 6 };
+    const H = M.top + chartContentH + M.bottom;
+    const w = W - M.left - M.right;
+
+    const allSpeeds = zones.flatMap(z => z.speeds.map(s => s.speed));
+    const maxSpd = Math.max(...allSpeeds) * 1.18;
+
+    const xScale = d3.scaleLinear().domain([0, maxSpd]).range([0, w]);
+
+    // Compute vertical center for each zone
+    const zonePositions = zones.map((z, i) => {
+      const yPos = i * (barH + zoneGap) + barH / 2;
+      return { ...z, yPos };
+    });
+
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    // Background with ocean depth gradient
+    const gradBg = 'depthBg' + Math.random().toString(36).slice(2, 6);
+    const defs = svg.append('defs');
+    const bgGrad = defs.append('linearGradient').attr('id', gradBg)
+      .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
+    bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#0a2540').attr('stop-opacity', 0.7);
+    bgGrad.append('stop').attr('offset', '40%').attr('stop-color', '#0a1628').attr('stop-opacity', 0.8);
+    bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#050d18').attr('stop-opacity', 0.95);
+    svg.append('rect').attr('width', W).attr('height', H).attr('fill', `url(#${gradBg})`).attr('rx', 6);
+
+    const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+    // Subtle grid lines (speed)
+    const xTicks = xScale.ticks(5);
+    xTicks.forEach(v => {
+      if (v === 0) return;
+      g.append('line').attr('x1', xScale(v)).attr('x2', xScale(v))
+        .attr('y1', 0).attr('y2', chartContentH)
+        .attr('stroke', COLORS.grid).attr('stroke-width', 0.5);
+    });
+
+    // Build depth envelope polygon
+    const envLeft = [], envRight = [];
+
+    zonePositions.forEach(zone => {
+      const cy = zone.yPos;
+      const numBars = zone.speeds.length;
+
+      envLeft.push({ x: xScale(Math.min(...zone.speeds.map(s => s.speed))), y: cy });
+      envRight.push({ x: xScale(Math.max(...zone.speeds.map(s => s.speed))), y: cy });
+
+      // Zone background band
+      g.append('rect')
+        .attr('x', 0).attr('y', cy - barH / 2 - 2)
+        .attr('width', w).attr('height', barH + 4)
+        .attr('fill', zone.color).attr('fill-opacity', 0.05).attr('rx', 3);
+
+      // Speed bars — each bar is a full-width row
+      zone.speeds.forEach((s, i) => {
+        const barY = cy - barH / 2 + i * barThick;
+        const col = throttleColor[s.throttle] || '#fff';
+        const bw = xScale(s.speed);
+
+        g.append('rect')
+          .attr('x', 0).attr('y', barY)
+          .attr('width', bw).attr('height', barThick - 2)
+          .attr('fill', col).attr('fill-opacity', 0.55).attr('rx', 2)
+          .style('cursor', 'pointer')
+          .on('mouseover', (evt) => showTooltip(evt,
+            `<b>${zone.label} · ${throttleLabel[s.throttle] || 'T' + s.throttle}</b><br>${s.speed} kt` +
+            (s.consumption ? `<br>Fuel: ${s.consumption} kg/hr` : '')))
+          .on('mouseout', hideTooltip);
+
+        // Speed label inside bar if wide enough, otherwise outside
+        const labelInside = bw > 40;
+        g.append('text')
+          .attr('x', labelInside ? bw - 4 : bw + 4)
+          .attr('y', barY + (barThick - 2) / 2)
+          .attr('dominant-baseline', 'central')
+          .attr('text-anchor', labelInside ? 'end' : 'start')
+          .attr('font-size', '8').attr('fill', labelInside ? 'rgba(255,255,255,0.9)' : col)
+          .attr('font-weight', '600')
+          .text(s.speed + ' kt');
+      });
+
+      // Zone label — right-aligned above the bar cluster
+      const depthStr = zone.depth === 0 ? '0 m' : `${zone.depth} m · ${Math.round(zone.depth * 3.28084)} ft`;
+      const labelY = cy - barH / 2 - 6;
+      g.append('text').attr('x', w).attr('y', labelY)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'auto')
+        .attr('font-size', '9.5').attr('fill', zone.color).attr('font-weight', '700')
+        .attr('letter-spacing', '0.04em')
+        .text(zone.label.toUpperCase());
+      // Depth subtitle to the left of zone label
+      const labelWidth = zone.label.length * 6.5 + 8;
+      g.append('text').attr('x', w - labelWidth).attr('y', labelY)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'auto')
+        .attr('font-size', '7.5').attr('fill', 'rgba(255,255,255,0.35)')
+        .text(depthStr);
+    });
+
+    // Envelope polygon (behind bars)
+    const envPoly = [...envLeft, ...envRight.slice().reverse()];
+    const envPath = 'M' + envPoly.map(p => `${p.x},${p.y}`).join('L') + 'Z';
+    const envGradId = 'depthEnvGrad' + Math.random().toString(36).slice(2, 6);
+    const envGrad = defs.append('linearGradient').attr('id', envGradId)
+      .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
+    envGrad.append('stop').attr('offset', '0%').attr('stop-color', '#4caf50').attr('stop-opacity', 0.06);
+    envGrad.append('stop').attr('offset', '100%').attr('stop-color', '#7c4dff').attr('stop-opacity', 0.06);
+    g.insert('path', ':first-child')
+      .attr('d', envPath)
+      .attr('fill', `url(#${envGradId})`)
+      .attr('stroke', 'rgba(255,255,255,0.08)').attr('stroke-width', 0.75);
+
+    // X axis labels — below chart content
+    const axisY = chartContentH + 14;
+    xTicks.forEach(v => {
+      g.append('text').attr('x', xScale(v)).attr('y', axisY)
+        .attr('text-anchor', 'middle').attr('font-size', '8').attr('fill', 'rgba(255,255,255,0.4)').text(v + ' kt');
+    });
+
+    // Legend — centered at bottom
+    const usedThrottles = [...new Set(zones.flatMap(z => z.speeds.map(s => s.throttle)))].sort();
+    const legTotalW = usedThrottles.length * 80;
+    const legStartX = (W - legTotalW) / 2;
+    const legY = chartContentH + 30;
+    usedThrottles.forEach((t, i) => {
+      const lx = legStartX + i * 80;
+      g.append('rect').attr('x', lx).attr('y', legY - 4).attr('width', 12).attr('height', 6)
+        .attr('fill', throttleColor[t] || '#fff').attr('fill-opacity', 0.6).attr('rx', 1.5);
+      g.append('text').attr('x', lx + 16).attr('y', legY)
+        .attr('font-size', '8').attr('fill', 'rgba(255,255,255,0.35)').text(throttleLabel[t] || 'T' + t);
+    });
+  }
+
+  // ══════════════════════════════════════════
+  //  25. Magazine Capacity (per-item, ships)
+  // ══════════════════════════════════════════
+  function renderMagazineCapacity(container, item) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const mags = item.magazines;
+    if (!mags || mags.length === 0) {
+      container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-secondary);font-size:12px">No magazine data</div>';
+      return;
+    }
+    // Classify weapon type
+    function classifyWpn(name) {
+      const n = (name || '').toLowerCase();
+      if (n.includes('sm-') || n.includes('essm') || n.includes('sam') || n.includes('missile') || n.includes('harpoon') || n.includes('tomahawk') || n.includes('asroc')) return 'Missile';
+      if (n.includes('torpedo') || n.includes('torp') || n.includes('mk46') || n.includes('mk48') || n.includes('mk50') || n.includes('mk54')) return 'Torpedo';
+      if (n.includes('decoy') || n.includes('chaff') || n.includes('srboc') || n.includes('nulka') || n.includes('flare')) return 'Countermeasure';
+      if (n.includes('sonobuoy') || n.includes('ssq')) return 'Sonobuoy';
+      return 'Ammunition';
+    }
+    const typeColors = {
+      Missile: '#f44336', Torpedo: '#00bcd4', Countermeasure: '#8bc34a',
+      Sonobuoy: '#9c27b0', Ammunition: '#ffc107',
+    };
+    // Build display data
+    const magData = mags.map(m => {
+      const wpnTypes = m.weapons && m.weapons.length > 0
+        ? m.weapons.map(w => ({ name: w.name, type: classifyWpn(w.name) }))
+        : [{ name: m.name, type: classifyWpn(m.name) }];
+      const primaryType = wpnTypes[0]?.type || 'Ammunition';
+      return { name: m.name, qty: m.qty || 1, capacity: m.capacity || 0, weapons: wpnTypes, primaryType };
+    }).filter(m => m.capacity > 0);
+    if (magData.length === 0) {
+      container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-secondary);font-size:12px">No magazine data</div>';
+      return;
+    }
+    magData.sort((a, b) => b.capacity - a.capacity);
+    const maxCap = Math.max(...magData.map(m => m.capacity));
+    const barH = 24, gap = 6, labelW = 160, capW = 50, pad = 10;
+    const W = 500, H = pad * 2 + magData.length * (barH + gap) + 40;
+    const barMaxW = W - labelW - capW - pad * 3;
+    const scale = d3.scaleLinear().domain([0, maxCap]).range([0, barMaxW]);
+    const svg = d3.select(container).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
+    magData.forEach((m, i) => {
+      const y = pad + i * (barH + gap);
+      const col = typeColors[m.primaryType] || '#999';
+      // Magazine name
+      const label = m.name.length > 22 ? m.name.substring(0, 20) + '...' : m.name;
+      svg.append('text')
+        .attr('x', labelW - 4).attr('y', y + barH / 2)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+        .attr('font-size', '9.5').attr('fill', COLORS.text)
+        .text(label);
+      // Qty badge
+      if (m.qty > 1) {
+        svg.append('text')
+          .attr('x', labelW - 4).attr('y', y + barH / 2 + 10)
+          .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+          .attr('font-size', '7.5').attr('fill', 'rgba(255,255,255,0.3)')
+          .text('×' + m.qty);
+      }
+      // Bar track
+      svg.append('rect')
+        .attr('x', labelW + pad).attr('y', y)
+        .attr('width', barMaxW).attr('height', barH)
+        .attr('fill', COLORS.grid).attr('rx', 4);
+      // Bar fill
+      const bw = scale(m.capacity);
+      svg.append('rect')
+        .attr('x', labelW + pad).attr('y', y)
+        .attr('width', bw).attr('height', barH)
+        .attr('fill', col).attr('fill-opacity', 0.55).attr('rx', 4)
+        .style('cursor', 'pointer')
+        .on('mouseover', (evt) => {
+          const wpnList = m.weapons.map(w => esc(w.name)).join('<br>');
+          showTooltip(evt, `<b>${esc(m.name)}</b>${m.qty > 1 ? ' ×' + m.qty : ''}<br>Capacity: ${m.capacity}<br>${wpnList}`);
+        })
+        .on('mouseout', hideTooltip);
+      // Capacity number
+      svg.append('text')
+        .attr('x', labelW + pad + bw + 6).attr('y', y + barH / 2)
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '10').attr('fill', col).attr('font-weight', '600')
+        .text(m.capacity.toLocaleString());
+      // Type indicator dot
+      svg.append('circle')
+        .attr('cx', labelW + pad + barMaxW + 20).attr('cy', y + barH / 2).attr('r', 4)
+        .attr('fill', col).attr('fill-opacity', 0.6);
+    });
+    // Legend at bottom
+    const usedTypes = [...new Set(magData.map(m => m.primaryType))];
+    const legY = H - 12;
+    usedTypes.forEach((type, i) => {
+      const lx = pad + i * 100;
+      svg.append('circle').attr('cx', lx + 5).attr('cy', legY - 2).attr('r', 3.5)
+        .attr('fill', typeColors[type] || '#999').attr('fill-opacity', 0.6);
+      svg.append('text').attr('x', lx + 12).attr('y', legY)
+        .attr('font-size', '8').attr('fill', 'rgba(255,255,255,0.35)').text(type);
+    });
+  }
+
+  // ── Comparison Charts (multi-item) ───────────
+  const COMPARE_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#ef5350', '#ab47bc'];
+
+  // Grouped horizontal bar chart comparing numeric specs across items
+  function renderCompareSpecs(container, items, fields) {
+    if (!d3Ready() || !items.length || !fields.length) return;
+    container.innerHTML = '';
+    const W = container.clientWidth || 600;
+    const barH = 14, groupGap = 20, labelW = 120, pad = 12;
+    const n = items.length;
+    const groupH = n * (barH + 2) + groupGap;
+    const H = fields.length * groupH + pad * 2 + 30;
+    const barMaxW = W - labelW - pad * 3 - 40;
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', `0 0 ${W} ${H}`);
+
+    fields.forEach((f, fi) => {
+      const baseY = pad + fi * groupH;
+      const values = items.map(item => {
+        const v = f.getValue(item);
+        return typeof v === 'number' ? v : parseFloat(v) || 0;
+      });
+      const maxVal = Math.max(...values, 1);
+
+      // Field label
+      svg.append('text')
+        .attr('x', labelW - 4).attr('y', baseY + (n * (barH + 2)) / 2)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+        .attr('font-size', '11').attr('fill', COLORS.text)
+        .text(f.label);
+
+      // Bars per item
+      items.forEach((item, i) => {
+        const y = baseY + i * (barH + 2);
+        const val = values[i];
+        const bw = barMaxW * (val / maxVal);
+        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+
+        svg.append('rect')
+          .attr('x', labelW + pad).attr('y', y)
+          .attr('width', Math.max(bw, 0)).attr('height', barH)
+          .attr('rx', 3).attr('fill', col).attr('fill-opacity', 0.8);
+
+        if (val > 0) {
+          svg.append('text')
+            .attr('x', labelW + pad + bw + 4).attr('y', y + barH / 2)
+            .attr('dominant-baseline', 'central')
+            .attr('font-size', '10').attr('fill', col).attr('font-weight', '600')
+            .text(val.toLocaleString());
+        }
+      });
+    });
+
+    // Legend
+    const legY = H - 12;
+    items.forEach((item, i) => {
+      const lx = pad + i * (W / items.length);
+      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
+    });
+  }
+
+  // Overlaid radar/polar chart for signature comparison
+  function renderCompareSignatures(container, items) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const sigTypes = ['Visual', 'Infrared', 'Radar', 'Sonar'];
+    // Filter to types that at least one item has
+    const activeTypes = sigTypes.filter(st =>
+      items.some(item => (item.signatures || []).some(s => (s.type || '').includes(st)))
+    );
+    if (!activeTypes.length) return;
+
+    const W = container.clientWidth || 400;
+    const size = Math.min(W, 350);
+    const cx = size / 2, cy = size / 2, R = size / 2 - 40;
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', size).attr('height', size + 30)
+      .attr('viewBox', `0 0 ${size} ${size + 30}`);
+
+    const angleStep = (2 * Math.PI) / activeTypes.length;
+
+    // Get max value per type for normalization
+    const maxPerType = {};
+    activeTypes.forEach(st => {
+      maxPerType[st] = 0;
+      items.forEach(item => {
+        (item.signatures || []).forEach(s => {
+          if ((s.type || '').includes(st)) {
+            const v = Math.max(s.front || 0, s.side || 0, s.rear || 0, s.top || 0);
+            if (v > maxPerType[st]) maxPerType[st] = v;
+          }
+        });
+      });
+    });
+    const globalMax = Math.max(...Object.values(maxPerType), 1);
+
+    // Grid rings
+    [0.25, 0.5, 0.75, 1].forEach(pct => {
+      svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', R * pct)
+        .attr('fill', 'none').attr('stroke', COLORS.grid).attr('stroke-width', 0.5);
+    });
+
+    // Axis lines + labels
+    activeTypes.forEach((st, i) => {
+      const angle = i * angleStep - Math.PI / 2;
+      const x2 = cx + R * Math.cos(angle);
+      const y2 = cy + R * Math.sin(angle);
+      svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', x2).attr('y2', y2)
+        .attr('stroke', COLORS.grid).attr('stroke-width', 0.5);
+      const lx = cx + (R + 16) * Math.cos(angle);
+      const ly = cy + (R + 16) * Math.sin(angle);
+      svg.append('text').attr('x', lx).attr('y', ly)
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
+        .attr('font-size', '10').attr('fill', COLORS.text).text(st);
+    });
+
+    // Plot each item's polygon
+    items.forEach((item, idx) => {
+      const col = COMPARE_COLORS[idx];
+      const points = activeTypes.map((st, i) => {
+        let val = 0;
+        (item.signatures || []).forEach(s => {
+          if ((s.type || '').includes(st)) {
+            const v = Math.max(s.front || 0, s.side || 0, s.rear || 0, s.top || 0);
+            if (v > val) val = v;
+          }
+        });
+        const r = globalMax > 0 ? (val / globalMax) * R : 0;
+        const angle = i * angleStep - Math.PI / 2;
+        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+      });
+
+      svg.append('polygon')
+        .attr('points', points.map(p => p.join(',')).join(' '))
+        .attr('fill', col).attr('fill-opacity', 0.12)
+        .attr('stroke', col).attr('stroke-width', 1.5).attr('stroke-opacity', 0.8);
+
+      points.forEach(p => {
+        svg.append('circle').attr('cx', p[0]).attr('cy', p[1]).attr('r', 3)
+          .attr('fill', col);
+      });
+    });
+
+    // Legend
+    items.forEach((item, i) => {
+      const lx = 8 + i * (size / items.length);
+      svg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+      svg.append('text').attr('x', lx + 14).attr('y', size + 16)
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(item.name.length > 16 ? item.name.slice(0, 14) + '…' : item.name);
+    });
+  }
+
+  // Grouped horizontal bars comparing sensor ranges
+  function renderCompareSensorRanges(container, items) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    // Collect all unique sensor names across items, get max range per sensor
+    const sensorMap = new Map();
+    items.forEach((item, idx) => {
+      (item.sensors || []).forEach(s => {
+        const rng = s.rangeMax || s.maxRange || 0;
+        if (!sensorMap.has(s.name)) sensorMap.set(s.name, { ranges: new Array(items.length).fill(0) });
+        sensorMap.get(s.name).ranges[idx] = Math.max(sensorMap.get(s.name).ranges[idx], rng);
+      });
+    });
+    // Show top sensors by max range (limit to 12)
+    const sorted = [...sensorMap.entries()]
+      .sort((a, b) => Math.max(...b[1].ranges) - Math.max(...a[1].ranges))
+      .slice(0, 12);
+    if (!sorted.length) return;
+
+    const W = container.clientWidth || 600;
+    const barH = 10, groupGap = 16, labelW = 160, pad = 12;
+    const n = items.length;
+    const groupH = n * (barH + 2) + groupGap;
+    const H = sorted.length * groupH + pad * 2 + 30;
+    const barMaxW = W - labelW - pad * 3 - 50;
+    const globalMax = Math.max(...sorted.flatMap(([, v]) => v.ranges), 1);
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', `0 0 ${W} ${H}`);
+
+    sorted.forEach(([name, data], fi) => {
+      const baseY = pad + fi * groupH;
+      svg.append('text')
+        .attr('x', labelW - 4).attr('y', baseY + (n * (barH + 2)) / 2)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(name.length > 24 ? name.slice(0, 22) + '…' : name);
+
+      data.ranges.forEach((val, i) => {
+        if (val <= 0) return;
+        const y = baseY + i * (barH + 2);
+        const bw = barMaxW * (val / globalMax);
+        const col = COMPARE_COLORS[i];
+        svg.append('rect')
+          .attr('x', labelW + pad).attr('y', y)
+          .attr('width', bw).attr('height', barH)
+          .attr('rx', 2).attr('fill', col).attr('fill-opacity', 0.8);
+        svg.append('text')
+          .attr('x', labelW + pad + bw + 4).attr('y', y + barH / 2)
+          .attr('dominant-baseline', 'central')
+          .attr('font-size', '9').attr('fill', col)
+          .text(val + ' km');
+      });
+    });
+
+    // Legend
+    const legY = H - 12;
+    items.forEach((item, i) => {
+      const lx = pad + i * (W / items.length);
+      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
+    });
+  }
+
+  // Grouped bars comparing weapon ranges per domain
+  function renderCompareWeaponRanges(container, items) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const domains = [
+      { key: 'airRange', label: 'Air', color: COLORS.air },
+      { key: 'surfaceRange', label: 'Surface', color: COLORS.surface },
+      { key: 'landRange', label: 'Land', color: COLORS.land },
+      { key: 'subRange', label: 'Subsurface', color: COLORS.sub },
+    ];
+    const activeDomains = domains.filter(d =>
+      items.some(item => item[d.key] != null && item[d.key] > 0)
+    );
+    if (!activeDomains.length) return;
+
+    const W = container.clientWidth || 600;
+    const barH = 18, groupGap = 24, labelW = 100, pad = 16;
+    const n = items.length;
+    const groupH = n * (barH + 3) + groupGap;
+    const H = activeDomains.length * groupH + pad * 2 + 30;
+    const barMaxW = W - labelW - pad * 3 - 60;
+    const globalMax = Math.max(...items.flatMap(item => activeDomains.map(d => item[d.key] || 0)), 1);
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', `0 0 ${W} ${H}`);
+
+    activeDomains.forEach((dom, di) => {
+      const baseY = pad + di * groupH;
+      svg.append('text')
+        .attr('x', labelW - 4).attr('y', baseY + (n * (barH + 3)) / 2)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+        .attr('font-size', '12').attr('fill', dom.color).attr('font-weight', '600')
+        .text(dom.label);
+
+      items.forEach((item, i) => {
+        const val = item[dom.key] || 0;
+        if (val <= 0) return;
+        const y = baseY + i * (barH + 3);
+        const bw = barMaxW * (val / globalMax);
+        const col = COMPARE_COLORS[i];
+        svg.append('rect')
+          .attr('x', labelW + pad).attr('y', y)
+          .attr('width', bw).attr('height', barH)
+          .attr('rx', 3).attr('fill', col).attr('fill-opacity', 0.8);
+        svg.append('text')
+          .attr('x', labelW + pad + bw + 4).attr('y', y + barH / 2)
+          .attr('dominant-baseline', 'central')
+          .attr('font-size', '10').attr('fill', col).attr('font-weight', '600')
+          .text(val.toLocaleString() + ' km');
+      });
+    });
+
+    const legY = H - 12;
+    items.forEach((item, i) => {
+      const lx = pad + i * (W / items.length);
+      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
+    });
+  }
+
+  // Speed comparison chart (propulsion speeds at different throttle settings)
+  function renderCompareSpeeds(container, items) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const throttleLabels = { 1: 'Cruise', 2: 'Full', 3: 'Flank', 4: 'AB/Emergency' };
+    // Collect unique throttle values across all items
+    const throttleSet = new Set();
+    items.forEach(item => {
+      const perfs = item.propulsion?.performances || [];
+      perfs.forEach(p => throttleSet.add(p.throttle));
+    });
+    const throttles = [...throttleSet].sort((a, b) => a - b);
+    if (!throttles.length) return;
+
+    const W = container.clientWidth || 600;
+    const barH = 16, groupGap = 20, labelW = 100, pad = 16;
+    const n = items.length;
+    const groupH = n * (barH + 2) + groupGap;
+    const H = throttles.length * groupH + pad * 2 + 30;
+    const barMaxW = W - labelW - pad * 3 - 60;
+
+    // Get max speed from any performance entry across all items
+    const globalMax = Math.max(...items.flatMap(item =>
+      (item.propulsion?.performances || []).map(p => p.speed || 0)
+    ), 1);
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', `0 0 ${W} ${H}`);
+
+    throttles.forEach((thr, ti) => {
+      const baseY = pad + ti * groupH;
+      svg.append('text')
+        .attr('x', labelW - 4).attr('y', baseY + (n * (barH + 2)) / 2)
+        .attr('text-anchor', 'end').attr('dominant-baseline', 'central')
+        .attr('font-size', '11').attr('fill', COLORS.text)
+        .text(throttleLabels[thr] || `T${thr}`);
+
+      items.forEach((item, i) => {
+        const perfs = item.propulsion?.performances || [];
+        // Get max speed at this throttle
+        const speeds = perfs.filter(p => p.throttle === thr).map(p => p.speed || 0);
+        const maxSpd = speeds.length ? Math.max(...speeds) : 0;
+        if (maxSpd <= 0) return;
+
+        const y = baseY + i * (barH + 2);
+        const bw = barMaxW * (maxSpd / globalMax);
+        const col = COMPARE_COLORS[i];
+        svg.append('rect')
+          .attr('x', labelW + pad).attr('y', y)
+          .attr('width', bw).attr('height', barH)
+          .attr('rx', 3).attr('fill', col).attr('fill-opacity', 0.8);
+        svg.append('text')
+          .attr('x', labelW + pad + bw + 4).attr('y', y + barH / 2)
+          .attr('dominant-baseline', 'central')
+          .attr('font-size', '10').attr('fill', col).attr('font-weight', '600')
+          .text(maxSpd + ' kt');
+      });
+    });
+
+    const legY = H - 12;
+    items.forEach((item, i) => {
+      const lx = pad + i * (W / items.length);
+      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+        .attr('font-size', '10').attr('fill', COLORS.text)
+        .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
+    });
+  }
+
+  // Magazine capacity comparison (simple horizontal bars)
+  function renderCompareMagazines(container, items) {
+    if (!d3Ready()) return;
+    container.innerHTML = '';
+    const magItems = items.map(item => {
+      const totalCap = (item.magazines || []).reduce((sum, m) => sum + ((m.capacity || 0) * (m.qty || 1)), 0);
+      return { name: item.name, total: totalCap };
+    }).filter(m => m.total > 0);
+    if (!magItems.length) return;
+
+    const W = container.clientWidth || 400;
+    const barH = 22, gap = 8, labelW = 0, pad = 16;
+    const H = magItems.length * (barH + gap) + pad * 2;
+    const barMaxW = W - pad * 2 - 60;
+    const maxCap = Math.max(...magItems.map(m => m.total), 1);
+
+    const svg = d3.select(container).append('svg')
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', `0 0 ${W} ${H}`);
+
+    magItems.forEach((m, i) => {
+      const y = pad + i * (barH + gap);
+      const bw = barMaxW * (m.total / maxCap);
+      const col = COMPARE_COLORS[i];
+      svg.append('rect')
+        .attr('x', pad).attr('y', y)
+        .attr('width', bw).attr('height', barH)
+        .attr('rx', 4).attr('fill', col).attr('fill-opacity', 0.8);
+      svg.append('text')
+        .attr('x', pad + bw + 6).attr('y', y + barH / 2)
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '11').attr('fill', col).attr('font-weight', '600')
+        .text(m.total.toLocaleString());
+    });
+  }
+
   return {
     d3Ready,
     renderRadarChart,
@@ -2020,6 +3077,10 @@ const Charts = (() => {
     renderSignaturePolar,
     renderPerfCurves,
     renderLoadoutAnalysis,
+    renderDomainReach,
+    renderFlightEnvelope,
+    renderDepthSpeedProfile,
+    renderMagazineCapacity,
     renderScatter,
     renderDonut,
     renderTimeline,
@@ -2036,5 +3097,12 @@ const Charts = (() => {
     renderSurvivability,
     renderMagazineDepth,
     renderCapabilityMatrix,
+    renderCompareSpecs,
+    renderCompareSignatures,
+    renderCompareSensorRanges,
+    renderCompareWeaponRanges,
+    renderCompareSpeeds,
+    renderCompareMagazines,
+    COMPARE_COLORS,
   };
 })();
