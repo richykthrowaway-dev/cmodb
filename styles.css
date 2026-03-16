@@ -67,10 +67,20 @@ body {
 }
 
 .logo {
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   color: var(--text-primary);
+}
+
+.logo-icon {
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  opacity: 0.9;
 }
 
 .logo-accent {

@@ -3799,8 +3799,8 @@ const App = (() => {
     const entry = (window._countriesManifest || []).find(c => c.code === code);
     const label = entry ? entry.name : code.toUpperCase();
     const sub = document.getElementById('logoSubtitle');
-    if (sub) sub.textContent = `${label} Military Equipment Database`;
-    document.title = `CMO Database - ${label} Military Equipment`;
+    if (sub) sub.textContent = `${label} Military Equipment`;
+    document.title = `Command: Index — ${label}`;
     // Update header button
     const flagEl = document.getElementById('countrySelectFlag');
     const labelEl = document.getElementById('countrySelectLabel');
