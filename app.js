@@ -2197,6 +2197,46 @@ const App = (() => {
   // ── Compare View (Advanced Full-Screen) ───────────────────────
   const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
+  let _compareAllMerged = {};
+  let _compareHiddenIds = new Set();
+
+  function renderCompareChartsOnly() {
+    requestAnimationFrame(() => {
+      for (const [cat, citems] of Object.entries(_compareAllMerged)) {
+        const visibleItems = citems.filter(it => !_compareHiddenIds.has(it.id));
+        if (visibleItems.length < 1) continue;
+        try {
+          const specsChartEl = document.getElementById(`cmpSpecs-${cat}Chart`);
+          if (specsChartEl && Charts.renderCompareSpecs) {
+            Charts.renderCompareSpecs(specsChartEl, visibleItems, getCompareChartFields(cat));
+          }
+          const speedEl = document.getElementById(`cmpSpeedChart-${cat}`);
+          if (speedEl && Charts.renderCompareSpeeds) Charts.renderCompareSpeeds(speedEl, visibleItems);
+          const sigEl = document.getElementById(`cmpSigChart-${cat}`);
+          if (sigEl && Charts.renderCompareSignatures) Charts.renderCompareSignatures(sigEl, visibleItems);
+          const sensorEl = document.getElementById(`cmpSensorChart-${cat}`);
+          if (sensorEl && Charts.renderCompareSensorRanges) Charts.renderCompareSensorRanges(sensorEl, visibleItems);
+          const magEl = document.getElementById(`cmpMagChart-${cat}`);
+          if (magEl && Charts.renderCompareMagazines) Charts.renderCompareMagazines(magEl, visibleItems);
+          const wpnRangeEl = document.getElementById(`cmpWpnRangeChart-${cat}`);
+          if (wpnRangeEl && Charts.renderCompareWeaponRanges) Charts.renderCompareWeaponRanges(wpnRangeEl, visibleItems);
+          const radarEl = document.getElementById(`cmpRadarChart-${cat}`);
+          if (radarEl && Charts.renderCompareRadar) Charts.renderCompareRadar(radarEl, visibleItems, cat, state.data[cat] || []);
+          const flightEnvEl = document.getElementById(`cmpFlightEnv-${cat}`);
+          if (flightEnvEl && Charts.renderCompareFlightEnvelope) Charts.renderCompareFlightEnvelope(flightEnvEl, visibleItems);
+          const depthSpeedEl = document.getElementById(`cmpDepthSpeed-${cat}`);
+          if (depthSpeedEl && Charts.renderCompareDepthSpeed) Charts.renderCompareDepthSpeed(depthSpeedEl, visibleItems);
+          const domainReachEl = document.getElementById(`cmpDomainReach-${cat}`);
+          if (domainReachEl && Charts.renderCompareDomainReach) Charts.renderCompareDomainReach(domainReachEl, visibleItems, cat);
+          const loadoutEl = document.getElementById(`cmpLoadoutChart-${cat}`);
+          if (loadoutEl && Charts.renderCompareLoadouts) Charts.renderCompareLoadouts(loadoutEl, visibleItems);
+        } catch (e) {
+          console.error('Compare chart error for', cat, e);
+        }
+      }
+    });
+  }
+
   async function showCompare() {
     if (state.compareList.length < 2) return;
 
@@ -2216,6 +2256,9 @@ const App = (() => {
     const catKeys = Object.keys(byCat);
     await Promise.all(catKeys.map(cat => loadDetails(cat)));
 
+    // Reset hidden state on fresh compare open
+    _compareHiddenIds = new Set();
+
     // Build merged items (index + detail)
     const allMerged = {};
     for (const cat of catKeys) {
@@ -2229,6 +2272,9 @@ const App = (() => {
         })
         .filter(Boolean);
     }
+
+    // Store for toggle re-renders
+    _compareAllMerged = allMerged;
 
     // Find the primary category (most items, or first)
     const primaryCat = catKeys.reduce((a, b) =>
@@ -2280,7 +2326,16 @@ const App = (() => {
     for (const [cat, items] of Object.entries(allMerged)) {
       if (items.length < 2) continue;
 
-      bodyHtml += `<h2 style="color:var(--accent);font-size:16px;margin:0 0 16px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title} Comparison</h2>`;
+      bodyHtml += `<h2 style="color:var(--accent);font-size:16px;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title} Comparison</h2>`;
+
+      // ── Unit toggle legend ──────────────────────────────────────
+      bodyHtml += `<div class="compare-legend-row" data-cat="${cat}">`;
+      items.forEach((item, i) => {
+        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+        bodyHtml += `<button class="compare-legend-chip" data-id="${item.id}" data-cat="${cat}" title="Click to hide/show">
+          <span class="chip-swatch" style="background:${col}"></span>${esc(item.name)}</button>`;
+      });
+      bodyHtml += `</div>`;
 
       // ── Visualization row: all charts side-by-side ──────────────
       bodyHtml += `<div class="compare-charts-row">`;
@@ -2526,83 +2581,23 @@ const App = (() => {
 
     compareBody.innerHTML = bodyHtml || '<p style="color:var(--text-muted);padding:40px;text-align:center">Select at least 2 items from the same category to compare.</p>';
 
-    // ── Wire up D3 charts after DOM insertion ──
-    requestAnimationFrame(() => {
-      for (const [cat, citems] of Object.entries(allMerged)) {
-        if (citems.length < 2) continue;
-        try {
-          // Specs bar chart
-          const specsChartEl = document.getElementById(`cmpSpecs-${cat}Chart`);
-          if (specsChartEl && Charts.renderCompareSpecs) {
-            const chartFields = getCompareChartFields(cat);
-            Charts.renderCompareSpecs(specsChartEl, citems, chartFields);
-          }
-
-          // Speed comparison chart
-          const speedEl = document.getElementById(`cmpSpeedChart-${cat}`);
-          if (speedEl && Charts.renderCompareSpeeds) {
-            Charts.renderCompareSpeeds(speedEl, citems);
-          }
-
-          // Signatures polar chart
-          const sigEl = document.getElementById(`cmpSigChart-${cat}`);
-          if (sigEl && Charts.renderCompareSignatures) {
-            Charts.renderCompareSignatures(sigEl, citems);
-          }
-
-          // Sensor range chart
-          const sensorEl = document.getElementById(`cmpSensorChart-${cat}`);
-          if (sensorEl && Charts.renderCompareSensorRanges) {
-            Charts.renderCompareSensorRanges(sensorEl, citems);
-          }
-
-          // Magazine capacity chart
-          const magEl = document.getElementById(`cmpMagChart-${cat}`);
-          if (magEl && Charts.renderCompareMagazines) {
-            Charts.renderCompareMagazines(magEl, citems);
-          }
-
-          // Weapon range chart
-          const wpnRangeEl = document.getElementById(`cmpWpnRangeChart-${cat}`);
-          if (wpnRangeEl && Charts.renderCompareWeaponRanges) {
-            Charts.renderCompareWeaponRanges(wpnRangeEl, citems);
-          }
-
-          // Radar chart overlay
-          const radarEl = document.getElementById(`cmpRadarChart-${cat}`);
-          if (radarEl && Charts.renderCompareRadar) {
-            const allItems = state.data[cat] || [];
-            Charts.renderCompareRadar(radarEl, citems, cat, allItems);
-          }
-
-          // Flight Envelope overlay
-          const flightEnvEl = document.getElementById(`cmpFlightEnv-${cat}`);
-          if (flightEnvEl && Charts.renderCompareFlightEnvelope) {
-            Charts.renderCompareFlightEnvelope(flightEnvEl, citems);
-          }
-
-          // Depth-Speed overlay
-          const depthSpeedEl = document.getElementById(`cmpDepthSpeed-${cat}`);
-          if (depthSpeedEl && Charts.renderCompareDepthSpeed) {
-            Charts.renderCompareDepthSpeed(depthSpeedEl, citems);
-          }
-
-          // Domain Reach overlay
-          const domainReachEl = document.getElementById(`cmpDomainReach-${cat}`);
-          if (domainReachEl && Charts.renderCompareDomainReach) {
-            Charts.renderCompareDomainReach(domainReachEl, citems, cat);
-          }
-
-          // Loadout comparison
-          const loadoutEl = document.getElementById(`cmpLoadoutChart-${cat}`);
-          if (loadoutEl && Charts.renderCompareLoadouts) {
-            Charts.renderCompareLoadouts(loadoutEl, citems);
-          }
-        } catch (e) {
-          console.error('Compare chart error for', cat, e);
+    // ── Wire up legend toggle chips ──
+    compareBody.querySelectorAll('.compare-legend-chip').forEach(chip => {
+      chip.onclick = () => {
+        const id = parseInt(chip.dataset.id);
+        if (_compareHiddenIds.has(id)) {
+          _compareHiddenIds.delete(id);
+          chip.classList.remove('unit-hidden');
+        } else {
+          _compareHiddenIds.add(id);
+          chip.classList.add('unit-hidden');
         }
-      }
+        renderCompareChartsOnly();
+      };
     });
+
+    // ── Wire up D3 charts after DOM insertion ──
+    renderCompareChartsOnly();
   }
 
   // Helper: render a comparison table section

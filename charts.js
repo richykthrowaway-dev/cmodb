@@ -2678,10 +2678,17 @@ const Charts = (() => {
   // ── Comparison Charts (multi-item) ───────────
   const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
+  // Clear a compare container while preserving its .compare-chart-title div
+  function clearCompareContainer(container) {
+    const titleEl = container.querySelector('.compare-chart-title');
+    container.innerHTML = '';
+    if (titleEl) container.prepend(titleEl);
+  }
+
   // Grouped horizontal bar chart comparing numeric specs across items
   function renderCompareSpecs(container, items, fields) {
     if (!d3Ready() || !items.length || !fields.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const W = container.clientWidth || 600;
     const barH = 14, groupGap = 20, labelW = 120, pad = 12;
     const n = items.length;
@@ -2745,7 +2752,7 @@ const Charts = (() => {
   // Overlaid radar/polar chart for signature comparison
   function renderCompareSignatures(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const sigTypes = ['Visual', 'Infrared', 'Radar', 'Sonar'];
     // Filter to types that at least one item has
     const activeTypes = sigTypes.filter(st =>
@@ -2841,7 +2848,7 @@ const Charts = (() => {
   // Grouped horizontal bars comparing sensor ranges
   function renderCompareSensorRanges(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     // Collect all unique sensor names across items, get max range per sensor
     const sensorMap = new Map();
     items.forEach((item, idx) => {
@@ -2923,7 +2930,7 @@ const Charts = (() => {
   // Grouped bars comparing weapon ranges per domain
   function renderCompareWeaponRanges(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const domains = [
       { key: 'airRange', label: 'Air', color: COLORS.air },
       { key: 'surfaceRange', label: 'Surface', color: COLORS.surface },
@@ -3000,7 +3007,7 @@ const Charts = (() => {
   // Speed comparison chart (propulsion speeds at different throttle settings)
   function renderCompareSpeeds(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const throttleLabels = { 1: 'Cruise', 2: 'Full', 3: 'Flank', 4: 'AB/Emergency' };
     // Collect unique throttle values across all items
     const throttleSet = new Set();
@@ -3071,7 +3078,7 @@ const Charts = (() => {
   // Magazine capacity comparison (simple horizontal bars)
   function renderCompareMagazines(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const magItems = items.map(item => {
       const totalCap = (item.magazines || []).reduce((sum, m) => sum + ((m.capacity || 0) * (m.qty || 1)), 0);
       return { name: item.name, total: totalCap };
@@ -3109,7 +3116,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareRadar(container, items, cat, allItems) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     let axes;
     if (cat === 'aircraft') {
@@ -3231,7 +3238,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareFlightEnvelope(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Track which items have valid data, keeping original indices for color consistency
     const validIndices = [];
@@ -3383,7 +3390,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareDepthSpeed(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Track which items have valid data, keeping original indices for color consistency
     const dsValidIndices = [];
@@ -3550,7 +3557,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareDomainReach(container, items, cat) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Compute domain ranges per item
     const itemDomains = items.map(item => {
@@ -3675,7 +3682,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareLoadouts(container, items) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Compute loadout stats per item
     const stats = items.map(item => {
