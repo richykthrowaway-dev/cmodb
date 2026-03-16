@@ -1619,12 +1619,34 @@ body {
 }
 
 /* Compare chart container */
+/* Horizontal scroll row for all visualization charts */
+.compare-charts-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin: 0 0 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.compare-charts-row::-webkit-scrollbar { height: 4px; }
+.compare-charts-row::-webkit-scrollbar-track { background: transparent; }
+.compare-charts-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
 .compare-chart {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
   margin: 12px 0 16px;
+}
+
+/* Inline variant used inside the charts row */
+.compare-chart.compare-chart-inline {
+  flex: 0 0 360px;
+  min-width: 300px;
+  margin: 0;
 }
 
 .compare-chart-title {

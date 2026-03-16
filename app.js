@@ -2280,15 +2280,75 @@ const App = (() => {
     for (const [cat, items] of Object.entries(allMerged)) {
       if (items.length < 2) continue;
 
-      bodyHtml += `<h2 style="color:var(--accent);font-size:16px;margin:0 0 20px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title} Comparison</h2>`;
+      bodyHtml += `<h2 style="color:var(--accent);font-size:16px;margin:0 0 16px;text-transform:uppercase;letter-spacing:1px">${categories[cat].title} Comparison</h2>`;
 
-      // §1 General Specifications table
-      const specFields = getCompareFieldsFull(cat);
-      if (specFields.length) {
-        bodyHtml += renderCompareTable('General Specifications', specFields, items, `cmpSpecs-${cat}`);
+      // ── Visualization row: all charts side-by-side ──────────────
+      bodyHtml += `<div class="compare-charts-row">`;
+
+      // Specs bar chart
+      bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSpecs-${cat}"><div class="compare-chart-title">Specifications</div></div>`;
+
+      // Performance radar (aircraft/ships)
+      if (cat === 'aircraft' || cat === 'ships') {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpRadarChart-${cat}"><div class="compare-chart-title">Performance Profile</div></div>`;
       }
 
-      // §2 Propulsion Performance
+      // Signature polar
+      if (items.some(it => it.signatures?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSigChart-${cat}"><div class="compare-chart-title">Signature Profile</div></div>`;
+      }
+
+      // Sensor range bars (aircraft/ships with sensors)
+      if (items.some(it => it.sensors?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSensorChart-${cat}"><div class="compare-chart-title">Sensor Ranges</div></div>`;
+      }
+
+      // Domain reach (aircraft/ships)
+      if ((cat === 'aircraft' || cat === 'ships') && items.some(it => (it.loadouts || it.mounts || []).length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpDomainReach-${cat}"><div class="compare-chart-title">Domain Reach</div></div>`;
+      }
+
+      // Speed comparison (propulsion)
+      if (items.some(it => it.propulsion && typeof it.propulsion === 'object' && it.propulsion.performances?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSpeedChart-${cat}"><div class="compare-chart-title">Speed by Throttle</div></div>`;
+      }
+
+      // Flight Envelope (aircraft)
+      if (cat === 'aircraft' && items.some(it => it.propulsion?.performances?.some(p => p.altBand != null))) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpFlightEnv-${cat}"><div class="compare-chart-title">Flight Envelope</div></div>`;
+      }
+
+      // Depth-Speed (submarines)
+      if (cat === 'ships' && items.some(it => it.maxDepth > 0 && it.propulsion?.performances?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpDepthSpeed-${cat}"><div class="compare-chart-title">Depth–Speed Profile</div></div>`;
+      }
+
+      // Weapon range bars (weapons category)
+      if (cat === 'weapons') {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpWpnRangeChart-${cat}"><div class="compare-chart-title">Range by Domain</div></div>`;
+      }
+
+      // Loadout chart (aircraft)
+      if (cat === 'aircraft' && items.some(it => it.loadouts?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpLoadoutChart-${cat}"><div class="compare-chart-title">Loadout Capacity</div></div>`;
+      }
+
+      // Magazine capacity (ships)
+      if (items.some(it => it.magazines?.length)) {
+        bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpMagChart-${cat}"><div class="compare-chart-title">Magazine Capacity</div></div>`;
+      }
+
+      bodyHtml += `</div>`; // end compare-charts-row
+
+      // ── Data tables ─────────────────────────────────────────────
+
+      // General Specifications table
+      const specFields = getCompareFieldsFull(cat);
+      if (specFields.length) {
+        bodyHtml += renderCompareTable('General Specifications', specFields, items);
+      }
+
+      // Propulsion Performance table
       if (items.some(it => it.propulsion && typeof it.propulsion === 'object' && it.propulsion.performances?.length)) {
         const propFields = [
           { label: 'Propulsion', getValue: i => (typeof i.propulsion === 'object' ? i.propulsion.name : i.propulsion) || '—' },
@@ -2301,10 +2361,9 @@ const App = (() => {
           { label: 'Thrust (AB)', getValue: i => i.propulsion?.thrustAB ? i.propulsion.thrustAB + ' kgf' : '—', higherIsBetter: true },
         ];
         bodyHtml += renderCompareTable('Propulsion Performance', propFields, items);
-        bodyHtml += `<div class="compare-chart" id="cmpSpeedChart-${cat}"><div class="compare-chart-title">Speed Comparison by Throttle</div></div>`;
       }
 
-      // §3 Signatures
+      // Signatures table
       if (items.some(it => it.signatures?.length)) {
         const sigTypes = ['Visual', 'Infrared', 'Radar', 'Sonar'];
         const sigFields = sigTypes.map(st => ({
@@ -2322,10 +2381,9 @@ const App = (() => {
           higherIsBetter: false,
         }));
         bodyHtml += renderCompareTable('Signatures', sigFields, items);
-        bodyHtml += `<div class="compare-chart" id="cmpSigChart-${cat}"><div class="compare-chart-title">Signature Profile Overlay</div></div>`;
       }
 
-      // §4 Sensors
+      // Sensors table + list
       if (items.some(it => it.sensors?.length)) {
         const sensorSummaryFields = [
           { label: 'Total Sensors', getValue: i => (i.sensors || []).length, higherIsBetter: true },
@@ -2336,7 +2394,6 @@ const App = (() => {
         ];
         bodyHtml += renderCompareTable('Sensors', sensorSummaryFields, items);
 
-        // Sensor list per item
         bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
         items.forEach((item, i) => {
           const col = COMPARE_COLORS[i];
@@ -2351,10 +2408,9 @@ const App = (() => {
           </div>`;
         });
         bodyHtml += `</div>`;
-        bodyHtml += `<div class="compare-chart" id="cmpSensorChart-${cat}"><div class="compare-chart-title">Sensor Range Comparison</div></div>`;
       }
 
-      // §5 Weapons/Mounts (ships/facilities/ground)
+      // Weapons/Mounts list
       if (items.some(it => it.mounts?.length)) {
         const mountFields = [
           { label: 'Total Mounts', getValue: i => (i.mounts || []).length, higherIsBetter: true },
@@ -2373,7 +2429,7 @@ const App = (() => {
         bodyHtml += `</div>`;
       }
 
-      // §6 Loadouts (aircraft)
+      // Loadouts list
       if (items.some(it => it.loadouts?.length)) {
         const loadoutFields = [
           { label: 'Total Loadouts', getValue: i => (i.loadouts || []).length, higherIsBetter: true },
@@ -2396,14 +2452,13 @@ const App = (() => {
         bodyHtml += `</div>`;
       }
 
-      // §7 Magazines (ships)
+      // Magazines list
       if (items.some(it => it.magazines?.length)) {
         const magFields = [
           { label: 'Magazine Count', getValue: i => (i.magazines || []).length, higherIsBetter: true },
           { label: 'Total Capacity', getValue: i => (i.magazines || []).reduce((s, m) => s + ((m.capacity || 0) * (m.qty || 1)), 0), higherIsBetter: true },
         ];
         bodyHtml += renderCompareTable('Magazines', magFields, items);
-        bodyHtml += `<div class="compare-chart" id="cmpMagChart-${cat}"><div class="compare-chart-title">Total Magazine Capacity</div></div>`;
 
         bodyHtml += `<div class="compare-list-section" style="grid-template-columns:repeat(${items.length}, 1fr)">`;
         items.forEach((item, i) => {
@@ -2416,7 +2471,7 @@ const App = (() => {
         bodyHtml += `</div>`;
       }
 
-      // §8 Weapons Detail (weapons category)
+      // Weapons Detail table
       if (cat === 'weapons') {
         const wpnFields = [
           { label: 'Weight (kg)', getValue: i => i.weight ? i.weight.toLocaleString() : '—', higherIsBetter: false },
@@ -2433,10 +2488,9 @@ const App = (() => {
           { label: 'Climb Rate (m/s)', getValue: i => i.climbRate ?? '—', higherIsBetter: true },
         ];
         bodyHtml += renderCompareTable('Weapons Detail', wpnFields, items);
-        bodyHtml += `<div class="compare-chart" id="cmpWpnRangeChart-${cat}"><div class="compare-chart-title">Range Comparison by Domain</div></div>`;
       }
 
-      // §9 Sensor Detail (sensors category)
+      // Sensor Technical Detail table
       if (cat === 'sensors') {
         const sensorFields = [
           { label: 'Role', getValue: i => i.role || '—' },
@@ -2451,6 +2505,20 @@ const App = (() => {
           { label: 'V Beamwidth (°)', getValue: i => i.radarVBeamwidth ?? '—', higherIsBetter: false },
           { label: 'Max Contacts (Air)', getValue: i => i.maxContactsAir ?? '—', higherIsBetter: true },
           { label: 'Max Contacts (Surface)', getValue: i => i.maxContactsSurface ?? '—', higherIsBetter: true },
+          { label: 'Max Contacts (Sub)', getValue: i => i.maxContactsSub ?? '—', higherIsBetter: true },
+          { label: 'Pulse Width (μs)', getValue: i => i.radarPulseWidth ?? '—' },
+          { label: 'PRF (Hz)', getValue: i => i.radarPRF ?? '—' },
+          { label: 'Range Resolution (m)', getValue: i => i.resolutionRange ?? '—', higherIsBetter: false },
+          { label: 'Height Resolution (m)', getValue: i => i.resolutionHeight ?? '—', higherIsBetter: false },
+          { label: 'Angle Resolution (°)', getValue: i => i.resolutionAngle ?? '—', higherIsBetter: false },
+          { label: 'DF Accuracy (°)', getValue: i => i.directionFindingAccuracy ?? '—', higherIsBetter: false },
+          { label: 'ESM Sensitivity (dBm)', getValue: i => i.esmSensitivity ?? '—' },
+          { label: 'ESM Channels', getValue: i => i.esmChannels ?? '—', higherIsBetter: true },
+          { label: 'ECM Gain (dB)', getValue: i => i.ecmGain ?? '—', higherIsBetter: true },
+          { label: 'ECM Peak Power (kW)', getValue: i => i.ecmPeakPower ?? '—', higherIsBetter: true },
+          { label: 'ECM Max Targets', getValue: i => i.ecmTargets ?? '—', higherIsBetter: true },
+          { label: 'Sonar Source Level (dB)', getValue: i => i.sonarSourceLevel ?? '—', higherIsBetter: true },
+          { label: 'Sonar Directivity (dB)', getValue: i => i.sonarDirectivity ?? '—', higherIsBetter: true },
         ];
         bodyHtml += renderCompareTable('Sensor Technical Detail', sensorFields, items);
       }
@@ -2498,6 +2566,37 @@ const App = (() => {
           const wpnRangeEl = document.getElementById(`cmpWpnRangeChart-${cat}`);
           if (wpnRangeEl && Charts.renderCompareWeaponRanges) {
             Charts.renderCompareWeaponRanges(wpnRangeEl, citems);
+          }
+
+          // Radar chart overlay
+          const radarEl = document.getElementById(`cmpRadarChart-${cat}`);
+          if (radarEl && Charts.renderCompareRadar) {
+            const allItems = state.data[cat] || [];
+            Charts.renderCompareRadar(radarEl, citems, cat, allItems);
+          }
+
+          // Flight Envelope overlay
+          const flightEnvEl = document.getElementById(`cmpFlightEnv-${cat}`);
+          if (flightEnvEl && Charts.renderCompareFlightEnvelope) {
+            Charts.renderCompareFlightEnvelope(flightEnvEl, citems);
+          }
+
+          // Depth-Speed overlay
+          const depthSpeedEl = document.getElementById(`cmpDepthSpeed-${cat}`);
+          if (depthSpeedEl && Charts.renderCompareDepthSpeed) {
+            Charts.renderCompareDepthSpeed(depthSpeedEl, citems);
+          }
+
+          // Domain Reach overlay
+          const domainReachEl = document.getElementById(`cmpDomainReach-${cat}`);
+          if (domainReachEl && Charts.renderCompareDomainReach) {
+            Charts.renderCompareDomainReach(domainReachEl, citems, cat);
+          }
+
+          // Loadout comparison
+          const loadoutEl = document.getElementById(`cmpLoadoutChart-${cat}`);
+          if (loadoutEl && Charts.renderCompareLoadouts) {
+            Charts.renderCompareLoadouts(loadoutEl, citems);
           }
         } catch (e) {
           console.error('Compare chart error for', cat, e);
@@ -2572,6 +2671,9 @@ const App = (() => {
           { label: 'Climb Rate (m/s)', getValue: i => i.climbRate ?? '—', higherIsBetter: true },
           { label: 'Endurance (hrs)', getValue: i => i.totalEndurance ?? '—', higherIsBetter: true },
           { label: 'Damage Points', getValue: i => i.damagePoints ?? '—', higherIsBetter: true },
+          { label: 'Fuselage Armor', getValue: i => i.fuselageArmor ?? '—', higherIsBetter: true },
+          { label: 'Engine Armor', getValue: i => i.engineArmor ?? '—', higherIsBetter: true },
+          { label: 'Cockpit Armor', getValue: i => i.cockpitArmor ?? '—', higherIsBetter: true },
           { label: 'Sensors', getValue: i => i.sensorCount || (i.sensors || []).length || 0, higherIsBetter: true },
           { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
         ];
@@ -2604,6 +2706,15 @@ const App = (() => {
           { label: 'Surface Range (km)', getValue: i => i.surfaceRange ?? '—', higherIsBetter: true },
           { label: 'Land Range (km)', getValue: i => i.landRange ?? '—', higherIsBetter: true },
           { label: 'Sub Range (km)', getValue: i => i.subRange ?? '—', higherIsBetter: true },
+          { label: 'Burnout Weight (kg)', getValue: i => i.burnoutWeight ? i.burnoutWeight.toLocaleString() : '—' },
+          { label: 'Climb Rate (m/s)', getValue: i => i.climbRate ?? '—', higherIsBetter: true },
+          { label: 'Cruise Altitude (m)', getValue: i => i.cruiseAltitude ? Math.round(i.cruiseAltitude).toLocaleString() : '—' },
+          { label: 'CEP Air (m)', getValue: i => i.cep ?? '—', higherIsBetter: false },
+          { label: 'CEP Surface (m)', getValue: i => i.cepSurface ?? '—', higherIsBetter: false },
+          { label: 'Torpedo Speed Cruise (kt)', getValue: i => i.torpSpeedCruise ?? '—', higherIsBetter: true },
+          { label: 'Torpedo Range Cruise (km)', getValue: i => i.torpRangeCruise ?? '—', higherIsBetter: true },
+          { label: 'Torpedo Speed Full (kt)', getValue: i => i.torpSpeedFull ?? '—', higherIsBetter: true },
+          { label: 'Torpedo Range Full (km)', getValue: i => i.torpRangeFull ?? '—', higherIsBetter: true },
         ];
       case 'sensors':
         return [
@@ -2625,7 +2736,10 @@ const App = (() => {
           { label: 'Crew', getValue: i => i.crew ?? '—' },
           { label: 'Length (m)', getValue: i => i.length || '—' },
           { label: 'Width (m)', getValue: i => i.width || '—' },
+          { label: 'Area (m²)', getValue: i => i.area ? i.area.toLocaleString() : '—' },
           { label: 'Damage Points', getValue: i => i.damagePoints || 0, higherIsBetter: true },
+          { label: 'Armor', getValue: i => i.armorGeneral ?? '—', higherIsBetter: true },
+          { label: 'Mast Height (m)', getValue: i => i.mastHeight ?? '—' },
           { label: 'Sensors', getValue: i => i.sensorCount || 0, higherIsBetter: true },
           { label: 'Weapons', getValue: i => i.weaponCount || 0, higherIsBetter: true },
         ];
