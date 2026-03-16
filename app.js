@@ -2806,10 +2806,21 @@ const App = (() => {
     updateCompareButton();
   }
 
+  const compareClearBtn = $('compareClearBtn');
+
   function updateCompareButton() {
-    compareCount.textContent = state.compareList.length;
-    compareBtn.disabled = state.compareList.length < 2;
+    const n = state.compareList.length;
+    compareCount.textContent = n;
+    compareBtn.disabled = n < 2;
+    compareClearBtn.classList.toggle('hidden', n === 0);
   }
+
+  compareClearBtn.addEventListener('click', () => {
+    state.compareList = [];
+    // Deselect all compare checkboxes currently visible
+    document.querySelectorAll('.card-compare.selected').forEach(el => el.classList.remove('selected'));
+    updateCompareButton();
+  });
 
   // ── Main Render ────────────────────────
   async function render() {

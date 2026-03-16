@@ -311,6 +311,20 @@ body {
   border-color: var(--accent);
 }
 
+.btn-compare-clear {
+  padding: 6px 10px;
+  font-size: 16px;
+  line-height: 1;
+  border-color: var(--border-light);
+  color: var(--text-muted);
+  margin-left: -6px;
+}
+.btn-compare-clear:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(217, 74, 74, 0.1);
+}
+
 .btn-icon {
   padding: 7px 10px;
 }
