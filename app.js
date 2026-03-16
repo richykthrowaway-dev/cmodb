@@ -3356,16 +3356,10 @@ const App = (() => {
             <h2>Tips &amp; Tricks</h2>
             <span id="tipsCount" class="tips-count"></span>
           </div>
-          ${isProduction
-            ? `<a class="tips-submit-btn" href="https://github.com/richykthrowaway-dev/cmodb/issues/new?labels=tip&title=%5BTip%5D+" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                Suggest a Tip
-              </a>`
-            : `<button class="tips-submit-btn" id="tipsSubmitBtn">
-                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                Add a Tip
-              </button>`
-          }
+          <button class="tips-submit-btn" id="tipsSubmitBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            ${isProduction ? 'Suggest a Tip' : 'Add a Tip'}
+          </button>
         </div>
         <div class="tips-controls">
           <div class="tips-search-wrap">
@@ -3409,9 +3403,14 @@ const App = (() => {
       renderGrid();
     });
 
-    // Wire submit button → add modal
+    // Wire submit button → add modal (adapt labels for production)
     document.getElementById('tipsSubmitBtn')?.addEventListener('click', () => {
-      document.getElementById('tipSubmitModal').classList.remove('hidden');
+      const modal = document.getElementById('tipSubmitModal');
+      modal.classList.remove('hidden');
+      if (isProduction) {
+        modal.querySelector('.modal-title').textContent = 'Suggest a Tip or Trick';
+        document.getElementById('tipSendBtn').textContent = 'Submit Tip';
+      }
       document.getElementById('tipTitle').focus();
     });
 
@@ -3440,27 +3439,48 @@ const App = (() => {
 
       const btn = document.getElementById('tipSendBtn');
       btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.textContent = isProduction ? 'Submitting…' : 'Saving…';
 
-      try {
-        const res = await fetch('/api/tips', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, body, category, author, link }),
-        });
-        if (!res.ok) throw new Error(await res.text());
-        state._tipsCache = null;
+      if (isProduction) {
+        // Build a pre-filled GitHub Issue with the tip content
+        const issueTitle = encodeURIComponent(`[Tip] ${title}`);
+        const issueBody = encodeURIComponent(
+          `**Category:** ${category}\n` +
+          (author ? `**Author:** ${author}\n` : '') +
+          (link ? `**Reference:** ${link}\n` : '') +
+          `\n---\n\n${body}`
+        );
+        window.open(
+          `https://github.com/richykthrowaway-dev/cmodb/issues/new?labels=tip&title=${issueTitle}&body=${issueBody}`,
+          '_blank'
+        );
         closeTipModal();
         ['tipTitle', 'tipBody', 'tipAuthorName', 'tipLink'].forEach(id => {
           document.getElementById(id).value = '';
         });
-        await renderTips();
-      } catch (e) {
-        errEl.textContent = 'Failed to save: ' + e.message;
-        errEl.style.display = 'block';
-      } finally {
         btn.disabled = false;
-        btn.textContent = 'Add Tip';
+        btn.textContent = 'Submit Tip';
+      } else {
+        try {
+          const res = await fetch('/api/tips', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, body, category, author, link }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          state._tipsCache = null;
+          closeTipModal();
+          ['tipTitle', 'tipBody', 'tipAuthorName', 'tipLink'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+          await renderTips();
+        } catch (e) {
+          errEl.textContent = 'Failed to save: ' + e.message;
+          errEl.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Add Tip';
+        }
       }
     };
   }
