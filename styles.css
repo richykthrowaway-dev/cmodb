@@ -360,31 +360,6 @@ body {
   background: rgba(59, 130, 246, 0.08);
 }
 
-.nav-bmc,
-.nav-bmc:visited,
-.nav-bmc:active {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  padding: 6px 14px;
-  color: #0b0d12 !important;
-  background: #ffdd00;
-  border-radius: 6px;
-  text-decoration: none !important;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 0.2s, transform 0.15s;
-  flex-shrink: 0;
-}
-
-.nav-bmc:hover {
-  background: #e6c700;
-  transform: translateY(-1px);
-  text-decoration: none !important;
-  color: #0b0d12 !important;
-}
 
 /* ── Toolbar ────────────────────────────── */
 .toolbar {
@@ -1771,28 +1746,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.bmc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #0b0d12;
-  background: #ffdd00;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.15s;
-}
-
-.bmc-btn:hover {
-  background: #e6c700;
-  transform: translateY(-1px);
-}
-
-.bmc-btn svg {
-  flex-shrink: 0;
-}
 
 /* ── Responsive ─────────────────────────── */
 @media (max-width: 768px) {
