@@ -2203,6 +2203,8 @@ const App = (() => {
   function renderCompareChartsOnly() {
     requestAnimationFrame(() => {
       for (const [cat, citems] of Object.entries(_compareAllMerged)) {
+        // Stamp original color index so colors stay stable when hiding units
+        citems.forEach((it, i) => { it._colorIdx = i; });
         const visibleItems = citems.filter(it => !_compareHiddenIds.has(String(it.id)));
         if (visibleItems.length < 1) continue;
         try {

@@ -2678,6 +2678,11 @@ const Charts = (() => {
   // ── Comparison Charts (multi-item) ───────────
   const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
+  // Get stable color for a compare item using its original index (_colorIdx)
+  function cmpCol(item, fallbackIdx) {
+    return COMPARE_COLORS[(item._colorIdx ?? fallbackIdx) % COMPARE_COLORS.length];
+  }
+
   // Clear a compare container while preserving its .compare-chart-title div
   function clearCompareContainer(container) {
     const titleEl = container.querySelector('.compare-chart-title');
@@ -2720,7 +2725,7 @@ const Charts = (() => {
         const y = baseY + i * (barH + 2);
         const val = values[i];
         const bw = barMaxW * (val / maxVal);
-        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+        const col = cmpCol(item, i);
 
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
@@ -2743,7 +2748,7 @@ const Charts = (() => {
       const lx = pad + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -2808,7 +2813,7 @@ const Charts = (() => {
 
     // Plot each item's polygon
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(item, idx);
       const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
       const points = activeTypes.map((st, i) => {
         let val = 0;
@@ -2840,7 +2845,7 @@ const Charts = (() => {
       const lx = 8 + i * (size / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', size + 16)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 16 ? item.name.slice(0, 14) + '…' : item.name);
@@ -2888,7 +2893,7 @@ const Charts = (() => {
 
       data.ranges.forEach((val, i) => {
         const y = baseY + i * (barH + 2);
-        const col = COMPARE_COLORS[i];
+        const col = cmpCol(items[i], i);
         if (val <= 0) {
           // Show a dashed placeholder so the unit is still visible
           svg.append('rect')
@@ -2923,7 +2928,7 @@ const Charts = (() => {
       const lx = pad + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -2968,7 +2973,7 @@ const Charts = (() => {
       items.forEach((item, i) => {
         const val = item[dom.key] || 0;
         const y = baseY + i * (barH + 3);
-        const col = COMPARE_COLORS[i];
+        const col = cmpCol(item, i);
         if (val <= 0) {
           svg.append('rect')
             .attr('x', labelW + pad).attr('y', y)
@@ -3001,7 +3006,7 @@ const Charts = (() => {
       const lx = pad + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -3055,7 +3060,7 @@ const Charts = (() => {
 
         const y = baseY + i * (barH + 2);
         const bw = barMaxW * (maxSpd / globalMax);
-        const col = COMPARE_COLORS[i];
+        const col = cmpCol(item, i);
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
           .attr('width', bw).attr('height', barH)
@@ -3073,7 +3078,7 @@ const Charts = (() => {
       const lx = pad + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -3103,7 +3108,7 @@ const Charts = (() => {
     magItems.forEach((m, i) => {
       const y = pad + i * (barH + gap);
       const bw = barMaxW * (m.total / maxCap);
-      const col = COMPARE_COLORS[i];
+      const col = cmpCol(items[i], i);
       svg.append('rect')
         .attr('x', pad).attr('y', y)
         .attr('width', bw).attr('height', barH)
@@ -3191,7 +3196,7 @@ const Charts = (() => {
 
     // One polygon + dots per item
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(item, idx);
       const values = axes.map(a => ({
         label: a.label,
         value: Math.min((parseFloat(item[a.key]) || 0) / maxVals[a.key], 1),
@@ -3232,7 +3237,7 @@ const Charts = (() => {
       const lx = 12 + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -3306,7 +3311,7 @@ const Charts = (() => {
     // Draw envelope + dots per item
     validItems.forEach((item, vi) => {
       const idx = validIndices[vi];
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(items[idx], idx);
       const bandArr = itemBands[vi];
       if (bandArr.length === 0) return;
 
@@ -3383,7 +3388,7 @@ const Charts = (() => {
       const hasData = validIndices.includes(i);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length])
+        .attr('rx', 2).attr('fill', cmpCol(item, i))
         .attr('opacity', hasData ? 1 : 0.3);
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
@@ -3490,7 +3495,7 @@ const Charts = (() => {
     // Draw envelope per item
     validItems.forEach((item, vi) => {
       const idx = dsValidIndices[vi];
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(items[idx], idx);
       const iz = itemZones[vi];
       if (!iz) return;
 
@@ -3551,7 +3556,7 @@ const Charts = (() => {
       const hasData = dsValidIndices.includes(i);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length])
+        .attr('rx', 2).attr('fill', cmpCol(item, i))
         .attr('opacity', hasData ? 1 : 0.3);
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
@@ -3623,7 +3628,7 @@ const Charts = (() => {
 
     // Draw wedges per item
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(item, idx);
       const domains = itemDomains[idx];
 
       domainDefs.forEach(dom => {
@@ -3679,7 +3684,7 @@ const Charts = (() => {
       const lx = 12 + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
@@ -3736,7 +3741,7 @@ const Charts = (() => {
         const y = baseY + i * (barH + 2);
         const val = values[i];
         const bw = barMaxW * (val / maxVal);
-        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+        const col = cmpCol(items[i], i);
 
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
@@ -3759,7 +3764,7 @@ const Charts = (() => {
       const lx = pad + i * (W / items.length);
       const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
       lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
       lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
