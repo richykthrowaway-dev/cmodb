@@ -2286,7 +2286,7 @@ const App = (() => {
       bodyHtml += `<div class="compare-charts-row">`;
 
       // Specs bar chart
-      bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSpecs-${cat}"><div class="compare-chart-title">Specifications</div></div>`;
+      bodyHtml += `<div class="compare-chart compare-chart-inline" id="cmpSpecs-${cat}Chart"><div class="compare-chart-title">Specifications</div></div>`;
 
       // Performance radar (aircraft/ships)
       if (cat === 'aircraft' || cat === 'ships') {
