@@ -830,6 +830,13 @@ updateFile(path.join(dataDir, 'ships.json'), shipsDesc);
 updateFile(path.join(dataDir, 'weapons.json'), weaponsDesc);
 updateFile(path.join(dataDir, 'facilities.json'), facilitiesDesc);
 
+// Facility sub-category files share the same IDs as facilities.json
+updateFile(path.join(dataDir, 'infantry.json'), facilitiesDesc);
+updateFile(path.join(dataDir, 'armor.json'), facilitiesDesc);
+updateFile(path.join(dataDir, 'artillery.json'), facilitiesDesc);
+updateFile(path.join(dataDir, 'airdefense.json'), facilitiesDesc);
+updateFile(path.join(dataDir, 'radar.json'), facilitiesDesc);
+
 // For sensors, generate descriptions from the existing name/desc patterns
 const sensorsPath = path.join(dataDir, 'sensors.json');
 const sensors = JSON.parse(fs.readFileSync(sensorsPath, 'utf8'));
