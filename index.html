@@ -82,7 +82,10 @@
       <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.68-.82 3.17-2.15 4.1z"/></svg>
       Tips & Tricks
     </button>
-    <div class="nav-bmc-wrap" id="bmcWrap"></div>
+    <a href="https://buymeacoffee.com/commandindex" target="_blank" rel="noopener" style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:#ffdd00;color:#000;font-size:13px;font-weight:700;font-family:Cookie,cursive;border-radius:6px;text-decoration:none;white-space:nowrap;flex-shrink:0">
+      <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="" width="15" height="21" style="flex-shrink:0">
+      Buy me a coffee
+    </a>
   </nav>
 
   <main class="main">
@@ -207,17 +210,6 @@
       <span class="footer-text">Built with precision</span>
     </div>
   </footer>
-
-  <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="CommandIndex" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
-  <script>
-    // Move BMC button into nav bar once it renders
-    (function moveBmc() {
-      const btn = document.querySelector('.bmc-btn-container, [data-name="bmc-button"], .bmc-button');
-      const wrap = document.getElementById('bmcWrap');
-      if (btn && wrap) { wrap.appendChild(btn); }
-      else { setTimeout(moveBmc, 200); }
-    })();
-  </script>
 
   <script src="https://d3js.org/d3.v7.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous" defer></script>
   <script src="charts.js"></script>
