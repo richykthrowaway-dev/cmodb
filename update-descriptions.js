@@ -350,7 +350,7 @@ const shipsDesc = {
   68: "Burke Flight IIA with dual helicopter hangars, 96-cell Mk41 VLS",
   69: "Burke Flight IIA with Aegis BMD capability, SM-3 and SM-6 integration",
   70: "Burke Flight IIA, Mk45 Mod 4 5in/62 gun, SM-6 capable baseline",
-  71: "Burke Flight IIA Technology Insertion, latest combat system updates",
+  71: "Burke Flight III DDG-124, first with AN/SPY-6(V)1 AMDR radar, 96-cell Mk41 VLS",
   72: "Charles F. Adams-class DDG, 4,500t, Tartar/SM-1 launcher, based on Forrest Sherman",
   73: "Lead Adams-class DDG-2, first purpose-built US guided missile destroyer",
   74: "Converted Forrest Sherman DD with single-arm Tartar missile system added",
