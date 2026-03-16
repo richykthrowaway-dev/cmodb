@@ -503,13 +503,14 @@ body {
   contain: layout style paint;
   content-visibility: auto;
   contain-intrinsic-size: auto 340px 320px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .card:hover {
   background: var(--bg-card-hover);
   border-color: var(--border-light);
   transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ── Card Images ───────────────────────── */
@@ -632,10 +633,10 @@ body {
   letter-spacing: 0.5px;
 }
 
-.operator-navy { background: var(--navy); color: #b0cef0; }
-.operator-army { background: var(--army); color: #b0f0be; }
-.operator-air-force { background: var(--airforce); color: #b0bef0; }
-.operator-marine-corps { background: var(--marines); color: #f0beb0; }
+.operator-navy { background: var(--navy); color: #9aacbf; }
+.operator-army { background: var(--army); color: #98b89e; }
+.operator-air-force { background: var(--airforce); color: #99a3bd; }
+.operator-marine-corps { background: var(--marines); color: #b89a94; }
 .operator-default { background: var(--bg-input); color: var(--text-secondary); }
 
 .card-footer {
@@ -787,8 +788,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
 }
 
 .modal-content {
@@ -801,7 +802,7 @@ body {
   max-height: 85vh;
   overflow-y: auto;
   padding: 28px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .modal-wide {
@@ -1133,9 +1134,9 @@ body {
   white-space: nowrap;
 }
 
-.loadout-badge.air { color: #4a9eff; background: rgba(74, 158, 255, 0.12); }
-.loadout-badge.surf { color: #4caf50; background: rgba(76, 175, 80, 0.12); }
-.loadout-badge.land { color: #c6893a; background: rgba(198, 137, 58, 0.12); }
+.loadout-badge.air { color: #6ba3d4; background: rgba(107, 163, 212, 0.10); }
+.loadout-badge.surf { color: #5a9e5e; background: rgba(90, 158, 94, 0.10); }
+.loadout-badge.land { color: #b88a4e; background: rgba(184, 138, 78, 0.10); }
 .loadout-badge.sensor-role {
   white-space: nowrap;
   font-size: 9px;
@@ -1933,7 +1934,13 @@ body {
   justify-content: space-between;
   padding: 12px 0 16px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.tips-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .tips-header h2 {
@@ -1941,6 +1948,101 @@ body {
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+}
+
+.tips-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Controls row */
+.tips-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.tips-search-wrap {
+  position: relative;
+  flex: 0 0 200px;
+}
+
+.tips-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.tips-search {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 10px 6px 28px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--transition);
+}
+
+.tips-search:focus {
+  border-color: var(--accent);
+}
+
+.tips-filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.tip-filter-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+
+.tip-filter-pill:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.tip-filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tips-sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.tips-empty {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 40px 0;
+  grid-column: 1 / -1;
 }
 
 .tips-submit-btn {
@@ -1996,12 +2098,12 @@ body {
   align-self: flex-start;
 }
 
-.tip-category-badge.tactics  { background: rgba(239,68,68,0.15);  color: #ef4444; }
-.tip-category-badge.aircraft { background: rgba(74,158,255,0.15); color: #4a9eff; }
-.tip-category-badge.ships    { background: rgba(34,197,94,0.15);  color: #22c55e; }
-.tip-category-badge.weapons  { background: rgba(249,115,22,0.15); color: #f97316; }
-.tip-category-badge.sensors  { background: rgba(168,85,247,0.15); color: #a855f7; }
-.tip-category-badge.general  { background: rgba(148,163,184,0.15); color: #94a3b8; }
+.tip-category-badge.tactics  { background: rgba(217,74,74,0.12);    color: #d94a4a; }
+.tip-category-badge.aircraft { background: rgba(107,163,212,0.12);  color: #6ba3d4; }
+.tip-category-badge.ships    { background: rgba(90,158,94,0.12);    color: #5a9e5e; }
+.tip-category-badge.weapons  { background: rgba(200,122,58,0.12);   color: #c87a3a; }
+.tip-category-badge.sensors  { background: rgba(148,102,196,0.12);  color: #9466c4; }
+.tip-category-badge.general  { background: rgba(128,144,160,0.12);  color: #8090a0; }
 
 .tip-card-title {
   font-size: 14px;

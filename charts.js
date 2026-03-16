@@ -5,20 +5,20 @@
 const Charts = (() => {
   // ── Shared constants ──
   const COLORS = {
-    accent: '#4a9eff',
-    air: '#4a9eff',
-    surface: '#4caf50',
-    land: '#c6893a',
-    sub: '#9c27b0',
-    radar: '#4a9eff',
-    esm: '#ffc107',
-    sonar: '#00bcd4',
-    eo: '#ff9800',
-    visual: '#8bc34a',
-    ir: '#f44336',
-    grid: 'rgba(255,255,255,0.08)',
-    text: 'rgba(255,255,255,0.7)',
-    textBright: 'rgba(255,255,255,0.95)',
+    accent:     '#6ba3d4',
+    air:        '#6ba3d4',
+    surface:    '#5a9e5e',
+    land:       '#b88a4e',
+    sub:        '#8a6aad',
+    radar:      '#6ba3d4',
+    esm:        '#c9a84e',
+    sonar:      '#4ea8b5',
+    eo:         '#c48a4a',
+    visual:     '#7ea65e',
+    ir:         '#c45454',
+    grid:       'rgba(255,255,255,0.06)',
+    text:       'rgba(255,255,255,0.65)',
+    textBright: 'rgba(255,255,255,0.92)',
   };
 
   function d3Ready() {
@@ -334,15 +334,15 @@ const Charts = (() => {
       'Visual Cls':    { sig: null, color: COLORS.visual,  dash: true,  label: 'Visual' },
       'IR Det':        { sig: null, color: COLORS.ir,      dash: false, label: 'Infrared' },
       'IR Cls':        { sig: null, color: COLORS.ir,      dash: true,  label: 'Infrared' },
-      'Radar A-D':     { sig: null, color: '#ffc107',      dash: false, label: 'Radar A-D' },
+      'Radar A-D':     { sig: null, color: '#c9a84e',      dash: false, label: 'Radar A-D' },
       'Radar E-M':     { sig: null, color: COLORS.radar,   dash: false, label: 'Radar E-M' },
     };
     const sonarGroups = {
-      'Passive VLF':   { sig: null, color: '#26c6da',      dash: false, label: 'Passive VLF' },
-      'Passive LF':    { sig: null, color: '#00acc1',      dash: false, label: 'Passive LF' },
-      'Passive MF':    { sig: null, color: '#00838f',      dash: false, label: 'Passive MF' },
-      'Passive HF':    { sig: null, color: '#006064',      dash: false, label: 'Passive HF' },
-      'Active Sonar':  { sig: null, color: '#e040fb',      dash: false, label: 'Active Sonar' },
+      'Passive VLF':   { sig: null, color: '#4ea8b5',      dash: false, label: 'Passive VLF' },
+      'Passive LF':    { sig: null, color: '#439aa6',      dash: false, label: 'Passive LF' },
+      'Passive MF':    { sig: null, color: '#397e86',      dash: false, label: 'Passive MF' },
+      'Passive HF':    { sig: null, color: '#2f6368',      dash: false, label: 'Passive HF' },
+      'Active Sonar':  { sig: null, color: '#9e6ab8',      dash: false, label: 'Active Sonar' },
     };
 
     item.signatures.forEach(s => {
@@ -533,7 +533,7 @@ const Charts = (() => {
         bands[b].push(p);
       });
       const bandKeys = Object.keys(bands).sort((a, b) => a - b);
-      const bandColors = ['#4a9eff', '#ffc107', '#f44336', '#4caf50'];
+      const bandColors = ['#6ba3d4', '#c9a84e', '#c45454', '#5a9e5e'];
 
       const allSpeeds = perf.map(p => p.speed);
       const allConsumption = perf.map(p => p.consumption);
@@ -1066,7 +1066,7 @@ const Charts = (() => {
     });
 
     // Bars
-    const gradient = d3.scaleLinear().domain([0, counts.length - 1]).range([COLORS.accent, '#8b5cf6']);
+    const gradient = d3.scaleLinear().domain([0, counts.length - 1]).range([COLORS.accent, '#8070b0']);
     counts.forEach((c, i) => {
       const x = xScale(c.label);
       const barH = plotH - yScale(c.count);
@@ -1117,9 +1117,9 @@ const Charts = (() => {
     container.innerHTML = '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;font-weight:600">Force by Branch</div>';
 
     const branchColors = {
-      'Navy': '#3b82f6', 'Air Force': '#6366f1', 'Army': '#22c55e',
-      'Marine Corps': '#ef4444', 'Marines': '#ef4444', 'Coast Guard': '#f59e0b',
-      'Air National Guard': '#8b5cf6', 'Customs': '#64748b',
+      'Navy': '#4b8fdb', 'Air Force': '#6672b5', 'Army': '#5a9e5e',
+      'Marine Corps': '#c45454', 'Marines': '#c45454', 'Coast Guard': '#c9a84e',
+      'Air National Guard': '#8070b0', 'Customs': '#5e6575',
     };
     const colorScale = (op) => branchColors[op] || d3.scaleOrdinal(d3.schemeTableau10)(op);
 
@@ -1201,7 +1201,7 @@ const Charts = (() => {
     const barArea = W - labelW - pad * 2 - 60;
     const scale = d3.scaleLinear().domain([0, maxVal]).range([0, barArea]);
 
-    const goldToSilver = d3.scaleLinear().domain([0, ranked.length - 1]).range(['#fbbf24', '#64748b']);
+    const goldToSilver = d3.scaleLinear().domain([0, ranked.length - 1]).range(['#c9a84e', '#5e6575']);
 
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
@@ -1217,7 +1217,7 @@ const Charts = (() => {
       svg.append('text')
         .attr('x', 16).attr('y', y + barH / 2)
         .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
-        .attr('fill', i < 3 ? '#fbbf24' : COLORS.text).attr('font-size', '11px').attr('font-weight', 'bold')
+        .attr('fill', i < 3 ? '#c9a84e' : COLORS.text).attr('font-size', '11px').attr('font-weight', 'bold')
         .text(`#${i + 1}`);
 
       // Name
@@ -1304,7 +1304,7 @@ const Charts = (() => {
     const W = 340, H = 340, cx = W / 2, cy = H / 2, R = 110;
     const n = axes.length;
     const angleSlice = (2 * Math.PI) / n;
-    const typeColors = ['#4a9eff', '#f44336', '#4caf50', '#ffc107', '#9c27b0'];
+    const typeColors = ['#6ba3d4', '#c45454', '#5a9e5e', '#c9a84e', '#8a6aad'];
 
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
@@ -1838,8 +1838,8 @@ const Charts = (() => {
       return;
     }
     const armorKeys = cat === 'aircraft'
-      ? [{ key: 'damagePoints', label: 'Damage Pts', color: '#4a9eff' }, { key: 'cockpitArmor', label: 'Cockpit', color: '#f44336' }, { key: 'fuselageArmor', label: 'Fuselage', color: '#ffc107' }, { key: 'engineArmor', label: 'Engine', color: '#4caf50' }]
-      : [{ key: 'damagePoints', label: 'Damage Pts', color: '#4a9eff' }];
+      ? [{ key: 'damagePoints', label: 'Damage Pts', color: '#6ba3d4' }, { key: 'cockpitArmor', label: 'Cockpit', color: '#c45454' }, { key: 'fuselageArmor', label: 'Fuselage', color: '#c9a84e' }, { key: 'engineArmor', label: 'Engine', color: '#5a9e5e' }]
+      : [{ key: 'damagePoints', label: 'Damage Pts', color: '#6ba3d4' }];
 
     const items = indexData.map(item => {
       const d = details[item.id];
@@ -1952,7 +1952,7 @@ const Charts = (() => {
       if (n.includes('decoy') || n.includes('chaff') || n.includes('flare') || n.includes('nulka') || n.includes('srboc')) return 'Decoy';
       return 'Other';
     }
-    const catColors = { Missile: '#f44336', Gun: '#ffc107', Torpedo: '#00bcd4', Bomb: '#9c27b0', Rocket: '#ff9800', Decoy: '#8bc34a', Other: '#999' };
+    const catColors = { Missile: '#c45454', Gun: '#c9a84e', Torpedo: '#4ea8b5', Bomb: '#8a6aad', Rocket: '#c48a4a', Decoy: '#7ea65e', Other: '#999' };
 
     const ships = indexData.map(item => {
       const d = details[item.id];
@@ -2253,7 +2253,7 @@ const Charts = (() => {
     const maxAlt = Math.max(...bandArr.map(b => b.altMax));
     const xScale = d3.scaleLinear().domain([Math.max(0, minSpd - 20), maxSpd]).range([0, w]);
     const yScale = d3.scaleLinear().domain([0, maxAlt]).range([h, 0]);
-    const bandColors = { 1: '#4a9eff', 2: '#4caf50', 3: '#ffb74d', 4: '#ef5350' };
+    const bandColors = { 1: '#6ba3d4', 2: '#5a9e5e', 3: '#c9a84e', 4: '#c45454' };
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
@@ -2287,9 +2287,9 @@ const Charts = (() => {
     const gradId = 'flightEnvGrad' + Math.random().toString(36).slice(2, 6);
     const defs = svg.append('defs');
     const grad = defs.append('linearGradient').attr('id', gradId).attr('x1', '0').attr('y1', '0').attr('x2', '1').attr('y2', '0');
-    grad.append('stop').attr('offset', '0%').attr('stop-color', '#4caf50').attr('stop-opacity', 0.15);
-    grad.append('stop').attr('offset', '50%').attr('stop-color', '#4a9eff').attr('stop-opacity', 0.15);
-    grad.append('stop').attr('offset', '100%').attr('stop-color', '#ef5350').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '0%').attr('stop-color', '#5a9e5e').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '50%').attr('stop-color', '#6ba3d4').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', '#c45454').attr('stop-opacity', 0.15);
     g.append('path').attr('d', pathD)
       .attr('fill', `url(#${gradId})`).attr('stroke', COLORS.accent).attr('stroke-opacity', 0.3).attr('stroke-width', 1);
     // Data points for each throttle at each band
@@ -2304,7 +2304,7 @@ const Charts = (() => {
       // Cruise dot
       if (b.cruise) {
         g.append('circle').attr('cx', xScale(b.cruise)).attr('cy', yScale(midAlt)).attr('r', 4)
-          .attr('fill', '#4caf50').attr('stroke', '#4caf50').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .attr('fill', '#5a9e5e').attr('stroke', '#5a9e5e').attr('stroke-width', 1).attr('fill-opacity', 0.7)
           .style('cursor', 'pointer')
           .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Cruise</b><br>${b.cruise} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
           .on('mouseout', hideTooltip);
@@ -2312,7 +2312,7 @@ const Charts = (() => {
       // Military dot
       if (b.mil) {
         g.append('circle').attr('cx', xScale(b.mil)).attr('cy', yScale(midAlt)).attr('r', 4)
-          .attr('fill', '#4a9eff').attr('stroke', '#4a9eff').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .attr('fill', '#6ba3d4').attr('stroke', '#6ba3d4').attr('stroke-width', 1).attr('fill-opacity', 0.7)
           .style('cursor', 'pointer')
           .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Military</b><br>${b.mil} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
           .on('mouseout', hideTooltip);
@@ -2320,7 +2320,7 @@ const Charts = (() => {
       // Afterburner dot
       if (b.ab) {
         g.append('circle').attr('cx', xScale(b.ab)).attr('cy', yScale(midAlt)).attr('r', 4)
-          .attr('fill', '#ef5350').attr('stroke', '#ef5350').attr('stroke-width', 1).attr('fill-opacity', 0.7)
+          .attr('fill', '#c45454').attr('stroke', '#c45454').attr('stroke-width', 1).attr('fill-opacity', 0.7)
           .style('cursor', 'pointer')
           .on('mouseover', (evt) => showTooltip(evt, `<b>Band ${b.num} · Afterburner</b><br>${b.ab} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
           .on('mouseout', hideTooltip);
@@ -2354,7 +2354,7 @@ const Charts = (() => {
       .attr('letter-spacing', '0.05em').attr('transform', `rotate(-90, ${-M.left + 10}, ${h / 2})`).text('ALTITUDE');
     // Legend
     const legY = H - 10;
-    [['Cruise', '#4caf50'], ['Military', '#4a9eff'], ['Afterburner', '#ef5350']].forEach(([lbl, col], i) => {
+    [['Cruise', '#5a9e5e'], ['Military', '#6ba3d4'], ['Afterburner', '#c45454']].forEach(([lbl, col], i) => {
       const lx = M.left + 10 + i * 110;
       svg.append('circle').attr('cx', lx).attr('cy', legY - 3).attr('r', 3.5).attr('fill', col).attr('fill-opacity', 0.7);
       svg.append('text').attr('x', lx + 7).attr('y', legY).attr('font-size', '8.5').attr('fill', 'rgba(255,255,255,0.35)').text(lbl);
@@ -2408,20 +2408,20 @@ const Charts = (() => {
     let zones;
     if (isNuclear) {
       zones = [
-        { label: 'Surfaced',   depth: 0,              speeds: zoneGroups[1], color: '#4caf50' },
-        { label: 'Snorkeling',  depth: periscopeDepth,  speeds: zoneGroups[0], color: '#4a9eff' },
+        { label: 'Surfaced',   depth: 0,              speeds: zoneGroups[1], color: '#5a9e5e' },
+        { label: 'Snorkeling',  depth: periscopeDepth,  speeds: zoneGroups[0], color: '#6ba3d4' },
         { label: 'Submerged',  depth: absDepth,        speeds: zoneGroups[2], color: '#7c4dff' },
       ];
     } else {
       zones = [
-        { label: 'Surfaced',  depth: 0,        speeds: zoneGroups[1], color: '#4caf50' },
+        { label: 'Surfaced',  depth: 0,        speeds: zoneGroups[1], color: '#5a9e5e' },
         { label: 'Submerged', depth: absDepth,  speeds: zoneGroups[0], color: '#7c4dff' },
       ];
     }
 
     // Throttle labels & colors
     const throttleLabel = { 1: 'Creep', 2: 'Cruise', 3: 'Flank', 4: 'Full' };
-    const throttleColor = { 1: '#4caf50', 2: '#4a9eff', 3: '#ffb74d', 4: '#ef5350' };
+    const throttleColor = { 1: '#5a9e5e', 2: '#6ba3d4', 3: '#c9a84e', 4: '#c45454' };
 
     // Dimensions — generous spacing to avoid text overlap
     const maxThrottleCount = Math.max(...zones.map(z => z.speeds.length));
@@ -2455,9 +2455,9 @@ const Charts = (() => {
     const defs = svg.append('defs');
     const bgGrad = defs.append('linearGradient').attr('id', gradBg)
       .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
-    bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#0a2540').attr('stop-opacity', 0.7);
-    bgGrad.append('stop').attr('offset', '40%').attr('stop-color', '#0a1628').attr('stop-opacity', 0.8);
-    bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#050d18').attr('stop-opacity', 0.95);
+    bgGrad.append('stop').attr('offset', '0%').attr('stop-color', '#0e1318').attr('stop-opacity', 0.7);
+    bgGrad.append('stop').attr('offset', '40%').attr('stop-color', '#0b0d14').attr('stop-opacity', 0.8);
+    bgGrad.append('stop').attr('offset', '100%').attr('stop-color', '#06080c').attr('stop-opacity', 0.95);
     svg.append('rect').attr('width', W).attr('height', H).attr('fill', `url(#${gradBg})`).attr('rx', 6);
 
     const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
@@ -2537,12 +2537,12 @@ const Charts = (() => {
     const envGradId = 'depthEnvGrad' + Math.random().toString(36).slice(2, 6);
     const envGrad = defs.append('linearGradient').attr('id', envGradId)
       .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
-    envGrad.append('stop').attr('offset', '0%').attr('stop-color', '#4caf50').attr('stop-opacity', 0.06);
+    envGrad.append('stop').attr('offset', '0%').attr('stop-color', '#5a9e5e').attr('stop-opacity', 0.06);
     envGrad.append('stop').attr('offset', '100%').attr('stop-color', '#7c4dff').attr('stop-opacity', 0.06);
     g.insert('path', ':first-child')
       .attr('d', envPath)
       .attr('fill', `url(#${envGradId})`)
-      .attr('stroke', 'rgba(255,255,255,0.08)').attr('stroke-width', 0.75);
+      .attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 0.75);
 
     // X axis labels — below chart content
     const axisY = chartContentH + 14;
@@ -2586,8 +2586,8 @@ const Charts = (() => {
       return 'Ammunition';
     }
     const typeColors = {
-      Missile: '#f44336', Torpedo: '#00bcd4', Countermeasure: '#8bc34a',
-      Sonobuoy: '#9c27b0', Ammunition: '#ffc107',
+      Missile: '#c45454', Torpedo: '#4ea8b5', Countermeasure: '#7ea65e',
+      Sonobuoy: '#8a6aad', Ammunition: '#c9a84e',
     };
     // Build display data
     const magData = mags.map(m => {
@@ -2670,7 +2670,7 @@ const Charts = (() => {
   }
 
   // ── Comparison Charts (multi-item) ───────────
-  const COMPARE_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#ef5350', '#ab47bc'];
+  const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
   // Grouped horizontal bar chart comparing numeric specs across items
   function renderCompareSpecs(container, items, fields) {

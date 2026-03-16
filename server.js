@@ -19,7 +19,43 @@ const MIME = {
 // Text types that benefit from gzip
 const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.json', '.svg']);
 
+const TIPS_FILE = path.join(ROOT, 'data', 'tips.json');
+
 http.createServer((req, res) => {
+  // POST /api/tips — add a new tip
+  if (req.method === 'POST' && req.url === '/api/tips') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const tip = JSON.parse(body);
+        if (!tip.title || !tip.body || !tip.category) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'title, body, and category are required' }));
+          return;
+        }
+        const existing = JSON.parse(fs.readFileSync(TIPS_FILE, 'utf8'));
+        const newTip = {
+          id: existing.length ? Math.max(...existing.map(t => t.id)) + 1 : 1,
+          category: tip.category,
+          title: tip.title.trim(),
+          body: tip.body.trim(),
+          author: tip.author ? tip.author.trim() : null,
+          link: tip.link ? tip.link.trim() : null,
+          image: null,
+        };
+        existing.push(newTip);
+        fs.writeFileSync(TIPS_FILE, JSON.stringify(existing, null, 2));
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(newTip));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   let url = req.url.split('?')[0];
   if (url === '/') url = '/index.html';
   const filePath = path.join(ROOT, url);

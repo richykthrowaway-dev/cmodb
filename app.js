@@ -1505,7 +1505,7 @@ const App = (() => {
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">${esc(d.propulsion.name || '')}${thrustInfo}</div>
           ${(() => {
             const bandBuckets = { 1: 'Low', 2: 'Med-Low', 3: 'Med-High', 4: 'High' };
-            const bandColors  = { 1: '#4a9eff', 2: '#4caf50', 3: '#ffb74d', 4: '#ef5350' };
+            const bandColors  = { 1: '#6ba3d4', 2: '#5a9e5e', 3: '#c9a84e', 4: '#c45454' };
             const fmtM  = v => v >= 1000 ? (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v);
             const fmtFt = v => Math.round(v / 1000) + 'k';
             // Group performances by altBand
@@ -1605,10 +1605,10 @@ const App = (() => {
               s += `<rect x="${barX}" y="${stratoY}" width="${barW}" height="${tropoY - stratoY}" fill="rgba(60,80,160,0.03)"/>`;
               // Tropopause line
               s += `<line x1="${barX}" y1="${tropoY}" x2="${barX + barW}" y2="${tropoY}" stroke="rgba(130,190,255,0.2)" stroke-width="0.75" stroke-dasharray="6,4"/>`;
-              s += `<text x="${barX + barW - 2}" y="${tropoY - 3}" text-anchor="end" font-size="7.5" fill="rgba(130,190,255,0.3)" font-family="${F}">Tropopause · 11 km</text>`;
+              s += `<text x="${lPadM}" y="${tropoY + 14}" text-anchor="end" font-size="7" fill="rgba(130,190,255,0.45)" font-family="${F}">Tropopause</text>`;
               // Kármán line (space) at 100km — right at chartTop
               s += `<line x1="${barX}" y1="${chartTop}" x2="${barX + barW}" y2="${chartTop}" stroke="rgba(160,200,255,0.25)" stroke-width="0.75"/>`;
-              s += `<text x="${barX + barW - 2}" y="${chartTop - 3}" text-anchor="end" font-size="7.5" fill="rgba(160,200,255,0.3)" font-family="${F}">Kármán Line · 100 km / 328k ft — Space</text>`;
+              s += `<text x="${barX + barW - 4}" y="${chartTop - 3}" text-anchor="end" font-size="7.5" fill="rgba(160,200,255,0.3)" font-family="${F}">Kármán Line · 100 km / 328k ft — Space</text>`;
               // Scale break indicator
               s += `<line x1="${lPadFt - 3}" y1="${splitY}" x2="${barX + barW}" y2="${splitY}" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" stroke-dasharray="2,4"/>`;
               // Axis lines
@@ -1648,9 +1648,9 @@ const App = (() => {
                 const bMaxW = barW - 50 - 50;
                 const bSpdW = spd => spd ? (spd / absMaxSpd) * bMaxW : 0;
                 [
-                  { spd: b.cruise, col: '#4caf50', lbl: 'Cruise' },
-                  { spd: b.mil,    col: '#4a9eff', lbl: 'Military' },
-                  { spd: b.ab,     col: '#ef5350', lbl: 'AB' },
+                  { spd: b.cruise, col: '#5a9e5e', lbl: 'Cruise' },
+                  { spd: b.mil,    col: '#6ba3d4', lbl: 'Military' },
+                  { spd: b.ab,     col: '#c45454', lbl: 'AB' },
                 ].forEach((bar, j) => {
                   if (!bar.spd) return;
                   const by = startY + j * (barH + 3);
@@ -1666,7 +1666,7 @@ const App = (() => {
               // Legend
               const legY = H - 9;
               const legX = barX + 50;
-              [['Cruise', '#4caf50'], ['Military', '#4a9eff'], ['Afterburner', '#ef5350']].forEach(([lbl, col], i) => {
+              [['Cruise', '#5a9e5e'], ['Military', '#6ba3d4'], ['Afterburner', '#c45454']].forEach(([lbl, col], i) => {
                 const lx = legX + i * 120;
                 s += `<rect x="${lx}" y="${legY - 7}" width="12" height="6" fill="${col}" opacity="0.6" rx="2"/>`;
                 s += `<text x="${lx + 16}" y="${legY}" font-size="8.5" fill="rgba(255,255,255,0.35)" font-family="${F}">${lbl}</text>`;
@@ -2195,7 +2195,7 @@ const App = (() => {
   }
 
   // ── Compare View (Advanced Full-Screen) ───────────────────────
-  const COMPARE_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#ef5350', '#ab47bc'];
+  const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
   async function showCompare() {
     if (state.compareList.length < 2) return;
@@ -3312,72 +3312,156 @@ const App = (() => {
   async function renderTips() {
     const tips = await loadTips();
     const content = document.getElementById('content');
-    const MAIL = 'tips@example.com'; // TODO: replace with real address
+    const isProduction = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+
+    const CATEGORIES = ['All', 'Tactics', 'Aircraft', 'Ships', 'Weapons', 'Sensors', 'General'];
+    const tipFilters = { category: 'All', search: '', sort: 'default' };
+
+    function filteredTips() {
+      let list = tips.slice();
+      if (tipFilters.category !== 'All') list = list.filter(t => t.category === tipFilters.category);
+      if (tipFilters.search) {
+        const q = tipFilters.search.toLowerCase();
+        list = list.filter(t => t.title.toLowerCase().includes(q) || t.body.toLowerCase().includes(q));
+      }
+      if (tipFilters.sort === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
+      else if (tipFilters.sort === 'za') list.sort((a, b) => b.title.localeCompare(a.title));
+      else if (tipFilters.sort === 'cat') list.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+      return list;
+    }
+
+    function renderGrid() {
+      const list = filteredTips();
+      const grid = document.getElementById('tipsGrid');
+      const count = document.getElementById('tipsCount');
+      if (count) count.textContent = `${list.length} tip${list.length !== 1 ? 's' : ''}`;
+      if (!grid) return;
+      if (list.length === 0) {
+        grid.innerHTML = '<p class="tips-empty">No tips match your filter.</p>';
+        return;
+      }
+      grid.innerHTML = list.map(tip => renderTipCard(tip)).join('');
+      grid.querySelectorAll('.tip-card').forEach(card => {
+        const open = () => { const tip = tips.find(t => t.id === parseInt(card.dataset.tipId, 10)); if (tip) openTipDetail(tip); };
+        card.addEventListener('click', open);
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+      });
+    }
 
     content.className = 'content';
     content.innerHTML = `
       <div class="tips-view">
         <div class="tips-header">
-          <h2>Tips &amp; Tricks</h2>
-          <button class="tips-submit-btn" id="tipsSubmitBtn">
-            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            Submit a Tip
-          </button>
+          <div class="tips-header-left">
+            <h2>Tips &amp; Tricks</h2>
+            <span id="tipsCount" class="tips-count"></span>
+          </div>
+          ${isProduction
+            ? `<a class="tips-submit-btn" href="https://github.com/richykthrowaway-5949/cmodb/issues/new?labels=tip&title=%5BTip%5D+" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                Suggest a Tip
+              </a>`
+            : `<button class="tips-submit-btn" id="tipsSubmitBtn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                Add a Tip
+              </button>`
+          }
         </div>
-        ${tips.length === 0
-          ? '<p style="color:var(--text-secondary);padding:40px 0;text-align:center">No tips yet — be the first to submit one!</p>'
-          : `<div class="tips-grid">${tips.map(tip => renderTipCard(tip)).join('')}</div>`
-        }
+        <div class="tips-controls">
+          <div class="tips-search-wrap">
+            <svg class="tips-search-icon" viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M21 19l-4.35-4.35A7.5 7.5 0 1016.65 13.3L21 17.65 19.65 19zM10.5 16a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg>
+            <input id="tipSearch" class="tips-search" type="text" placeholder="Search tips…" autocomplete="off">
+          </div>
+          <div class="tips-filter-pills">
+            ${CATEGORIES.map(c => `<button class="tip-filter-pill${c === 'All' ? ' active' : ''}" data-cat="${c}">${c}</button>`).join('')}
+          </div>
+          <select id="tipsSort" class="tips-sort-select">
+            <option value="default">Default order</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="cat">By category</option>
+          </select>
+        </div>
+        <div class="tips-grid" id="tipsGrid"></div>
       </div>`;
 
-    // Wire tip card clicks → detail modal
-    content.querySelectorAll('.tip-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const id = parseInt(card.dataset.tipId, 10);
-        const tip = tips.find(t => t.id === id);
-        if (!tip) return;
-        openTipDetail(tip);
+    renderGrid();
+
+    // Search
+    document.getElementById('tipSearch').addEventListener('input', e => {
+      tipFilters.search = e.target.value.trim();
+      renderGrid();
+    });
+
+    // Category pills
+    content.querySelectorAll('.tip-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        content.querySelectorAll('.tip-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        tipFilters.category = pill.dataset.cat;
+        renderGrid();
       });
     });
 
-    // Keyboard: Enter/Space opens tip detail
-    content.querySelectorAll('.tip-card').forEach(card => {
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          card.click();
-        }
-      });
+    // Sort
+    document.getElementById('tipsSort').addEventListener('change', e => {
+      tipFilters.sort = e.target.value;
+      renderGrid();
     });
 
-    // Wire submit button → submit modal
+    // Wire submit button → add modal
     document.getElementById('tipsSubmitBtn')?.addEventListener('click', () => {
       document.getElementById('tipSubmitModal').classList.remove('hidden');
-      document.getElementById('tipAuthorName').focus();
+      document.getElementById('tipTitle').focus();
     });
 
-    // Wire submit modal cancel + send
-    document.getElementById('tipCancelBtn').onclick = () => {
+    const closeTipModal = () => {
       document.getElementById('tipSubmitModal').classList.add('hidden');
+      document.getElementById('tipFormError').style.display = 'none';
     };
-    document.getElementById('tipSubmitModal').querySelector('.modal-overlay').onclick = () => {
-      document.getElementById('tipSubmitModal').classList.add('hidden');
-    };
-    document.getElementById('tipSubmitModal').querySelector('.modal-close').onclick = () => {
-      document.getElementById('tipSubmitModal').classList.add('hidden');
-    };
-    document.getElementById('tipSendBtn').onclick = () => {
-      const name = document.getElementById('tipAuthorName').value.trim() || 'Anonymous';
-      const topic = document.getElementById('tipTopic').value;
-      const body = document.getElementById('tipBody').value.trim();
-      if (!body) {
-        document.getElementById('tipBody').focus();
+    document.getElementById('tipCancelBtn').onclick = closeTipModal;
+    document.getElementById('tipSubmitModal').querySelector('.modal-overlay').onclick = closeTipModal;
+    document.getElementById('tipSubmitModal').querySelector('.modal-close').onclick = closeTipModal;
+
+    document.getElementById('tipSendBtn').onclick = async () => {
+      const title    = document.getElementById('tipTitle').value.trim();
+      const body     = document.getElementById('tipBody').value.trim();
+      const category = document.getElementById('tipTopic').value;
+      const author   = document.getElementById('tipAuthorName').value.trim() || null;
+      const link     = document.getElementById('tipLink').value.trim() || null;
+      const errEl    = document.getElementById('tipFormError');
+
+      if (!title || !body) {
+        errEl.textContent = 'Title and content are required.';
+        errEl.style.display = 'block';
+        (!title ? document.getElementById('tipTitle') : document.getElementById('tipBody')).focus();
         return;
       }
-      const subject = encodeURIComponent(`CMO DB Tip Submission [${topic}] from ${name}`);
-      const bodyEnc = encodeURIComponent(`Name: ${name}\nTopic: ${topic}\n\nTip:\n${body}`);
-      window.location.href = `mailto:${MAIL}?subject=${subject}&body=${bodyEnc}`;
-      document.getElementById('tipSubmitModal').classList.add('hidden');
+
+      const btn = document.getElementById('tipSendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        const res = await fetch('/api/tips', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, body, category, author, link }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        state._tipsCache = null;
+        closeTipModal();
+        ['tipTitle', 'tipBody', 'tipAuthorName', 'tipLink'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        await renderTips();
+      } catch (e) {
+        errEl.textContent = 'Failed to save: ' + e.message;
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Tip';
+      }
     };
   }
 

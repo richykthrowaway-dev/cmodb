@@ -158,20 +158,19 @@
     </div>
   </div>
 
-  <!-- Tips & Tricks Submit Modal -->
+  <!-- Tips & Tricks Add Modal -->
   <div id="tipSubmitModal" class="modal hidden">
     <div class="modal-overlay"></div>
     <div class="modal-content">
       <button class="modal-close">&times;</button>
-      <h2 class="modal-title">Submit a Tip or Trick</h2>
-      <p style="font-size:13px;color:var(--text-secondary);margin:0 0 16px">Share your knowledge! The developer will review your submission and may add it to the site.</p>
+      <h2 class="modal-title">Add a Tip or Trick</h2>
       <div class="submit-tip-form" id="submitTipForm">
         <div>
-          <label for="tipAuthorName">Your Name</label>
+          <label for="tipAuthorName">Author <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
           <input type="text" id="tipAuthorName" placeholder="e.g. John S." maxlength="80">
         </div>
         <div>
-          <label for="tipTopic">Topic</label>
+          <label for="tipTopic">Category</label>
           <select id="tipTopic">
             <option value="Tactics">Tactics</option>
             <option value="Aircraft">Aircraft</option>
@@ -182,12 +181,21 @@
           </select>
         </div>
         <div>
-          <label for="tipBody">Your Tip or Trick</label>
-          <textarea id="tipBody" placeholder="Describe your tip in as much detail as you like..."></textarea>
+          <label for="tipTitle">Title</label>
+          <input type="text" id="tipTitle" placeholder="e.g. Using EMCON to stay hidden" maxlength="120">
         </div>
+        <div>
+          <label for="tipBody">Content</label>
+          <textarea id="tipBody" placeholder="Describe your tip in as much detail as you like..." style="min-height:140px"></textarea>
+        </div>
+        <div>
+          <label for="tipLink">Reference Link <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+          <input type="url" id="tipLink" placeholder="https://...">
+        </div>
+        <div id="tipFormError" style="display:none;color:var(--danger);font-size:12px;padding:4px 0"></div>
         <div class="submit-tip-actions">
           <button class="submit-tip-cancel" id="tipCancelBtn">Cancel</button>
-          <button class="submit-tip-send" id="tipSendBtn">Send via Email</button>
+          <button class="submit-tip-send" id="tipSendBtn">Add Tip</button>
         </div>
       </div>
     </div>
