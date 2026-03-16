@@ -2678,10 +2678,22 @@ const Charts = (() => {
   // ── Comparison Charts (multi-item) ───────────
   const COMPARE_COLORS = ['#6ba3d4', '#5a9e5e', '#c48a4a', '#c45454', '#8a6aad'];
 
+  // Get stable color for a compare item using its original index (_colorIdx)
+  function cmpCol(item, fallbackIdx) {
+    return COMPARE_COLORS[(item._colorIdx ?? fallbackIdx) % COMPARE_COLORS.length];
+  }
+
+  // Clear a compare container while preserving its .compare-chart-title div
+  function clearCompareContainer(container) {
+    const titleEl = container.querySelector('.compare-chart-title');
+    container.innerHTML = '';
+    if (titleEl) container.prepend(titleEl);
+  }
+
   // Grouped horizontal bar chart comparing numeric specs across items
   function renderCompareSpecs(container, items, fields) {
     if (!d3Ready() || !items.length || !fields.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const W = container.clientWidth || 600;
     const barH = 14, groupGap = 20, labelW = 120, pad = 12;
     const n = items.length;
@@ -2713,7 +2725,7 @@ const Charts = (() => {
         const y = baseY + i * (barH + 2);
         const val = values[i];
         const bw = barMaxW * (val / maxVal);
-        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+        const col = cmpCol(item, i);
 
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
@@ -2734,9 +2746,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -2745,7 +2758,7 @@ const Charts = (() => {
   // Overlaid radar/polar chart for signature comparison
   function renderCompareSignatures(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const sigTypes = ['Visual', 'Infrared', 'Radar', 'Sonar'];
     // Filter to types that at least one item has
     const activeTypes = sigTypes.filter(st =>
@@ -2800,7 +2813,8 @@ const Charts = (() => {
 
     // Plot each item's polygon
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx];
+      const col = cmpCol(item, idx);
+      const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
       const points = activeTypes.map((st, i) => {
         let val = 0;
         (item.signatures || []).forEach(s => {
@@ -2816,21 +2830,23 @@ const Charts = (() => {
 
       svg.append('polygon')
         .attr('points', points.map(p => p.join(',')).join(' '))
-        .attr('fill', col).attr('fill-opacity', 0.12)
-        .attr('stroke', col).attr('stroke-width', 1.5).attr('stroke-opacity', 0.8);
+        .attr('fill', col).attr('fill-opacity', 0.15)
+        .attr('stroke', col).attr('stroke-width', 2).attr('stroke-opacity', 0.9)
+        .attr('stroke-dasharray', dashPatterns[idx % dashPatterns.length]);
 
       points.forEach(p => {
-        svg.append('circle').attr('cx', p[0]).attr('cy', p[1]).attr('r', 3)
-          .attr('fill', col);
+        svg.append('circle').attr('cx', p[0]).attr('cy', p[1]).attr('r', 4)
+          .attr('fill', col).attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 0.5);
       });
     });
 
     // Legend
     items.forEach((item, i) => {
       const lx = 8 + i * (size / items.length);
-      svg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', size + 16)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', size + 16)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 16 ? item.name.slice(0, 14) + '…' : item.name);
     });
@@ -2839,7 +2855,7 @@ const Charts = (() => {
   // Grouped horizontal bars comparing sensor ranges
   function renderCompareSensorRanges(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     // Collect all unique sensor names across items, get max range per sensor
     const sensorMap = new Map();
     items.forEach((item, idx) => {
@@ -2876,10 +2892,24 @@ const Charts = (() => {
         .text(name.length > 24 ? name.slice(0, 22) + '…' : name);
 
       data.ranges.forEach((val, i) => {
-        if (val <= 0) return;
         const y = baseY + i * (barH + 2);
+        const col = cmpCol(items[i], i);
+        if (val <= 0) {
+          // Show a dashed placeholder so the unit is still visible
+          svg.append('rect')
+            .attr('x', labelW + pad).attr('y', y)
+            .attr('width', 40).attr('height', barH)
+            .attr('rx', 2).attr('fill', 'none')
+            .attr('stroke', col).attr('stroke-width', 1)
+            .attr('stroke-dasharray', '3,2').attr('opacity', 0.5);
+          svg.append('text')
+            .attr('x', labelW + pad + 46).attr('y', y + barH / 2)
+            .attr('dominant-baseline', 'central')
+            .attr('font-size', '9').attr('fill', col).attr('opacity', 0.5)
+            .text('N/A');
+          return;
+        }
         const bw = barMaxW * (val / globalMax);
-        const col = COMPARE_COLORS[i];
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
           .attr('width', bw).attr('height', barH)
@@ -2896,9 +2926,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -2907,7 +2938,7 @@ const Charts = (() => {
   // Grouped bars comparing weapon ranges per domain
   function renderCompareWeaponRanges(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const domains = [
       { key: 'airRange', label: 'Air', color: COLORS.air },
       { key: 'surfaceRange', label: 'Surface', color: COLORS.surface },
@@ -2941,10 +2972,23 @@ const Charts = (() => {
 
       items.forEach((item, i) => {
         const val = item[dom.key] || 0;
-        if (val <= 0) return;
         const y = baseY + i * (barH + 3);
+        const col = cmpCol(item, i);
+        if (val <= 0) {
+          svg.append('rect')
+            .attr('x', labelW + pad).attr('y', y)
+            .attr('width', 40).attr('height', barH)
+            .attr('rx', 3).attr('fill', 'none')
+            .attr('stroke', col).attr('stroke-width', 1)
+            .attr('stroke-dasharray', '3,2').attr('opacity', 0.5);
+          svg.append('text')
+            .attr('x', labelW + pad + 46).attr('y', y + barH / 2)
+            .attr('dominant-baseline', 'central')
+            .attr('font-size', '9').attr('fill', col).attr('opacity', 0.5)
+            .text('N/A');
+          return;
+        }
         const bw = barMaxW * (val / globalMax);
-        const col = COMPARE_COLORS[i];
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
           .attr('width', bw).attr('height', barH)
@@ -2960,9 +3004,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -2971,7 +3016,7 @@ const Charts = (() => {
   // Speed comparison chart (propulsion speeds at different throttle settings)
   function renderCompareSpeeds(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const throttleLabels = { 1: 'Cruise', 2: 'Full', 3: 'Flank', 4: 'AB/Emergency' };
     // Collect unique throttle values across all items
     const throttleSet = new Set();
@@ -3015,7 +3060,7 @@ const Charts = (() => {
 
         const y = baseY + i * (barH + 2);
         const bw = barMaxW * (maxSpd / globalMax);
-        const col = COMPARE_COLORS[i];
+        const col = cmpCol(item, i);
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
           .attr('width', bw).attr('height', barH)
@@ -3031,9 +3076,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3042,7 +3088,7 @@ const Charts = (() => {
   // Magazine capacity comparison (simple horizontal bars)
   function renderCompareMagazines(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
     const magItems = items.map(item => {
       const totalCap = (item.magazines || []).reduce((sum, m) => sum + ((m.capacity || 0) * (m.qty || 1)), 0);
       return { name: item.name, total: totalCap };
@@ -3062,7 +3108,7 @@ const Charts = (() => {
     magItems.forEach((m, i) => {
       const y = pad + i * (barH + gap);
       const bw = barMaxW * (m.total / maxCap);
-      const col = COMPARE_COLORS[i];
+      const col = cmpCol(items[i], i);
       svg.append('rect')
         .attr('x', pad).attr('y', y)
         .attr('width', bw).attr('height', barH)
@@ -3080,7 +3126,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareRadar(container, items, cat, allItems) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     let axes;
     if (cat === 'aircraft') {
@@ -3150,7 +3196,7 @@ const Charts = (() => {
 
     // One polygon + dots per item
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(item, idx);
       const values = axes.map(a => ({
         label: a.label,
         value: Math.min((parseFloat(item[a.key]) || 0) / maxVals[a.key], 1),
@@ -3162,21 +3208,23 @@ const Charts = (() => {
         return [R * d.value * Math.cos(angle), R * d.value * Math.sin(angle)];
       });
 
+      const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
       g.append('polygon')
         .attr('points', points.map(p => p.join(',')).join(' '))
         .attr('fill', col)
         .attr('fill-opacity', 0.15)
         .attr('stroke', col)
-        .attr('stroke-width', 1.5);
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', dashPatterns[idx % dashPatterns.length]);
 
       values.forEach((d, i) => {
         const angle = angleSlice * i - Math.PI / 2;
         const x = R * d.value * Math.cos(angle);
         const y = R * d.value * Math.sin(angle);
         g.append('circle')
-          .attr('cx', x).attr('cy', y).attr('r', 3.5)
-          .attr('fill', col)
-          .attr('stroke', '#fff').attr('stroke-width', 1)
+          .attr('cx', x).attr('cy', y).attr('r', 4)
+          .attr('fill', col).attr('fill-opacity', 0.9)
+          .attr('stroke', '#fff').attr('stroke-width', 0.5)
           .style('cursor', 'pointer')
           .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)}</b><br>${esc(d.label)}: ${d.raw.toLocaleString()}`))
           .on('mouseout', hideTooltip);
@@ -3187,9 +3235,10 @@ const Charts = (() => {
     const legY = H - 20;
     items.forEach((item, i) => {
       const lx = 12 + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3200,14 +3249,16 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareFlightEnvelope(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
-    // Filter to items with performance data and altitude bands
-    const validItems = items.filter(it => {
+    // Track which items have valid data, keeping original indices for color consistency
+    const validIndices = [];
+    items.forEach((it, i) => {
       const perfs = it.propulsion?.performances;
-      return perfs && perfs.length && perfs[0].altBand != null;
+      if (perfs && perfs.length && perfs[0].altBand != null) validIndices.push(i);
     });
-    if (validItems.length === 0) return;
+    if (validIndices.length === 0) return;
+    const validItems = validIndices.map(i => items[i]);
 
     // Build band arrays per item
     const itemBands = validItems.map(item => {
@@ -3258,9 +3309,10 @@ const Charts = (() => {
     });
 
     // Draw envelope + dots per item
-    validItems.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
-      const bandArr = itemBands[idx];
+    validItems.forEach((item, vi) => {
+      const idx = validIndices[vi];
+      const col = cmpCol(items[idx], idx);
+      const bandArr = itemBands[vi];
       if (bandArr.length === 0) return;
 
       // Build envelope polygon
@@ -3276,30 +3328,33 @@ const Charts = (() => {
       ];
       const pathD = 'M' + polyPoints.map(p => `${p.x},${p.y}`).join('L') + 'Z';
 
+      // Use dashed strokes for 2nd+ items so overlapping envelopes remain distinguishable
+      const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
       g.append('path').attr('d', pathD)
-        .attr('fill', col).attr('fill-opacity', 0.1)
-        .attr('stroke', col).attr('stroke-opacity', 0.6).attr('stroke-width', 1.5);
+        .attr('fill', col).attr('fill-opacity', 0.15)
+        .attr('stroke', col).attr('stroke-opacity', 0.9).attr('stroke-width', 2)
+        .attr('stroke-dasharray', dashPatterns[idx % dashPatterns.length]);
 
       // Data points per band
       bandArr.forEach(b => {
         const midAlt = (b.altMin + b.altMax) / 2;
         if (b.cruise) {
-          g.append('circle').attr('cx', xScale(b.cruise)).attr('cy', yScale(midAlt)).attr('r', 3.5)
-            .attr('fill', col).attr('fill-opacity', 0.7).attr('stroke', col).attr('stroke-width', 1)
+          g.append('circle').attr('cx', xScale(b.cruise)).attr('cy', yScale(midAlt)).attr('r', 4)
+            .attr('fill', col).attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
             .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)} · Cruise</b><br>${b.cruise} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
             .on('mouseout', hideTooltip);
         }
         if (b.mil) {
-          g.append('circle').attr('cx', xScale(b.mil)).attr('cy', yScale(midAlt)).attr('r', 3.5)
-            .attr('fill', col).attr('fill-opacity', 0.7).attr('stroke', col).attr('stroke-width', 1)
+          g.append('circle').attr('cx', xScale(b.mil)).attr('cy', yScale(midAlt)).attr('r', 4)
+            .attr('fill', col).attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
             .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)} · Military</b><br>${b.mil} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
             .on('mouseout', hideTooltip);
         }
         if (b.ab) {
-          g.append('circle').attr('cx', xScale(b.ab)).attr('cy', yScale(midAlt)).attr('r', 3.5)
-            .attr('fill', col).attr('fill-opacity', 0.7).attr('stroke', col).attr('stroke-width', 1)
+          g.append('circle').attr('cx', xScale(b.ab)).attr('cy', yScale(midAlt)).attr('r', 4)
+            .attr('fill', col).attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
             .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)} · Afterburner</b><br>${b.ab} kt @ ${Math.round(b.altMin)}–${Math.round(b.altMax)} m`))
             .on('mouseout', hideTooltip);
@@ -3326,15 +3381,19 @@ const Charts = (() => {
       .attr('text-anchor', 'middle').attr('font-size', '9').attr('fill', 'rgba(255,255,255,0.3)')
       .attr('letter-spacing', '0.05em').attr('transform', `rotate(-90, ${-M.left + 10}, ${h / 2})`).text('ALTITUDE');
 
-    // Legend at bottom
+    // Legend at bottom — show ALL items, mark missing ones
     const legY = H - 14;
-    validItems.forEach((item, i) => {
-      const lx = M.left + i * ((w) / validItems.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+    items.forEach((item, i) => {
+      const lx = M.left + i * ((w) / items.length);
+      const hasData = validIndices.includes(i);
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i))
+        .attr('opacity', hasData ? 1 : 0.3);
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
-        .text(item.name.length > 22 ? item.name.slice(0, 20) + '…' : item.name);
+        .attr('opacity', hasData ? 1 : 0.5)
+        .text((item.name.length > 18 ? item.name.slice(0, 16) + '…' : item.name) + (hasData ? '' : ' (N/A)'));
     });
   }
 
@@ -3343,14 +3402,16 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareDepthSpeed(container, items) {
     if (!d3Ready()) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
-    // Filter to submarines with depth + performance data
-    const validItems = items.filter(it => {
+    // Track which items have valid data, keeping original indices for color consistency
+    const dsValidIndices = [];
+    items.forEach((it, i) => {
       const perf = it.propulsion?.performances;
-      return perf && perf.length && it.maxDepth && Math.abs(it.maxDepth) > 0;
+      if (perf && perf.length && it.maxDepth && Math.abs(it.maxDepth) > 0) dsValidIndices.push(i);
     });
-    if (validItems.length === 0) return;
+    if (dsValidIndices.length === 0) return;
+    const validItems = dsValidIndices.map(i => items[i]);
 
     // Build zone data per item
     const itemZones = validItems.map(item => {
@@ -3432,9 +3493,10 @@ const Charts = (() => {
     });
 
     // Draw envelope per item
-    validItems.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
-      const iz = itemZones[idx];
+    validItems.forEach((item, vi) => {
+      const idx = dsValidIndices[vi];
+      const col = cmpCol(items[idx], idx);
+      const iz = itemZones[vi];
       if (!iz) return;
 
       // Build envelope: for each zone, get min/max speed at that depth
@@ -3450,16 +3512,18 @@ const Charts = (() => {
       const poly = [...leftPts, ...rightPts.slice().reverse()];
       const pathD = 'M' + poly.map(p => `${p.x},${p.y}`).join('L') + 'Z';
 
+      const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
       g.append('path').attr('d', pathD)
-        .attr('fill', col).attr('fill-opacity', 0.1)
-        .attr('stroke', col).attr('stroke-opacity', 0.6).attr('stroke-width', 1.5);
+        .attr('fill', col).attr('fill-opacity', 0.15)
+        .attr('stroke', col).attr('stroke-opacity', 0.9).attr('stroke-width', 2)
+        .attr('stroke-dasharray', dashPatterns[idx % dashPatterns.length]);
 
       // Dots at data points
       iz.zones.forEach(z => {
         z.speeds.forEach(s => {
           g.append('circle')
-            .attr('cx', xScale(s.speed)).attr('cy', yScale(z.depth)).attr('r', 3.5)
-            .attr('fill', col).attr('fill-opacity', 0.7).attr('stroke', col).attr('stroke-width', 1)
+            .attr('cx', xScale(s.speed)).attr('cy', yScale(z.depth)).attr('r', 4)
+            .attr('fill', col).attr('fill-opacity', 0.9).attr('stroke', '#fff').attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
             .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)}</b><br>${z.label}: ${s.speed} kt @ ${z.depth} m`))
             .on('mouseout', hideTooltip);
@@ -3485,15 +3549,19 @@ const Charts = (() => {
       .attr('text-anchor', 'middle').attr('font-size', '9').attr('fill', 'rgba(255,255,255,0.3)')
       .attr('letter-spacing', '0.05em').attr('transform', `rotate(-90, ${-M.left + 10}, ${h / 2})`).text('DEPTH');
 
-    // Legend at bottom
+    // Legend at bottom — show ALL items, mark missing ones
     const legY = H - 14;
-    validItems.forEach((item, i) => {
-      const lx = M.left + i * ((w) / validItems.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+    items.forEach((item, i) => {
+      const lx = M.left + i * ((w) / items.length);
+      const hasData = dsValidIndices.includes(i);
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i))
+        .attr('opacity', hasData ? 1 : 0.3);
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
-        .text(item.name.length > 22 ? item.name.slice(0, 20) + '…' : item.name);
+        .attr('opacity', hasData ? 1 : 0.5)
+        .text((item.name.length > 18 ? item.name.slice(0, 16) + '…' : item.name) + (hasData ? '' : ' (N/A)'));
     });
   }
 
@@ -3502,7 +3570,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareDomainReach(container, items, cat) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Compute domain ranges per item
     const itemDomains = items.map(item => {
@@ -3560,7 +3628,7 @@ const Charts = (() => {
 
     // Draw wedges per item
     items.forEach((item, idx) => {
-      const col = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+      const col = cmpCol(item, idx);
       const domains = itemDomains[idx];
 
       domainDefs.forEach(dom => {
@@ -3574,10 +3642,12 @@ const Charts = (() => {
         const x2 = cx + Math.cos(a2) * r;
         const y2 = cy + Math.sin(a2) * r;
 
+        const dashPatterns = ['none', '8,4', '4,4', '12,4,4,4', '2,4'];
         svg.append('path')
           .attr('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`)
-          .attr('fill', col).attr('fill-opacity', 0.12)
-          .attr('stroke', col).attr('stroke-opacity', 0.5).attr('stroke-width', 1)
+          .attr('fill', col).attr('fill-opacity', 0.15)
+          .attr('stroke', col).attr('stroke-opacity', 0.9).attr('stroke-width', 2)
+          .attr('stroke-dasharray', dashPatterns[idx % dashPatterns.length])
           .style('cursor', 'pointer')
           .on('mouseover', (evt) => showTooltip(evt, `<b>${esc(item.name)}</b><br>${dom.label}: ${range} km`))
           .on('mouseout', hideTooltip);
@@ -3612,9 +3682,10 @@ const Charts = (() => {
     const legY = H - 20;
     items.forEach((item, i) => {
       const lx = 12 + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3625,7 +3696,7 @@ const Charts = (() => {
   // ══════════════════════════════════════════
   function renderCompareLoadouts(container, items) {
     if (!d3Ready() || !items.length) return;
-    container.innerHTML = '';
+    clearCompareContainer(container);
 
     // Compute loadout stats per item
     const stats = items.map(item => {
@@ -3670,7 +3741,7 @@ const Charts = (() => {
         const y = baseY + i * (barH + 2);
         const val = values[i];
         const bw = barMaxW * (val / maxVal);
-        const col = COMPARE_COLORS[i % COMPARE_COLORS.length];
+        const col = cmpCol(items[i], i);
 
         svg.append('rect')
           .attr('x', labelW + pad).attr('y', y)
@@ -3691,9 +3762,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
-        .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+        .attr('rx', 2).attr('fill', cmpCol(item, i));
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
