@@ -1637,16 +1637,17 @@ body {
 .compare-charts-row {
   display: flex;
   flex-direction: row;
+  align-items: stretch;
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 8px;
   margin: 0 0 20px;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--border-light) transparent;
 }
-.compare-charts-row::-webkit-scrollbar { height: 4px; }
+.compare-charts-row::-webkit-scrollbar { height: 6px; }
 .compare-charts-row::-webkit-scrollbar-track { background: transparent; }
-.compare-charts-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.compare-charts-row::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
 
 .compare-chart {
   background: var(--bg-card);
@@ -1661,13 +1662,16 @@ body {
   flex: 0 0 540px;
   min-width: 450px;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Force all SVGs inside inline chart cards to fill width; viewBox maintains aspect ratio */
+/* Force all SVGs inside inline chart cards to fill the card; viewBox maintains aspect ratio */
 .compare-chart.compare-chart-inline svg {
   display: block;
   width: 100% !important;
-  height: auto !important;
+  flex: 1;
+  min-height: 0;
 }
 
 .compare-chart-title {
@@ -1676,6 +1680,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 /* Compare subsection for lists (sensors, weapons, etc.) */
