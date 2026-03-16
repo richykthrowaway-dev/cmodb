@@ -1663,6 +1663,13 @@ body {
   margin: 0;
 }
 
+/* Force all SVGs inside inline chart cards to fill width; viewBox maintains aspect ratio */
+.compare-chart.compare-chart-inline svg {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
 .compare-chart-title {
   font-size: 11px;
   color: var(--text-muted);

@@ -3243,7 +3243,6 @@ const Charts = (() => {
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
-    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
     const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
 
     // Grid lines
@@ -3417,7 +3416,6 @@ const Charts = (() => {
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
-    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
     const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
 
     // Grid lines
@@ -3533,7 +3531,6 @@ const Charts = (() => {
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
     // Background
-    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'rgba(8,16,30,0.6)').attr('rx', 6);
 
     // Range circles
     const rings = [0.25, 0.5, 0.75, 1.0];
