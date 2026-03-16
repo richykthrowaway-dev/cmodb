@@ -2648,11 +2648,16 @@ const App = (() => {
     });
 
     // Wire up SVG legend clicks via event delegation
-    compareBody.addEventListener('click', (e) => {
+    // Remove any previous listener to prevent stacking on re-renders
+    if (compareBody._cmpLegHandler) {
+      compareBody.removeEventListener('click', compareBody._cmpLegHandler);
+    }
+    compareBody._cmpLegHandler = (e) => {
       const leg = e.target.closest('.cmp-leg');
       if (!leg) return;
       toggleUnit(leg.dataset.itemId);
-    });
+    };
+    compareBody.addEventListener('click', compareBody._cmpLegHandler);
 
     // ── Wire up D3 charts after DOM insertion ──
     renderCompareChartsOnly();
