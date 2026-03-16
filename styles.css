@@ -360,16 +360,21 @@ body {
   background: rgba(59, 130, 246, 0.08);
 }
 
-.nav-bmc {
+.nav-bmc,
+.nav-bmc:visited,
+.nav-bmc:active {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   margin-left: auto;
-  padding: 8px 12px;
-  color: #0b0d12;
+  padding: 6px 14px;
+  color: #0b0d12 !important;
   background: #ffdd00;
   border-radius: 6px;
-  text-decoration: none;
+  text-decoration: none !important;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
   transition: background 0.2s, transform 0.15s;
   flex-shrink: 0;
 }
@@ -377,6 +382,8 @@ body {
 .nav-bmc:hover {
   background: #e6c700;
   transform: translateY(-1px);
+  text-decoration: none !important;
+  color: #0b0d12 !important;
 }
 
 /* ── Toolbar ────────────────────────────── */
