@@ -2741,9 +2741,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -2837,9 +2838,10 @@ const Charts = (() => {
     // Legend
     items.forEach((item, i) => {
       const lx = 8 + i * (size / items.length);
-      svg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', size + 8).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', size + 16)
+      lg.append('text').attr('x', lx + 14).attr('y', size + 16)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 16 ? item.name.slice(0, 14) + '…' : item.name);
     });
@@ -2919,9 +2921,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -2996,9 +2999,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3067,9 +3071,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3225,9 +3230,10 @@ const Charts = (() => {
     const legY = H - 20;
     items.forEach((item, i) => {
       const lx = 12 + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3375,10 +3381,11 @@ const Charts = (() => {
     items.forEach((item, i) => {
       const lx = M.left + i * ((w) / items.length);
       const hasData = validIndices.includes(i);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length])
         .attr('opacity', hasData ? 1 : 0.3);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .attr('opacity', hasData ? 1 : 0.5)
         .text((item.name.length > 18 ? item.name.slice(0, 16) + '…' : item.name) + (hasData ? '' : ' (N/A)'));
@@ -3542,10 +3549,11 @@ const Charts = (() => {
     items.forEach((item, i) => {
       const lx = M.left + i * ((w) / items.length);
       const hasData = dsValidIndices.includes(i);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length])
         .attr('opacity', hasData ? 1 : 0.3);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .attr('opacity', hasData ? 1 : 0.5)
         .text((item.name.length > 18 ? item.name.slice(0, 16) + '…' : item.name) + (hasData ? '' : ' (N/A)'));
@@ -3669,9 +3677,10 @@ const Charts = (() => {
     const legY = H - 20;
     items.forEach((item, i) => {
       const lx = 12 + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '9').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });
@@ -3748,9 +3757,10 @@ const Charts = (() => {
     const legY = H - 12;
     items.forEach((item, i) => {
       const lx = pad + i * (W / items.length);
-      svg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
+      const lg = svg.append('g').attr('class', 'cmp-leg').attr('data-item-id', item.id).style('cursor', 'pointer');
+      lg.append('rect').attr('x', lx).attr('y', legY - 6).attr('width', 10).attr('height', 10)
         .attr('rx', 2).attr('fill', COMPARE_COLORS[i % COMPARE_COLORS.length]);
-      svg.append('text').attr('x', lx + 14).attr('y', legY + 1)
+      lg.append('text').attr('x', lx + 14).attr('y', legY + 1)
         .attr('font-size', '10').attr('fill', COLORS.text)
         .text(item.name.length > 20 ? item.name.slice(0, 18) + '…' : item.name);
     });

@@ -2203,7 +2203,7 @@ const App = (() => {
   function renderCompareChartsOnly() {
     requestAnimationFrame(() => {
       for (const [cat, citems] of Object.entries(_compareAllMerged)) {
-        const visibleItems = citems.filter(it => !_compareHiddenIds.has(it.id));
+        const visibleItems = citems.filter(it => !_compareHiddenIds.has(String(it.id)));
         if (visibleItems.length < 1) continue;
         try {
           const specsChartEl = document.getElementById(`cmpSpecs-${cat}Chart`);
@@ -2232,6 +2232,54 @@ const App = (() => {
           if (loadoutEl && Charts.renderCompareLoadouts) Charts.renderCompareLoadouts(loadoutEl, visibleItems);
         } catch (e) {
           console.error('Compare chart error for', cat, e);
+        }
+
+        // Inject dimmed legend entries for hidden items into each chart SVG
+        const hiddenItems = citems.filter(it => _compareHiddenIds.has(String(it.id)));
+        if (hiddenItems.length > 0) {
+          const COLORS = Charts.COMPARE_COLORS;
+          document.querySelectorAll('.compare-chart-inline svg').forEach(svgEl => {
+            const svg = d3.select(svgEl);
+            const existingLegs = svg.selectAll('.cmp-leg').nodes();
+            if (!existingLegs.length) return;
+            // Read layout from existing legend items
+            const firstLeg = d3.select(existingLegs[0]);
+            const firstRect = firstLeg.select('rect');
+            const firstText = firstLeg.select('text');
+            const legY = parseFloat(firstRect.attr('y'));
+            const fontSize = firstText.attr('font-size') || '10';
+            const firstX = parseFloat(firstRect.attr('x'));
+            // Use total item count for spacing so all items fit within SVG
+            const totalCount = citems.length;
+            const svgW = parseFloat(svgEl.getAttribute('width') || svgEl.viewBox?.baseVal?.width || 540);
+            const availW = svgW - firstX;
+            const spacing = availW / totalCount;
+            // Reposition existing visible legend items using original indices
+            existingLegs.forEach((legNode, vi) => {
+              const lg = d3.select(legNode);
+              const itemId = lg.attr('data-item-id');
+              const origIdx = citems.findIndex(it => String(it.id) === String(itemId));
+              if (origIdx < 0) return;
+              const lx = firstX + origIdx * spacing;
+              lg.select('rect').attr('x', lx);
+              lg.select('text').attr('x', lx + 14);
+            });
+            // Append dimmed legend items for hidden units at their original positions
+            hiddenItems.forEach((item) => {
+              const origIdx = citems.indexOf(item);
+              const col = COLORS[origIdx % COLORS.length];
+              const lx = firstX + origIdx * spacing;
+              const lg = svg.append('g').attr('class', 'cmp-leg cmp-leg-hidden')
+                .attr('data-item-id', item.id).style('cursor', 'pointer').attr('opacity', 0.35);
+              lg.append('rect').attr('x', lx).attr('y', legY).attr('width', 10).attr('height', 10)
+                .attr('rx', 2).attr('fill', col);
+              const label = item.name.length > 18 ? item.name.slice(0, 16) + '…' : item.name;
+              lg.append('text').attr('x', lx + 14).attr('y', legY + 7)
+                .attr('font-size', fontSize).attr('fill', '#fff')
+                .attr('text-decoration', 'line-through')
+                .text(label);
+            });
+          });
         }
       }
     });
@@ -2581,19 +2629,27 @@ const App = (() => {
 
     compareBody.innerHTML = bodyHtml || '<p style="color:var(--text-muted);padding:40px;text-align:center">Select at least 2 items from the same category to compare.</p>';
 
-    // ── Wire up legend toggle chips ──
+    // ── Toggle handler (shared by chip row + SVG legend clicks) ──
+    function toggleUnit(id) {
+      const sid = String(id);
+      if (_compareHiddenIds.has(sid)) _compareHiddenIds.delete(sid);
+      else _compareHiddenIds.add(sid);
+      // Sync chip row state
+      compareBody.querySelectorAll('.compare-legend-chip').forEach(c =>
+        c.classList.toggle('unit-hidden', _compareHiddenIds.has(String(c.dataset.id))));
+      renderCompareChartsOnly();
+    }
+
+    // Wire up chip row clicks
     compareBody.querySelectorAll('.compare-legend-chip').forEach(chip => {
-      chip.onclick = () => {
-        const id = parseInt(chip.dataset.id);
-        if (_compareHiddenIds.has(id)) {
-          _compareHiddenIds.delete(id);
-          chip.classList.remove('unit-hidden');
-        } else {
-          _compareHiddenIds.add(id);
-          chip.classList.add('unit-hidden');
-        }
-        renderCompareChartsOnly();
-      };
+      chip.onclick = () => toggleUnit(chip.dataset.id);
+    });
+
+    // Wire up SVG legend clicks via event delegation
+    compareBody.addEventListener('click', (e) => {
+      const leg = e.target.closest('.cmp-leg');
+      if (!leg) return;
+      toggleUnit(leg.dataset.itemId);
     });
 
     // ── Wire up D3 charts after DOM insertion ──
