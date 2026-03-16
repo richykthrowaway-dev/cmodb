@@ -3442,24 +3442,34 @@ const App = (() => {
       btn.textContent = isProduction ? 'Submitting…' : 'Saving…';
 
       if (isProduction) {
-        // Build a pre-filled GitHub Issue with the tip content
-        const issueTitle = encodeURIComponent(`[Tip] ${title}`);
-        const issueBody = encodeURIComponent(
-          `**Category:** ${category}\n` +
-          (author ? `**Author:** ${author}\n` : '') +
-          (link ? `**Reference:** ${link}\n` : '') +
-          `\n---\n\n${body}`
-        );
-        window.open(
-          `https://github.com/richykthrowaway-dev/cmodb/issues/new?labels=tip&title=${issueTitle}&body=${issueBody}`,
-          '_blank'
-        );
-        closeTipModal();
-        ['tipTitle', 'tipBody', 'tipAuthorName', 'tipLink'].forEach(id => {
-          document.getElementById(id).value = '';
-        });
-        btn.disabled = false;
-        btn.textContent = 'Submit Tip';
+        // Submit tip via Formspree
+        try {
+          const res = await fetch('https://formspree.io/f/xjgaavrw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              _subject: `[Tip] ${title}`,
+              category,
+              title,
+              body,
+              author: author || 'Anonymous',
+              link: link || '',
+            }),
+          });
+          if (!res.ok) throw new Error('Submission failed');
+          closeTipModal();
+          ['tipTitle', 'tipBody', 'tipAuthorName', 'tipLink'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+          errEl.style.display = 'none';
+          alert('Tip submitted! Thanks for contributing.');
+        } catch (e) {
+          errEl.textContent = 'Failed to submit. Please try again later.';
+          errEl.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Submit Tip';
+        }
       } else {
         try {
           const res = await fetch('/api/tips', {
