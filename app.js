@@ -1,5 +1,5 @@
 /* ============================================
-   CMO DB — Application Logic
+   Command: Index — Application Logic
    Lazy-loaded JSON data with in-memory cache
    ============================================ */
 
@@ -579,7 +579,7 @@ const App = (() => {
   }
 
   // SessionStorage key for wiki image cache
-  const SS_IMG_KEY = 'cmodb_imgcache_v2';
+  const SS_IMG_KEY = 'cmdindex_imgcache_v2';
   function loadSessionCache() {
     try {
       const raw = sessionStorage.getItem(SS_IMG_KEY);
@@ -1200,7 +1200,7 @@ const App = (() => {
     }
 
     // DB variant info
-    const dbInfo = d.dbName && d.dbName !== d.name ? `<div class="detail-desc" style="font-size:12px">CMO DB: ${esc(d.dbName)}${d.comments && d.comments !== '-' ? ' [' + esc(d.comments) + ']' : ''}</div>` : '';
+    const dbInfo = d.dbName && d.dbName !== d.name ? `<div class="detail-desc" style="font-size:12px">DB Name: ${esc(d.dbName)}${d.comments && d.comments !== '-' ? ' [' + esc(d.comments) + ']' : ''}</div>` : '';
 
     html += `
       <div class="detail-header">
@@ -3357,7 +3357,7 @@ const App = (() => {
             <span id="tipsCount" class="tips-count"></span>
           </div>
           ${isProduction
-            ? `<a class="tips-submit-btn" href="https://github.com/richykthrowaway-5949/cmodb/issues/new?labels=tip&title=%5BTip%5D+" target="_blank" rel="noopener">
+            ? `<a class="tips-submit-btn" href="https://github.com/richykthrowaway-dev/cmodb/issues/new?labels=tip&title=%5BTip%5D+" target="_blank" rel="noopener">
                 <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 Suggest a Tip
               </a>`

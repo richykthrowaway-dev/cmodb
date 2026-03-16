@@ -1,5 +1,5 @@
 /* ============================================
-   CMO DB — Chart Visualizations (D3.js)
+   Command: Index — Chart Visualizations (D3.js)
    ============================================ */
 
 const Charts = (() => {
@@ -85,33 +85,39 @@ const Charts = (() => {
 
     let axes;
     if (cat === 'aircraft') {
+      // refMax: dataset-calibrated upper bounds per axis.
+      // agility/climbRate/maxPayload/damagePoints are detail-only fields absent
+      // from allItems (the index), so we cannot compute maxVals from allItems —
+      // hardcoded bounds are the correct approach here.
       axes = [
-        { key: 'maxSpeed', label: 'Speed' },
-        { key: 'agility', label: 'Agility' },
-        { key: 'climbRate', label: 'Climb' },
-        { key: 'maxPayload', label: 'Payload' },
-        { key: 'maxWeight', label: 'Max Weight' },
+        { key: 'maxSpeed',     label: 'Speed',      refMax: 2000   },  // knots
+        { key: 'agility',      label: 'Agility',    refMax: 6      },  // 0–5.5 scale
+        { key: 'climbRate',    label: 'Climb',      refMax: 130    },  // m/s
+        { key: 'maxPayload',   label: 'Payload',    refMax: 130000 },  // kg
+        { key: 'damagePoints', label: 'Durability', refMax: 20     },  // hit pts
       ];
     } else if (cat === 'ships') {
       axes = [
-        { key: 'maxSpeed', label: 'Speed' },
+        { key: 'maxSpeed',        label: 'Speed' },
         { key: 'displacementFull', label: 'Displacement' },
-        { key: 'beam', label: 'Beam' },
-        { key: 'draft', label: 'Draft' },
-        { key: 'sensorCount', label: 'Sensors' },
-        { key: 'weaponCount', label: 'Weapons' },
+        { key: 'beam',            label: 'Beam' },
+        { key: 'draft',           label: 'Draft' },
+        { key: 'sensorCount',     label: 'Sensors' },
+        { key: 'weaponCount',     label: 'Weapons' },
       ];
     } else return;
 
-    // Normalize 0-1 against max in allItems
+    // Normalize 0-1: use per-axis refMax if provided, else compute from allItems
     const maxVals = {};
     axes.forEach(a => {
-      maxVals[a.key] = Math.max(...allItems.map(i => parseFloat(i[a.key]) || 0), 1);
+      maxVals[a.key] = a.refMax != null
+        ? a.refMax
+        : Math.max(...allItems.map(i => parseFloat(i[a.key]) || 0), 1);
     });
 
     const values = axes.map(a => ({
       label: a.label,
-      value: (parseFloat(item[a.key]) || 0) / maxVals[a.key],
+      value: Math.min((parseFloat(item[a.key]) || 0) / maxVals[a.key], 1),
       raw: parseFloat(item[a.key]) || 0,
     }));
 

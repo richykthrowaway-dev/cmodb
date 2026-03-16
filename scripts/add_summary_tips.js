@@ -1,0 +1,452 @@
+const fs = require('fs');
+const path = require('path');
+
+const TIPS_FILE = path.join(__dirname, '..', 'data', 'tips.json');
+const existing = JSON.parse(fs.readFileSync(TIPS_FILE, 'utf8'));
+let nextId = existing.length ? Math.max(...existing.map(t => t.id)) + 1 : 1;
+
+const newTips = [
+  {
+    "category": "General",
+    "title": "CMO Core Philosophy: Joint Operations and Combined Arms",
+    "body": "CMO simulates air, naval, and land power together — these domains cannot be viewed in isolation. Coordinated 'jointness' creates overwhelming dominance; this is the central design principle. The game spans the late 1940s through the 2020s, tracing the post-WWII evolution from traditional fleet battles to the missile age, jet bomber, and submarine as asymmetric counters to the carrier task force.\n\nKey historical context: Cold War arms race (Komar missile boats, carrier-launched U-2s, the 'Revolt of the Admirals' over nuclear weapon delivery), proxy conflicts (Falklands, Arab-Israeli wars, Vietnam, Korea), the Gulf War's demonstration of American air dominance through coordinated joint operations, and modern long-range precision weapons (Naval Strike Missile, Yakhont, LRASM, DF-21) pushing stealth, speed, and range to new limits. Understanding this evolution helps you grasp why combined arms thinking is rewarded in CMO.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Performance: Large Scenarios Run Slower — Plan Accordingly",
+    "body": "Large scenarios with many 'moving parts' run significantly slower than small ones on the same PC. Different scenarios have vastly different performance characteristics even on identical hardware. The minimum system requirement is 2 GB RAM (4 GB+ recommended), and a quad-core CPU is recommended over dual-core.\n\nPractically, when running large fleet engagements or scenarios with hundreds of units and active sensors, expect the simulation to require higher time compression values to be playable. If performance is critical, use the Benchmark Mode (available in the Operations Planning section) to test scenario performance before final deployment.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Game Does Not Auto-Pause on Alt-Tab — Stay Alert",
+    "body": "CMO does not automatically pause when you alt-tab out of the game. Messages and events continue to fire in the background while you are in another application. If your computer enters sleep mode while CMO is running, it will wake with CMO still running — potentially hours of simulated time may have elapsed.\n\nBest practice: always manually pause (Spacebar) before switching applications or walking away from the computer. This is especially important during combat phases where time-sensitive decisions are required.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Recommended Learning Scenarios for New Players",
+    "body": "The manual recommends specific built-in scenarios for learning different aspects of CMO:\n\n- Chumonchin Chan (1950): Gun-dominant surface warfare — ideal for learning basic naval combat.\n- Wooden Leg (1985): Aerial refueling and long-range strike — teaches tanker operations and mission planning.\n- Raid on Kismayo (2013): Low-intensity modern warfare — good for learning joint ops in a forgiving environment.\n- Latakia (1973): Missile-dominant surface warfare — the classic anti-ship missile engagement.\n- Stand Up (2011): Combined arms — multiple unit types working together.\n- N. Pacific Shootout (1989): Peer air-to-air combat — BVR missile tactics at their most intense.\n- Iron Hand (2014): Standoff weapons, air campaigns, casualty-conscious operations — teaches SEAD and precision strike planning.\n\nPlay these in roughly this order to build up skills progressively.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Doctrine Inheritance Chain: Side → Mission → Group → Unit",
+    "body": "CMO uses a hierarchical inheritance system for Rules of Engagement (ROE) and Doctrine settings. The chain is: Side → Mission → Group → Unit. Lower levels inherit from higher levels by default, but can override.\n\nThis means you can set a side-wide doctrine and then override it for specific missions (e.g., one strike mission with weapons free while patrols stay tight), then further override for individual groups or units. Understanding this chain is critical for controlling AI behavior: if a unit is acting unexpectedly, check whether it inherited a setting from its mission or the side level rather than having the setting explicitly set at unit level.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Time Controls and Compression Modes Explained",
+    "body": "CMO offers multiple time compression rates: 1x, 2x, 5x, 15x, Turbo (maximum speed), Double Flame, and Coarse Fidelity (auto-disengages in combat). While paused, you can step time in increments of 15 seconds up to 15 minutes.\n\nDouble Flame and Coarse Fidelity modes sacrifice simulation precision for speed — they automatically disengage when combat begins to ensure accurate resolution. Use these for transiting units across ocean distances, then let the game drop back to lower compression during engagements. Turbo mode is useful for fast-forwarding through quiet periods but should not be used during active combat.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Terrain Effects on Combat — Use Them Deliberately",
+    "body": "Terrain has significant mechanical effects on CMO combat that skilled players exploit:\n\n- Forests and Shrublands: Slow ground units AND shield them from bombs and surveillance. Highly radar-disruptive — use forested terrain to mask ground units from airborne radars.\n- Urban terrain: Provides the greatest shielding effect and is slightly faster for ground movement (roads). Also radar-disruptive.\n- Wetlands and Snow: Significantly slow units and reduce visibility.\n- Croplands: Small speed and visibility reduction. Radar-disruptive.\n- Barren/Grassland: No modifiers — the baseline.\n\nFor ASW and naval operations, the underwater terrain equivalent is the thermal layer. Convergence zones (CZs) are a game-changer: they enable long-range passive sonar detection at 20–40 nautical miles depending on latitude. CZ presence fundamentally changes ASW doctrine — if CZs exist, passive sonar becomes far more powerful.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Engage Auto vs. Engage Manual: When to Use Each",
+    "body": "F1 (Engage Auto): Automatically attacks selected target(s) using longest-to-shortest range logic. Multiple attacking units submit 'firing proposals' to the side AI, which allocates shots. Best for standard engagements where you trust the AI to select appropriate weapons.\n\nShift+F1 (Engage Manual): Opens the manual weapon-to-target allocation dialog. Allows off-axis missile courses (useful for terrain masking approaches), lets you see green/red weapon status for each weapon against each target, and gives full control over which weapon hits which target. Use Manual when you need to conserve specific weapons, when you want to approach from an unexpected vector, or when the auto system is over-allocating shots to a single target.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Throttle, Altitude, and Terrain Following Per Waypoint",
+    "body": "F2 opens the Throttle/Altitude dialog, which has preset speeds/altitudes or a fine-grained slider. Critically, the Terrain Following (AGL — Above Ground Level) mode can be set per unit or per individual waypoint.\n\nThis means you can plan a mission where an aircraft transits at high altitude (fuel efficient) and then drops to terrain-following mode on the ingress leg to the target, then climbs again on egress. Setting altitude per waypoint gives much finer control over the flight profile than a single global setting, and is essential for SEAD and strike missions where low-level approach reduces radar detection range.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Group vs. Unit View Toggle (Numpad 9) for Individual Orders",
+    "body": "Pressing Numpad 9 toggles between Group View (showing a single group symbol for a formation) and Unit View (showing every individual unit separately). You must be in Unit View to give individual orders to specific units within a group.\n\nIn Group View, orders apply to the group as a whole. Switch to Unit View when you need to send a single ship in a formation to a specific task, redirect one aircraft in a flight, or give different throttle/altitude settings to individual units. This is a frequently overlooked feature that causes confusion when players cannot seem to select individual units.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Right-Click vs. Shift+Right-Click: Two Different Menus",
+    "body": "Right-Click on a unit or target opens the standard context menu: attack options, ASW actions, group operations. In ScenEdit mode it also allows editing properties, proficiency, and probability of appearance.\n\nShift+Right-Click opens an extended context menu with more specific options: engage with a specific weapon type (rather than auto-select), intercept a contact, pick up cargo units, and set a unit's home base. Use Shift+Right-Click when you need precise weapon selection or want to perform logistics operations.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Unit Status Panel: Understanding Fire, Flood, and Fuel Meters",
+    "body": "The right-side unit panel displays critical status information. Fire and Flood meters fill as a unit takes damage — when either meter is full, the unit is destroyed. Damage control effectiveness is proficiency-dependent, so elite crews fight fires faster and are more survivable.\n\nFor aircraft, the fuel display shows mission fuel, reserves, burn rate, bingo fuel information, and maximum remaining airborne time based on current burn rate and crew experience. Monitoring bingo fuel is critical: aircraft that hit bingo will RTB (Return to Base) immediately under default doctrine settings unless overridden.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Weapons Control Settings: TIGHT, FREE, and HOLD",
+    "body": "The Weapons Control setting in doctrine governs when units can fire:\n\n- TIGHT: Units only engage confirmed hostile contacts. Safest for avoiding blue-on-blue incidents.\n- FREE: Units engage anything that is not confirmed friendly. More aggressive; risk of engaging neutrals or unknowns.\n- HOLD: Units do not fire without explicit manual authorization. Use for units in sensitive areas or when you need absolute control.\n\nThe 'Engage Ambiguous' sub-setting fine-tunes how contacts of uncertain identity are handled: Ignore (never engage ambiguous), Optimistic (3x tolerance before engaging), or Pessimistic (engage within tolerance). For high-value assets like carriers, TIGHT is standard. For outer-ring defensive units far from friendly traffic, FREE may be appropriate.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Sensors",
+    "title": "EMCON: Every Active Emission Reveals Your Position",
+    "body": "EMCON (Emissions Control) covers three categories: Radar, Active Sonar, and OECM (Offensive Electronic Countermeasures). Each can be set to PASSIVE (off) or ACTIVE (on).\n\nCritical insight: active sensors are detectable at ranges beyond your own detection range. An ESM-equipped enemy can detect your radar before you can detect them. Intermittent EMCON (cycling sensors on/off at set or random intervals) reduces your detectability while still allowing periodic situational awareness updates. Five alert levels are available side-wide, plus Custom settings per unit.\n\nFor submarines especially, active sonar reveals your position to anyone nearby. Passive sonar should be the default; switch to active only when you have a firm contact and need targeting-quality data.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "WRA: Prevent Overkill and Control Engagement Range",
+    "body": "The WRA system allows you to tailor weapon allocation per target type using the Missile Defense Value (MDV) of the target. Example MDVs: a missile boat = 2; a Ticonderoga-class cruiser = 96. The WRA automatically allocates an appropriate number of missiles based on this value, preventing wasteful overkill (firing 8 missiles at a patrol boat that needs 1).\n\nAdditionally, you can set a maximum firing range below the weapon's paper maximum range. This increases Pk (probability of kill) since closer shots give the missile a better geometry and less time for the target to react. You can also set a No-Escape Zone (NEZ) launch mode, where the weapon is only fired when the target cannot kinematically escape it. WRA effectively gives each unit a 'personality' — a cautious unit waits for optimal geometry, while an aggressive unit fires at maximum range.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Ops Tempo: Surge vs. Sustained Sortie Rate",
+    "body": "The Ops Tempo setting in air doctrine controls sortie generation rate. Surge tempo maximizes sortie rate (aircraft return, rearm, and launch as fast as possible) but is unsustainable — it burns through crew readiness and maintenance capacity quickly. Sustained tempo is slower but can be maintained indefinitely.\n\nUse Surge for decisive moments: a time-critical strike window, a D-Day-style opening gambit, or when you need maximum air presence for a short window. Switch to Sustained for long-scenario operations where maintaining air capability over many hours matters more than peak output.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Quick Turnaround Settings for High-Sortie Operations",
+    "body": "The Quick Turnaround doctrine setting controls how aggressively aircraft are rearmed/refueled between sorties. Settings are: All (all aircraft quick-turn), Fighters+ASW only, or None.\n\nEnabling quick turnaround for fighters models the frenzied activity seen during intense air battles or rapid-response intercepts. Disabling it for strike aircraft (setting Fighters+ASW only) means bombers and strike jets take their full turnaround time, reflecting realistic rearming cycles. This setting directly affects how many sorties you can generate in a given time window.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Fuel State RTB: Bingo, Joker, and Group Behaviour",
+    "body": "The Fuel State doctrine setting governs when aircraft return to base: Bingo fuel (minimum fuel to return safely) or Joker fuel (a more conservative early-warning level). The RTB trigger can be set to: individual (each aircraft RTBs when it hits threshold), first to bingo (entire flight RTBs when first aircraft hits bingo), last to bingo (flight stays until last aircraft hits bingo), or never (aircraft ignore fuel until forced).\n\n'First to bingo' is the most conservative and safest for high-value aircraft. 'Last to bingo' maximizes time on station at the cost of higher attrition risk. The 'never' option can cause aircraft to crash when fuel is exhausted — only use this for special circumstances (one-way missions, Lua-scripted events).",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Weapons State RTB: When to Head Home After Expending Ordnance",
+    "body": "The Weapons State setting controls when aircraft RTB based on remaining ordnance: Winchester (completely out of weapons), Shotgun (out of primary weapons), All BVR (all beyond-visual-range missiles expended), or One Engagement BVR/WVR (after one engagement's worth of weapons used).\n\nFor air superiority fighters, 'All BVR' is often appropriate — they can still defend themselves with WVR missiles and guns but cannot contribute to the primary BVR fight. 'Winchester' maximizes sorties but may result in fighters remaining in the combat zone without effective offensive weapons. 'One Engagement BVR' is useful for high-sortie-rate fighters where you want them to fire once and return quickly for reloading.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "BVR Logic: Crank and Drag for Maximum Survivability",
+    "body": "The BVR Logic setting in air doctrine controls how fighters maneuver after firing BVR missiles: Follow Straight-In, Crank (default), or Crank+Drag.\n\nCranking means the aircraft turns to put the target at the edge of its radar's field of view after firing. This maintains missile datalink/guidance while presenting a reduced aspect to the enemy's incoming missiles — it reduces the closure rate and gives more time for defensive maneuvering. Crank+Drag adds a defensive 'drag' (turn cold, open range) after cranking, sacrificing some missile Pk for increased self-survival. The default Crank is the best balance for most situations. Use Crank+Drag for expensive or irreplaceable aircraft where self-preservation outweighs shot effectiveness.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Jettison Ordnance When Attacked: Trade Strike Capability for Survival",
+    "body": "The 'Jettison Ordnance' air doctrine setting causes aircraft to dump air-to-ground weapons when they are attacked. A lighter aircraft is significantly more maneuverable and has better energy state for evading missiles or entering a turning fight.\n\nThis is almost always correct behavior for strike aircraft suddenly engaged by enemy fighters — a fully loaded F-15E or Su-30 carrying heavy ground-attack ordnance cannot fight effectively against an air threat. Enabling this setting prevents wasted aircraft by ensuring they can maneuver defensively even at the cost of the mission payload.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Submarine Doctrine: Avoid Contact and Dive on Threat Detection",
+    "body": "Submarine doctrine in CMO includes the 'Avoid Contact' option (always or self-defence only) and 'Dive on Threat.' These settings govern the fundamental submarine operating philosophy: submarines are incredibly fragile — even a single torpedo hit is often lethal — and their primary advantage is stealth.\n\nAvoiding contact (remaining passive, not using active sonar, staying away from potential threats) preserves the submarine's stealth advantage. The 'Dive on Threat' option causes the submarine to immediately go deep when it detects a threat, using the thermal layer as cover. Additional submarine doctrine settings include battery recharge thresholds and AIP (Air-Independent Propulsion) usage, which govern when diesel-electric submarines must surface or snort to recharge batteries.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Missile Waypoints and Doglegs for Deceptive Anti-Ship Attacks",
+    "body": "The Anti-Surface Warfare (ASuW) doctrine includes settings for missile waypoints and doglegs. A waypoint inserted into a missile's flight path forces it to approach the target from an unexpected direction rather than flying straight from the launching ship, which would reveal the shooter's position.\n\nA dogleg trajectory also helps defeat simple command-detonation defenses that track the missile back to its source, and can be used to approach a ship from a bearing where its defensive systems are weaker (e.g., stern aspect where some systems have blind spots). Additionally, the 'Maintain Standoff' setting keeps surface ships at a safe distance from threats while still allowing missile engagement — essential for high-value ships like carriers and cruisers.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Land Unit Pathfinding: Shortest Route vs. Direct",
+    "body": "Land unit movement has two pathfinding modes: Shortest Route (uses pathfinding algorithm to navigate around obstacles) and Direct (moves in a straight line regardless of terrain). The Direct option risks getting units stuck on mountains or in impassable terrain.\n\nAlways use Shortest Route for land units unless you have a specific reason to override, and have verified the direct path is clear. Getting an important ground unit stuck on a mountainside during a scenario is a common and avoidable mistake.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Database Viewer: In-Game Encyclopedia for Pre-Mission Research",
+    "body": "The Database Viewer (accessible via the Game Menu) is a comprehensive encyclopedia containing every platform, weapon, and sensor in CMO's database. Each entry includes OODA (Observe, Orient, Decide, Act) cycle data, damage values, armor ratings, and weapon/sensor ranges.\n\nThis is an essential research tool for planning missions. Before a strike, look up your target's SAM systems to understand their range and the radar generation you will face. Before an anti-ship mission, check the target ship's defensive weapons. The Database Viewer is separate from the Scenario Editor and is accessible during gameplay.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Exclusion Zones: Keep High-Value Assets Out of Threat Envelopes",
+    "body": "Reference Points and Missions can be used to create Exclusion Zones — areas that aircraft or ships will avoid when following mission orders. These are configured via the Missions + Ref Points menu.\n\nExclusion zones are useful for keeping high-value assets out of known SAM threat envelopes, routing aircraft around known air defenses, or ensuring ships stay out of shallow water or mined areas. They are scenario-designer tools but also usable during gameplay to modify AI behavior dynamically.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Mission Editor (F11): The Core AI Tasking Tool",
+    "body": "The Mission Editor (F11) is the primary tool for directing AI units. Key features: Units tab (assign units to missions), Settings tab (configure mission parameters), Targets tab (designate targets for strike missions). Missions can be activated on a Zulu time schedule.\n\nMulti-mission sequencing: use the Dynamic button on a mission to make it activate only when the previous mission is 'satisfied' (objectives met). This enables automated operation chains — a strike mission triggers automatically after its SEAD escort completes its suppression. Escort designation within the mission editor allows you to specify that certain units act as Air-to-Air escorts or SEAD escorts for the primary mission package.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Aircraft",
+    "title": "Tanker Configuration: Fuel Thresholds, Counts, and Receiver Limits",
+    "body": "Tanker missions have several critical configuration options: assign the nearest tanker to missions or designate specific tankers to specific missions. Set minimum tanker counts (how many must be airborne and on-station simultaneously). Set maximum receivers per tanker (prevents a single tanker from being mobbed by the entire strike package).\n\nThe fuel threshold and radius settings determine when receivers will seek a tanker: aircraft that drop below the threshold within the search radius will break off and find their assigned tanker. Proper tanker configuration prevents the common failure mode where a long-range strike runs out of fuel on the way home because the tanker was already busy with other receivers.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Support Missions and the 1/3 Rule for Continuous On-Station Coverage",
+    "body": "Support missions (used for AEW aircraft, tankers, and patrol aircraft) use the '1/3 Rule' by default — the aircraft spends 1/3 of its endurance flying to station, 1/3 on station, and 1/3 returning. This ensures continuous coverage by automatically rotating aircraft.\n\nAdditional options: One-Time Only (single transit, no repeat), Continuous/Single Loop (orbit once or repeatedly), and separate transit/loop throttle settings (fly fast to station, then throttle back to conserve fuel while on station). For maximum ISR or AEW coverage duration, setting a lower throttle for the on-station loop significantly extends time on station.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Time-on-Target Synchronization for Multi-Platform Strikes",
+    "body": "Strike missions support Time-on-Target (TOT) synchronization, allowing ships and aircraft to be coordinated so their weapons impact simultaneously. This overwhelms the defender's OODA cycle by saturating defenses from multiple vectors at the exact same moment.\n\nFor maximum effect against defended targets, coordinate air-launched standoff missiles with ship-launched anti-ship missiles and submarine-launched weapons to arrive within the defender's engagement window simultaneously. A saturating attack from multiple vectors with compressed time-on-target is the core of modern anti-ship strike doctrine.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Mine Types and Their Tactical Applications",
+    "body": "CMO models four mine types with distinct tactical characteristics:\n\n- Moored mines: Float at depth, anchored by cable. Easier to spot but effective in deep water.\n- Bottom mines: Sit on the seabed. Effective in shallow water and very hard to detect.\n- Floating mines: Surface mines, visible to the eye.\n- Rising mines: The most dangerous type — sit on the bottom and release a self-propelled torpedo or rocket when a target passes overhead.\n\nMining missions require a 2-hour arming delay by default before mines become active. Mine-clearing missions use MCM (Mine Countermeasures) ships and helicopters operating on the 1/3 Rule with a rotating roster — sweepers take damage while clearing, so roster rotation preserves their combat effectiveness over time.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Reference Points: Relative Fixed and Rotating for Dynamic Patrol Zones",
+    "body": "Reference Points (RPs) can be set in three modes that have major tactical implications:\n\n- Relative Fixed: The RP's position is defined relative to a specific unit. Useful for placing patrol zones relative to a known threat direction — the patrol zone automatically moves as the reference unit moves.\n- Relative Rotating: The RP's position is defined relative to a unit's current heading. This is ideal for placing a patrol zone 'ahead of' a moving unit regardless of what direction it is heading — the RP rotates as the unit turns.\n- Locked: The RP is fixed in absolute coordinates. Use Ctrl+Right-Click to place a locked RP.\n\nRelative Rotating RPs are particularly powerful for escort missions: place a CAP (Combat Air Patrol) zone ahead of a task force, and the CAP automatically stays ahead as the task force changes course.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Lua Scripting for Dynamic and Randomized Scenarios",
+    "body": "CMO's Lua scripting engine allows scenario designers (and advanced players) to create highly dynamic scenarios. Scripts can spawn or teleport units, change weather, reassign missions, change postures and doctrine settings, and add randomization.\n\nScripts are tied to the Events system (triggers + actions). A practical example: using math.random(1,3) to spawn one of three completely different submarines each playthrough, dramatically changing difficulty and replayability. Lua integration with the Operations Planner and Air Tasking Order enables sophisticated automated mission sequencing that goes far beyond the basic Dynamic mission trigger.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Events System: Triggers and Actions for Dynamic Scenarios",
+    "body": "The Events system pairs Triggers with Actions to create dynamic scenario behavior. Available Triggers: Unit Destroyed, Unit Damaged, Unit Enters Area, Unit Remains In Area (filterable by type, subtype, class, or name), Time, Random Time, Regular Time (1 second to 1 day intervals), Unit Is Detected, Side Points threshold reached, Scenario Loaded, Scenario Ends.\n\nAvailable Actions: Points (add/subtract scoring), End Scenario, Teleport to Area, Message (popup to a specific side), Change Mission Status, Lua Script (full scripting access), Special Actions (player-activated risk/reward choices). Special Actions are particularly interesting — they give players meaningful tactical decisions with asymmetric consequences, such as calling in an airstrike that scores points but reveals your position.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Proficiency Levels Affect OODA, Damage Control, Gunnery, and Evasion",
+    "body": "Unit proficiency (Novice through Ace) is not merely a combat modifier — it affects multiple systems simultaneously. Higher proficiency improves: OODA cycle speed (faster reaction to threats and opportunities), damage control effectiveness (faster firefighting and flooding repair), gunnery accuracy, evasion capability (better chance of defeating incoming missiles through maneuvering), and crew endurance (longer sustained operations).\n\nIn scenario design, setting enemy units to low proficiency can represent poorly trained conscript forces, while Ace represents elite special operations units. Proficiency is adjustable in the Scenario Editor via right-click and is one of the most significant force multipliers in the game.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Chance of Appearance: Add Strategic Uncertainty to Scenarios",
+    "body": "Each unit in a scenario can be given a Chance of Appearance percentage (0–100%) in the Scenario Editor. At scenario load, a random roll determines whether that unit appears. This introduces strategic uncertainty: the player never knows exactly what forces will be present each playthrough.\n\nCombined with Lua scripting (e.g., randomly choosing between three different submarine types), Chance of Appearance creates high replayability. A scenario with multiple optional units at 50% appearance can have radically different force balances each time it is played.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Sensors",
+    "title": "Radar Generations: From Mechanical Scan to AESA",
+    "body": "CMO models distinct radar generations with meaningful gameplay differences:\n\n- AN/APQ-120 (F-4): Basic mechanical scan radar. Can either guide missiles OR search — not both simultaneously.\n- AN/APG-63 (F-15A): Mechanical radar with frequency agility. Less susceptible to jamming and Doppler notching.\n- AN/APG-70 (F-15C): Adds NCTR-JEM (Non-Cooperative Target Recognition via Jet Engine Modulation — counts fan blade rotations to identify aircraft types at head-on aspect).\n- AN/APG-77 (F-22): AESA (Active Electronically Scanned Array). Doppler notching is pointless against AESA. Uses NBILST NCTR for identification from any angle. Primary weakness: strongest performance from the array center.\n\nMechanical radars have scan delays, limited field of view, and can only illuminate one target at a time. A multi-axis SAM approach can prevent a mechanical radar SAM from reliably engaging all threats.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Sensors",
+    "title": "ESM: Your Radar Is Visible Long Before You Can See Anyone",
+    "body": "ESM (Electronic Support Measures) sensors range from basic Radar Warning Receivers (RWR) to sophisticated platform-identifying processors. The fundamental asymmetry: a radar emitter is detectable by ESM at ranges significantly beyond the radar's own detection range. An ESM-equipped enemy can detect you before you can detect them.\n\nMultiple ESM-equipped units can triangulate an emitter's position without the emitter knowing. Aircraft automatically maneuver when they detect fire-control radar illumination. This means: running your search radar continuously makes you visible to any ESM platform in a wide area. Use intermittent EMCON or passive-only sensors to deny the enemy this intelligence.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Sensors",
+    "title": "Electro-Optical Sensors: Passive Confirmation Before Weapon Release",
+    "body": "Electro-optical sensors (cameras and IR systems) are passive — they emit nothing and cannot be detected by ESM. Their primary role is identity confirmation: they can definitively identify a contact at close range when radar or sonar contacts are ambiguous.\n\nLimitations: narrow field of view and short range for precise targeting. They are not primary detection sensors but are essential for Rules of Engagement compliance — confirming a contact is hostile before engaging with weapons tight. In scenarios with strict ROE, EO sensors are often the 'last check' before weapon release.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Sensors",
+    "title": "Sonar: Active Precision vs. Passive Stealth — Ocean Conditions Are Everything",
+    "body": "Active sonar provides precise location and identification data but is detectable — every submarine and surface ship with passive sonar will hear you ping. Use active sonar only when you have a confirmed contact and need weapons-quality targeting data, or when operating in an area where stealth is already compromised.\n\nPassive sonar is stealthy but imprecise — it gives bearing only, not range. Ocean conditions are critical to sonar effectiveness in CMO. The thermal layer acts as a sound barrier: sensors above the layer cannot hear below it without the effect being broken by CZs. The Deep Sound Channel is the most transmission-friendly depth for long-range passive detection but also the worst place to be when hunted. Convergence Zones (CZs) enable passive sonar detection at 20–40 nautical miles depending on latitude — a game-changing factor when present.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Weapons",
+    "title": "Guided Missiles: Altitude, Drag, and Lofted Trajectories",
+    "body": "CMO models aerodynamic drag on guided missiles, and drag is critical at low altitude where air is denser. A missile fired at low altitude has significantly reduced range compared to firing at high altitude. Lofted trajectories (fired at a high angle to climb before diving on the target) maximize range by spending most of the flight in thinner air.\n\nSpecial trajectory types: continuous-burn motors (SM-6) maintain thrust throughout the flight rather than using the standard boost-glide profile. Loitering munitions (ALARM anti-radiation missile) can orbit an area waiting for a SAM radar to activate. Multi-mode seekers (AARGM) combine modes to defeat countermeasures — if one mode is jammed, another takes over for terminal guidance.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Weapons",
+    "title": "Torpedoes: Wire Guidance, Speed Limits, and Terminal Seeker Modes",
+    "body": "CMO models three guidance modes for torpedoes. Inertial guidance is a simple run-to-area approach with no homing. Wire-guided torpedoes maintain a datalink with the firing submarine for precise steering, but the wire breaks if the submarine exceeds approximately 10 knots — so firing a wire-guided torpedo commits the submarine to slow speed until detonation or wire cut.\n\nTerminal seekers include sonar homing (detectable and decoyable using torpedo decoys/noisemakers) and wake-homing (follows the physical wake of the target ship — very difficult to decoy since it does not use acoustic homing). Wake-homing torpedoes are among the most dangerous weapons in the game for surface ships.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Weapons",
+    "title": "Warhead Types: Match the Weapon to the Target",
+    "body": "CMO models distinct warhead types with different effectiveness against different targets: Conventional (standard blast-fragmentation), Airburst (detonates above the target for maximum fragmentation coverage against soft targets and aircraft), Napalm (incendiary, area effect), Cluster (submunition dispenser covering a wide area, ideal against dispersed soft targets and parked aircraft), Penetrators (hardened warheads for attacking bunkers, reinforced shelters, and underground facilities), and Nuclear.\n\nEMP weapons are also modeled — they can be triggered by nuclear detonation, Lua script, high-altitude detonation, or dedicated tactical EMP warheads. EMP can destroy electronics across a wide area including avionics, communications, and sensor systems.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Air Combat: Most Losers Never Even See the Attacker",
+    "body": "CMO's air combat philosophy reflects real BVR missile-age warfare: most aircraft that are killed never detected the attacker. The winner is determined by sensors + weapon capabilities, not just maneuverability.\n\nThree defensive categories matter: Dodging/Beaming (pilot skill and airframe agility — cranking/beaming a semi-active radar missile by putting the target at 90 degrees to the radar), Countermeasures (chaff and DECM against radar-guided missiles; flares and IRCM against IR missiles — technology generation match matters critically), and Terrain Masking (using ground clutter to hide from radar, force missiles to go ballistic, or reduce enemy radar detection range). Against SAMs, additional options include outrunning (high-speed dash through the threat zone), terrain masking (nap-of-earth flight), and kinematic defeat (last-ditch high-G maneuver just before impact when the missile has spent most of its energy).",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Multi-Axis Attack Defeats Mechanical SAM Radar Systems",
+    "body": "Mechanical radar SAM systems (which dominated most of the Cold War era) have a critical limitation: they can only illuminate one target at a time with their fire-control radar. A coordinated multi-axis attack — threats approaching from multiple simultaneous directions — overwhelms this single-engagement limitation.\n\nThe fire-control radar must choose which threat to engage, leaving the others uncontested. This is the historical basis for the Israeli tactic of simultaneously attacking Syrian SAM sites from multiple directions at the Battle of the Bekaa Valley (1982). In CMO, planning your attack packages to approach from multiple vectors simultaneously, rather than a single-axis 'parade' approach, dramatically improves survivability against legacy SAM systems.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Naval Gun Accuracy Depends on Fire Control, Range, and Sea State",
+    "body": "Naval gunfire accuracy in CMO is determined by four factors: fire control system quality, range to target, current sea state, and the stability of the firing platform. High sea states dramatically reduce gun accuracy; a destroyer in rough seas has significantly worse gunnery than one in calm conditions.\n\nPlatform stability is also a factor — larger, heavier ships are more stable gun platforms. This means that in gun duels, the combination of a superior fire control system, shorter range, calm seas, and a stable platform is optimal. The practical implication: close to engagement range when sea state permits, and use modern fire-control platforms over older ones.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "OODA Clock: How Missile Speed Compresses Defender Reaction Time",
+    "body": "Naval missile defense operates on the OODA (Observe, Orient, Decide, Act) cycle. When an anti-ship missile is inbound, the defending ship must complete its OODA cycle fast enough to get shots off before impact. The question is: how many shots can the defender fire before the missile arrives?\n\nThe formula involves: detection range, missile speed, available engagement time, and CIWS/SAM cyclic rate. Faster missiles (like the Yakhont/Brahmos at Mach 2.5+) compress the defender's reaction time drastically versus subsonic missiles. This is the 'Sneakers vs. Streakers' tradeoff: stealth missiles approach undetected (short reaction time regardless of speed), while fast missiles overwhelm the OODA cycle through sheer speed.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Submarine Depth Bands: The Thermal Layer as Your Primary Tactical Tool",
+    "body": "The thermal layer is the single most important tactical feature for submarine warfare in CMO. It acts as a sound barrier — sonars on one side of the layer have severely degraded ability to detect submarines on the other side.\n\nDepth band tactical guidance:\n- Periscope depth: Access to above-water sensors and strong surface duct. Maximum detection and counter-detection risk.\n- Shallow (above layer): Weaker duct. Some missile launch capability. Balanced risk.\n- Just Above the Layer: Ideal ASW hunting position. Your towed arrays reach below the layer while you are masked from above.\n- In-Layer: Severely reduced detection in all directions ('Mutara Nebula effect'). Good for transit through threat areas.\n- Deep Sound Channel: Maximum long-range passive detection. But also the easiest to hear — if you are making noise here, everyone hears you.\n- Great Deep (near bottom): Near-zero cavitation noise. Ideal for ultra-quiet transit or bottom-sitting ambush.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Submarine Vulnerability: One Hit Is Often Fatal",
+    "body": "CMO models submarines as extremely fragile compared to surface ships. A nuclear submarine hit by a single torpedo typically suffers catastrophic damage — unlike a surface ship that might fight floods and fires and survive multiple hits. This reflects real-world submarine vulnerability: pressure hulls are not designed to absorb weapons impacts, and a single breach is usually fatal at depth.\n\nPractical implication: never risk a submarine by allowing it to be detected if avoidable. The submarine's primary defense is not being found. If a torpedo is in the water heading toward a submarine, evasive maneuvering, noisemakers, and speed are the only defenses — and they often are not enough. Diesel submarines must periodically snort (raise the snorkel to recharge batteries), creating a brief vulnerability window.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "Convergence Zones: Long-Range Passive Sonar Detection in Deep Water",
+    "body": "Convergence Zones (CZs) are acoustic phenomena where sound energy refracted by deep ocean temperature/pressure gradients is focused at the surface at specific ranges: approximately 20 nautical miles at the equator up to 40 nautical miles at the poles, in a roughly 5-nautical-mile-wide ring. They require at least 600 feet (200 meters) of water depth clearance.\n\nWhen CZs are present, passive sonar can detect submarines at these long ranges without the submarine knowing it has been detected. Ridges and underwater terrain features can block CZs. The presence or absence of CZs in a given operational area fundamentally changes ASW doctrine — in CZ-capable waters, a patient passive sonar operator with a towed array can detect submarines at distances that make attack impossible for the submarine.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Airbase Strike: Runway Cratering Is the Most Efficient Mission-Kill",
+    "body": "CMO models airbases as multi-unit groups with a realistic air traffic model including runways, access points, holding areas, ammunition storage, and fuel depots.\n\nThe most efficient way to mission-kill an airbase is targeting its runways — only two bomb hits are required to put a runway out of service. Access points are the second priority target (block aircraft movement). Ammunition and fuel storage destruction prevents rearming/refueling but does not immediately ground aircraft already in the air. Runway repair is modeled, so repeated strikes may be needed to keep an airbase suppressed. This reflects the real-world doctrine that runway cratering is more efficient than destroying individual aircraft on the ground.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Dynamic Launch Zone vs. No-Escape Zone: Understanding Missile Firing Windows",
+    "body": "CMO uses two distinct concepts for missile firing decisions:\n\nDynamic Launch Zone (DLZ): Answers 'What if I launch right now and the target keeps moving on its current course and speed?' The DLZ accounts for weapon kinematics, guidance, and target geometry in real time. It defines the range band within which launching now has a reasonable Pk.\n\nNo-Escape Zone (NEZ): A subset of the DLZ — the range within which the target cannot kinematically escape even if it immediately turns and runs at maximum speed. The NEZ is always smaller than the DLZ. The AI prefers shorter ranges (higher Pk) and will generally wait for NEZ shots when doctrine allows, which is often the optimal tactic.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Electronic Warfare: DECM and OECM Positioning",
+    "body": "CMO models two categories of active electronic warfare:\n\nDECM (Defensive Electronic Countermeasures): Used in the terminal phase of an engagement. Effectiveness depends on the generation match between the jammer and the threat seeker. A modern DECM system is highly effective against older generation seekers but much less effective against a same-generation or newer seeker.\n\nOECM (Offensive Electronic Countermeasures / Noise Jamming): Broadcast noise that degrades enemy radar search and tracking across the board. Critical positioning note: OECM systems should be positioned behind the strike aircraft relative to the target and close to the target for maximum effect. OECM emissions are detectable by ESM — operating OECM reveals your position to the enemy.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "Three Naval Maxims: See, Strike First, Concentrate Force",
+    "body": "The manual distills naval warfare into three fundamental maxims that apply throughout CMO:\n\n1. See, and try not to be seen. The side with better situational awareness wins. Invest in passive sensors, ESM, and AEW assets that extend your picture without revealing your position.\n\n2. Whoever strikes first wins. In missile-age warfare, the first salvo carries enormous weight. A full-power first salvo saturates defenses; a reactive second salvo faces a defender now alerted and fully engaged. Launch windows matter enormously.\n\n3. Half measures gain nothing — concentrate force. A distributed attack that allows the defender to engage each element sequentially is far less effective than a simultaneous concentrated strike. All available weapons on the most important target, all at once.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Tactics",
+    "title": "NOCOMM: How Losing Communications Fractures Your Force",
+    "body": "When NOCOMM (No Communications) is triggered, units lose positive control — they no longer have location data, status updates, or the ability to receive orders reliably. Each unit is reduced to own-sensor-only awareness: it can only see what its own sensors detect, not the shared common operating picture.\n\nCauses of NOCOMM: comm devices physically destroyed, Lua scripting (cyber attacks, submarine surfacing, satellite window passage, C3I node destruction), scenario editor setting, or active comm jamming. Effects cascade dangerously: contact tracks degrade rapidly without updates, friendly units may become ambiguous and trigger blue-on-blue engagements under Weapons Free doctrine. Reconnecting a unit to the network restores shared intel.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Tacview Integration for Post-Mission Analysis",
+    "body": "CMO integrates with Tacview for post-mission analysis. Exporting a scenario to Tacview provides a full 3D replay of the engagement, showing all unit tracks, weapon launches, and sensor detections from an omniscient perspective — even seeing things that were not visible to either side during the scenario.\n\nTacview is invaluable for understanding why engagements went wrong: you can see where the enemy missile actually came from, what sensor detected your aircraft, what firing geometry was used. This analytical capability makes Tacview essential for serious players who want to improve their tactics.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Key Hotkeys Reference",
+    "body": "The most important CMO hotkeys for gameplay:\n\n- Spacebar: Pause/Resume simulation\n- Ctrl+S: Save game\n- F1: Engage Auto (attack selected target)\n- Shift+F1: Engage Manual (weapon-to-target allocation)\n- F2: Throttle/Altitude dialog\n- F3: Plot Course (click map for waypoints, drag to edit)\n- F11: Mission Editor\n- Z/X: Zoom in/out\n- T: Track (track selected unit)\n- Numpad 9: Group View / Unit View toggle\n- Ctrl+Right-Click: Place a Locked Reference Point\n\nAdditionally, the Shortcut Bar at the top provides quick access to: Formation Editor, Magazines, Air Ops, Boat Ops, Mounts/Weapons, Sensors, and Systems/Damage dialogs.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "Ships",
+    "title": "US/NATO vs. Soviet/Russian Naval Doctrine",
+    "body": "CMO's two primary Cold War naval doctrines are fundamentally different and must be played differently:\n\nUS/NATO: Tactical defense (escorts protect the carrier) combined with strategic offense (the carrier projects power). Light anti-surface warfare capability, but strong AAW and ASW. The carrier is the center of gravity — losing it is catastrophic. Doctrine: keep the carrier safe, use it to project air power.\n\nSoviet/Russian: Heavy anti-ship armament on almost every ship class (Kirov, Slava, Oscar submarines), weaker AAW relative to NATO. Strategic defense via land-based aviation (Tu-16 Badgers, Tu-22 Backfires) using long-range anti-ship missiles. Primary mission: defend ballistic missile submarines in bastions, deny sea control to NATO. Doctrine: mass anti-ship missile salvos, use land-based air as the main offensive strike element.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Scenario Editor: Nine-Step Creation Workflow",
+    "body": "The manual outlines a recommended nine-step scenario creation workflow:\n\n1. Create New (blank globe)\n2. Add Sides, set postures (Friendly/Neutral/Unfriendly/Hostile)\n3. Set non-player sides to 'Computer-Only'\n4. Add units (airbases required for air units)\n5. Add missions for AI (required for AI to take any action beyond basic self-defense)\n6. Test the scenario in play mode\n7. Add scoring events\n8. Write briefings\n9. Playtest\n\nThe most critical step that beginners skip: Step 5 (adding missions). Without assigned missions, AI units stand around doing nothing. Every side that is not player-controlled needs missions assigned to drive its behavior.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Database Updates: Protect Custom Edits with Delta Files",
+    "body": "CMO scenarios reference either the Cold War Database (CWDB, covering WWII to ~1980) or DB3K (post-1980). When the game database is updated, scenarios may require a rebuild.\n\nCritical warning: Full rebuilds delete any custom edits made to unit entries unless those edits are preserved in delta files first. If you have customized unit entries in the scenario editor (adding/removing weapons, sensors, or mounts), export those changes as delta files before running a full rebuild. Losing custom unit configurations due to an unprotected rebuild is one of the most common and frustrating scenario editor mistakes.",
+    "author": null,
+    "link": null
+  },
+  {
+    "category": "General",
+    "title": "Awareness Settings: Omniscient, Normal, and Blind Sides",
+    "body": "Each side in a CMO scenario can have one of three awareness settings: Omniscient (the side knows the location of all units on the map, regardless of sensor coverage), Normal (the side only knows what its sensors detect), and Blind (CPU-controlled, no player input — typically used for neutral sides).\n\nOmniscient awareness is used for human players who need full situational awareness for testing, or for scenario-design purposes. Normal is the realistic setting for all combat-capable sides. Blind/Neutral sides process no intelligence and take no actions; they exist only as background elements. Misusing Omniscient for AI opponents creates unrealistically all-knowing enemy forces.",
+    "author": null,
+    "link": null
+  }
+];
+
+const combined = [
+  ...existing,
+  ...newTips.map(t => ({
+    id: nextId++,
+    category: t.category,
+    title: t.title,
+    body: t.body,
+    author: t.author,
+    link: t.link,
+    image: null
+  }))
+];
+
+fs.writeFileSync(TIPS_FILE, JSON.stringify(combined, null, 2));
+console.log(`Done. Was ${existing.length} tips, added ${newTips.length}, now ${combined.length} total.`);

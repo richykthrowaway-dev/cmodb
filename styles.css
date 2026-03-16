@@ -62,17 +62,16 @@ body {
 
 .header-left {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 20px;
+  gap: 10px;
+  font-size: 30px;
   font-weight: 800;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
 }
 
@@ -81,6 +80,12 @@ body {
   align-items: center;
   color: var(--accent);
   opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.logo-name {
+  display: inline;
+  white-space: nowrap;
 }
 
 .logo-accent {
@@ -88,10 +93,13 @@ body {
 }
 
 .logo-subtitle {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+  padding-right: 16px;
 }
 
 .header-right {
@@ -350,6 +358,25 @@ body {
   color: var(--accent);
   border-bottom-color: var(--accent);
   background: rgba(59, 130, 246, 0.08);
+}
+
+.nav-bmc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 8px 12px;
+  color: #0b0d12;
+  background: #ffdd00;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.nav-bmc:hover {
+  background: #e6c700;
+  transform: translateY(-1px);
 }
 
 /* ── Toolbar ────────────────────────────── */
@@ -1714,6 +1741,50 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* ── Footer ─────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  text-align: center;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-text {
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.bmc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0b0d12;
+  background: #ffdd00;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.bmc-btn:hover {
+  background: #e6c700;
+  transform: translateY(-1px);
+}
+
+.bmc-btn svg {
+  flex-shrink: 0;
 }
 
 /* ── Responsive ─────────────────────────── */
