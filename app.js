@@ -2364,8 +2364,12 @@ const App = (() => {
         const item = primaryItems[idx];
         if (item) {
           toggleCompare(item.id, primaryCat);
-          if (state.compareList.length >= 2) showCompare();
-          else compareModal.classList.add('hidden');
+          if (state.compareList.length >= 2) {
+            showCompare();
+          } else {
+            clearCompareList();
+            compareModal.classList.add('hidden');
+          }
         }
       };
     });
@@ -2873,12 +2877,13 @@ const App = (() => {
     compareClearBtn.classList.toggle('hidden', n === 0);
   }
 
-  compareClearBtn.addEventListener('click', () => {
+  function clearCompareList() {
     state.compareList = [];
-    // Deselect all compare checkboxes currently visible
     document.querySelectorAll('.card-compare.selected').forEach(el => el.classList.remove('selected'));
     updateCompareButton();
-  });
+  }
+
+  compareClearBtn.addEventListener('click', clearCompareList);
 
   // ── Main Render ────────────────────────
   async function render() {
@@ -3949,7 +3954,10 @@ const App = (() => {
     document.querySelectorAll('.modal-overlay, .modal-close').forEach(el => {
       el.addEventListener('click', () => {
         detailModal.classList.add('hidden');
-        compareModal.classList.add('hidden');
+        if (!compareModal.classList.contains('hidden')) {
+          clearCompareList();
+          compareModal.classList.add('hidden');
+        }
       });
     });
 
@@ -3957,7 +3965,10 @@ const App = (() => {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         detailModal.classList.add('hidden');
-        compareModal.classList.add('hidden');
+        if (!compareModal.classList.contains('hidden')) {
+          clearCompareList();
+          compareModal.classList.add('hidden');
+        }
         return;
       }
       // Focus trap within open modal
